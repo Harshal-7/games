@@ -83,8 +83,24 @@ callbacks), never a game's own types, and Imposter shows each one in use.
 mostly sound: it lets iPhones play through the silent switch, and pauses music in other apps.
 
 `party.css` also holds the play screen these sit in: `.page.is-party`, `.party-play`
-(which sizes the secret card), `.party-stage`, `.party-title`, `.party-help` and
-`.party-foot`. Knight's Tour uses the clock and the store too.
+(which sizes the secret card, and is a centred 520px stage on big screens), `.party-stage`,
+`.party-title`, `.party-help` and `.party-foot`. Knight's Tour uses the clock and the store too.
+
+**The setup screen** is one shared layout in `party.css`, made of class names a game's
+lobby puts on its own parts, in this order in the page:
+
+| Class | What goes in it |
+| --- | --- |
+| `.party-setup` | The whole setup screen |
+| `.party-setup-intro` | The title card (`.party-setup-title`, `-plate`, `-name`, `-meta`), the blurb (`.party-setup-blurb`) and an optional short note (`.party-setup-note`) |
+| `.party-setup-rules` | How to play, a `<details>` (`-rules-chevron`, `-rules-body`) |
+| `.party-setup-side` | The left column: Players (`.party-setup-players`) or whatever starts the game, and the main button in `.party-setup-start` |
+| `.party-setup-main` | The right column: Options (`.party-setup-options`, its fields in `.party-setup-fields`; `.party-setup-wide` spans both columns, `.party-setup-switches` and `-switches-label` for the switches at the end), and any other card, like Ulta's teams |
+
+Phones get one column (title, players, options, How to play, then the start tray stuck to
+the bottom). From 860px wide: the title card (452×124) with the blurb and How to play
+beside it, the left column (400px) pinned while the right one scrolls, and Options' fields
+in two columns once the card is 500px wide.
 
 ### Adding a game
 
@@ -99,12 +115,21 @@ mostly sound: it lets iPhones play through the silent switch, and pauses music i
    `src/settings/settings-panel.tsx`. Settings shows the look plus the options of the game
    you opened it from, never every game's.
 6. A party game builds on `src/party/` (above): its entry component imports
-   `@/party/ui/party.css` before its own styles, and it saves its state with `createStore`
-   under `games:<slug>:<thing>:v1`.
+   `@/party/ui/party.css` before its own styles, it saves its state with `createStore`
+   under `games:<slug>:<thing>:v1`, its setup screen uses the shared layout (the
+   `.party-setup` classes) and its play screens sit in `.party-play`.
 7. Its main component calls `useLeaveGuard` (`src/ui/leave-guard.ts`). Leaving through
    "‹ Games" ends the game, keeping players and options; with a game under way it asks
    "Leave this game?" first. A reload, a locked phone or a trip to Settings doesn't end
    it, so it's still there when you come back.
+
+### Big screens
+
+From 860px wide every page sits in one frame (`.page` in `globals.css`): 1184px at most
+with 48px either side, so the top bar and the content of every page line up. Party setups
+use the shared layout above, play screens a centred 520px stage, Home has its cards two by
+two under a big "Games.", and Knight's Tour has the board (up to 600px, never taller than
+the window) on the left with everything else beside it.
 
 ## The look
 
