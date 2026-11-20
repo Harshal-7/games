@@ -20,12 +20,14 @@ export function SettingsSync() {
     const onStorage = (e: StorageEvent) => {
       if (e.key === SETTINGS_KEY) reloadSettings();
     };
+    // Only re-apply when an attribute is actually missing: applying sets them again,
+    // which this observer sees, so checking an attribute we never set would loop.
     const observer = new MutationObserver(() => {
-      if (!root.hasAttribute("data-mode") || !root.hasAttribute("data-accent")) applySettings(readSettings());
+      if (!root.hasAttribute("data-mode") || !root.hasAttribute("data-kt-board")) applySettings(readSettings());
     });
     dark.addEventListener("change", onDeviceTheme);
     window.addEventListener("storage", onStorage);
-    observer.observe(root, { attributes: true, attributeFilter: ["data-mode", "data-accent", "data-kt-board"] });
+    observer.observe(root, { attributes: true, attributeFilter: ["data-mode", "data-kt-board"] });
     return () => {
       dark.removeEventListener("change", onDeviceTheme);
       window.removeEventListener("storage", onStorage);

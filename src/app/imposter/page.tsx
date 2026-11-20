@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function ImposterPage() {
   return (
-    <GameShell layout="party" settings={false}>
+    <GameShell game="imposter" layout="party">
       <Imposter />
     </GameShell>
   );

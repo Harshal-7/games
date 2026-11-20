@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 
+import { Confirm } from "@/ui/confirm";
 import { CheckIcon, ShuffleIcon } from "@/ui/icons";
 
 import { cryptoRandom } from "../logic/random";
 import type { Room, Round } from "../logic/room";
 import { HoldCard } from "./hold-card";
-import { Confirm, namesOf, SecretFace } from "./parts";
+import { namesOf, SecretFace } from "./parts";
 import { act } from "./use-room";
 
 type Ask = "redeal" | "leave" | null;

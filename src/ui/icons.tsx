@@ -141,6 +141,13 @@ export const CloseIcon = (p: P) => (
   </Icon>
 );
 
+export const SpeakerIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M11 5 6 9H3v6h3l5 4z" />
+    <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" />
+  </Icon>
+);
+
 export const ShuffleIcon = (p: P) => (
   <Icon {...p}>
     <path d="M3.5 7h3.2c2 0 3.2 1 4.3 2.6l2 3c1.1 1.6 2.3 2.4 4.3 2.4h3.2M3.5 17h3.2c1.5 0 2.5-.5 3.4-1.5M14 8.5c.9-1 1.9-1.5 3.3-1.5h3.2" />

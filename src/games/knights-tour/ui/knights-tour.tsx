@@ -3,6 +3,7 @@
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 
 import { updateSettings, useSettings } from "@/settings/store";
+import { Confirm } from "@/ui/confirm";
 import { count, formatDuration } from "@/ui/format";
 import { BulbIcon, PlayIcon, RestartIcon, StopIcon, UndoIcon } from "@/ui/icons";
 
@@ -12,7 +13,7 @@ import { elapsed, HINT_GO_BACK, newGame, phaseOf, reduce, type Action, type Game
 import { analyseCached, lastFinishable, warnsdorffMove } from "../logic/solver";
 import { Board } from "./board";
 import { cue } from "./feedback";
-import { ConfirmCard, ResultCard } from "./result-card";
+import { ResultCard } from "./result-card";
 import { recordBest, useBestTimes } from "./use-best-times";
 import { useNow } from "./use-clock";
 
@@ -223,12 +224,13 @@ export function KnightsTour() {
 
       <div className="kt-actions">
         {pending ? (
-          <ConfirmCard
+          <Confirm
             title={pending.kind === "restart" ? "Start over?" : `Switch to ${pending.size}×${pending.size}?`}
             detail={`You're on move ${path.length} of ${total}. This tour will be lost.`}
-            confirmLabel={pending.kind === "restart" ? "Start over" : `Start ${pending.size}×${pending.size}`}
-            onConfirm={() => (pending.kind === "restart" ? restart() : resize(pending.size))}
-            onCancel={() => setPending(null)}
+            yes={pending.kind === "restart" ? "Start over" : `Start ${pending.size}×${pending.size}`}
+            no="Keep playing"
+            onYes={() => (pending.kind === "restart" ? restart() : resize(pending.size))}
+            onNo={() => setPending(null)}
           />
         ) : finished ? (
           <ResultCard

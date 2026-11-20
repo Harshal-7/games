@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 
-import { DEFAULT_SETTINGS, parseSettings, SETTINGS_KEY, type Settings } from "./settings";
+import { DEFAULT_SETTINGS, parseSettings, SETTINGS_KEY, THEME_COLORS, type Settings } from "./settings";
 
 let current: Settings | undefined;
 const listeners = new Set<() => void>();
@@ -49,7 +49,7 @@ export function reloadSettings(): void {
   for (const listener of listeners) listener();
 }
 
-/** Puts the theme, colour and board style on <html>, like the start-up script. */
+/** Puts the theme and board style on <html>, like the start-up script. */
 export function applySettings(settings: Settings): void {
   const root = document.documentElement;
   const mode =
@@ -60,6 +60,13 @@ export function applySettings(settings: Settings): void {
       : settings.mode;
   root.setAttribute("data-mode", mode);
   root.style.colorScheme = mode;
-  root.setAttribute("data-accent", settings.accent);
+  // The start-up script made this meta; make it again if something removed it.
+  let meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.setAttribute("name", "theme-color");
+    document.head.appendChild(meta);
+  }
+  meta.setAttribute("content", THEME_COLORS[mode]);
   root.setAttribute("data-kt-board", settings.knightsTour.board);
 }

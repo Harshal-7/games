@@ -2,43 +2,39 @@
    from the shared tokens in globals.css. */
 
 /* Board styles (Settings → Board). Any element can carry data-kt-board, which is
-   how the option cards show their own colours. Stone is the default. */
+   how the option cards show their own colours. Wood is the default. A board is a
+   real object on the table, so it looks the same in felt and daylight: light and
+   dark squares, the frame around them and the a–h / 1–8 letters on the frame. */
 :root,
+[data-kt-board="wood"] {
+  --sq-light: #ecd6ae;
+  --sq-dark: #b0834f;
+  --board-frame: #5b3a1f;
+  --board-coord: #ecd6ae;
+}
 [data-kt-board="stone"] {
-  --sq-light: #f1eee6;
-  --sq-dark: #e2dccf;
+  --sq-light: #ece8df;
+  --sq-dark: #bdb5a6;
+  --board-frame: #6e675c;
+  --board-coord: #ece8df;
 }
 [data-kt-board="tournament"] {
   --sq-light: #eef0e0;
-  --sq-dark: #a9bd95;
+  --sq-dark: #7f9a6c;
+  --board-frame: #3d4a33;
+  --board-coord: #eef0e0;
 }
 [data-kt-board="slate"] {
-  --sq-light: #eef1f5;
-  --sq-dark: #d3dbe6;
-}
-html[data-mode="dark"],
-html[data-mode="dark"] [data-kt-board="stone"],
-html[data-mode="dark"][data-kt-board="stone"] {
-  --sq-light: #33312d;
-  --sq-dark: #262522;
-}
-html[data-mode="dark"] [data-kt-board="tournament"],
-html[data-mode="dark"][data-kt-board="tournament"] {
-  --sq-light: #3d4838;
-  --sq-dark: #2b3327;
-}
-html[data-mode="dark"] [data-kt-board="slate"],
-html[data-mode="dark"][data-kt-board="slate"] {
-  --sq-light: #333a47;
-  --sq-dark: #262b35;
+  --sq-light: #e6eaf0;
+  --sq-dark: #8f9bb0;
+  --board-frame: #3b4352;
+  --board-coord: #e6eaf0;
 }
 
+/* The knight is ink on every board. */
 .kt-board {
-  --piece: var(--fg);
-  --piece-shadow: rgb(29 28 26 / 0.28);
-}
-html[data-mode="dark"] .kt-board {
-  --piece-shadow: rgb(0 0 0 / 0.55);
+  --piece: var(--ink);
+  --piece-shadow: rgb(0 0 0 / 0.35);
 }
 
 /* Layout. Phones and small windows: one column (title, sizes, status, board,

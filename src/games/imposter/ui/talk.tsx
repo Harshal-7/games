@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 
+import { Confirm } from "@/ui/confirm";
 import { formatDuration } from "@/ui/format";
 import { PauseIcon, PlayIcon, PlusIcon } from "@/ui/icons";
 import { playNotes, vibrate } from "@/ui/sound";
 
 import { timeLeft, type Room, type Round } from "../logic/room";
 import { HoldCard } from "./hold-card";
-import { Confirm, listNames, namesOf, SecretFace } from "./parts";
+import { listNames, namesOf, SecretFace } from "./parts";
 import { act } from "./use-room";
 import { useClock } from "./use-clock";
 

@@ -3,7 +3,9 @@
  * CSS under [data-kt-board="<id>"]; knight drawings in ui/knight-piece.tsx.
  */
 
+// Wood is the default (design 4). A board looks the same in felt and daylight.
 export const BOARD_STYLES = [
+  { id: "wood", label: "Wood" },
   { id: "stone", label: "Stone" },
   { id: "tournament", label: "Tournament" },
   { id: "slate", label: "Slate" },

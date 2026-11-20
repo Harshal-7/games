@@ -36,10 +36,29 @@ src/
 
 ### Adding a game
 
-1. Make `src/games/<name>/` with its `logic/` and `ui/`.
-2. Add `src/app/<name>/page.tsx` that wraps the game in `GameShell` (`layout="party"`
-   for games that scroll like a page, `settings={false}` if Settings has nothing for it).
-3. Add one entry to `src/games/registry.ts`.
+1. Make `src/games/<name>/` with its `logic/` and `ui/`, and add its slug and name to
+   `src/games/slugs.ts`.
+2. Add `src/app/<name>/page.tsx` that wraps the game in `GameShell game="<slug>"`
+   (`layout="party"` for games that scroll like a page).
+3. Give it a colour: a `[data-game="<slug>"]` block in `src/app/globals.css`.
+4. Add one entry to `src/games/registry.ts`.
+
+## The look
+
+Design 4, "Game Night + Sticker": green felt, cream cards, a wooden board, Fraunces
+titles, DM Sans for reading and DM Mono for numbers.
+
+- **Felt and daylight.** Felt is the default and lives on `:root` in `globals.css`;
+  `html[data-mode="light"]` repaints the same colour names as daylight (paper and ink).
+  Settings offers Felt, Daylight and Match my phone.
+- **Page or card.** Components use `--fg`, `--muted`, `--line`, `--ring` and `--bg`:
+  they mean the page at the top level and ink on cream inside a `.card`, so one part
+  reads right in both places.
+- **One colour per game.** `GameShell` puts `data-game` on the page: brass for Knight's
+  Tour, red for Imposter. The one main button on a screen (`.btn-primary`) takes the
+  game's colour (`--game`); picked and on states take `--pick` (ink on site-wide pages).
+- **Buttons.** Every button you tap is an outlined pill (`.btn`); each screen has one
+  solid main button. Cards you read stay soft (`.card`).
 
 ## Knight's Tour notes
 
@@ -51,14 +70,14 @@ src/
   only a handful of very tangled positions come back as "can't tell".
 - **Best times** are saved per board size in the browser (localStorage). Runs that
   Watch it solve finished don't count.
-- **Settings** (theme, colour, board, knight, what the board shows) are saved in
-  the browser and put on `<html>` by a small script before the first paint, so
-  nothing flashes.
-- **New board style**: add it to `styles.ts` and a `[data-kt-board="<id>"]` colour
-  block (light and dark) in `ui/knights-tour.css`. **New knight**: add it to
-  `styles.ts` and draw it in `ui/knight-piece.tsx`. **New colour**: add it to
-  `ACCENTS` in `src/settings/settings.ts` and a `[data-accent="<id>"]` block in
-  `src/app/globals.css`.
+- **Settings** (theme, board, knight, what the board shows) are saved in the
+  browser and put on `<html>` by a small script before the first paint, so nothing
+  flashes. Settings is one tap away on every page; its Back returns to the game you
+  came from (`?from=`).
+- **New board style**: add it to `styles.ts` and a `[data-kt-board="<id>"]` block
+  (squares, frame, the letters on the frame; the same in felt and daylight) in
+  `ui/knights-tour.css`. **New knight**: add it to `styles.ts` and draw it in
+  `ui/knight-piece.tsx`.
 
 ## Imposter notes
 

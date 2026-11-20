@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore, type ReactNode } from "react";
+import { useSyncExternalStore } from "react";
 
 import type { Clue, Room, Round } from "../logic/room";
 import { category } from "../logic/words";
@@ -82,35 +82,5 @@ export function Answer({ round, names }: { round: Round; names: Record<string, s
         <dd>{round.hint}</dd>
       </div>
     </dl>
-  );
-}
-
-/** A small inline "are you sure?" with the safe choice first. */
-export function Confirm({
-  title,
-  detail,
-  yes,
-  onYes,
-  onNo,
-}: {
-  title: string;
-  detail: ReactNode;
-  yes: string;
-  onYes: () => void;
-  onNo: () => void;
-}) {
-  return (
-    <div className="imp-confirm" role="alertdialog" aria-label={title}>
-      <strong>{title}</strong>
-      <p>{detail}</p>
-      <div className="imp-row">
-        <button type="button" className="btn" onClick={onNo} autoFocus>
-          Cancel
-        </button>
-        <button type="button" className="btn btn-primary" onClick={onYes}>
-          {yes}
-        </button>
-      </div>
-    </div>
   );
 }

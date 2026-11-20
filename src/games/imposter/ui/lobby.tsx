@@ -2,6 +2,7 @@
 
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 
+import { Confirm } from "@/ui/confirm";
 import { CloseIcon, MinusIcon, PlusIcon } from "@/ui/icons";
 
 import { cryptoRandom, randomId } from "../logic/random";
@@ -20,7 +21,6 @@ import {
   type Room,
 } from "../logic/room";
 import { CATEGORIES, CATEGORY_IDS } from "../logic/words";
-import { Confirm } from "./parts";
 import { act } from "./use-room";
 
 const CLUE_LABELS: Record<Clue, { label: string; note: string }> = {
