@@ -116,7 +116,7 @@ export function knownAnalysis(boardId: BoardId, moves: readonly Move[]): Analysi
  * safe). The mistake is nearly always a few jumps back, so it walks back one jump at a
  * time, where the searches are quick, giving up after `maxSteps` jumps. null: none found.
  */
-export function lastGood(boardId: BoardId, moves: readonly Move[], maxSteps = 12, budget = DEFAULT_BUDGET / 2): number | null {
+export function lastGood(boardId: BoardId, moves: readonly Move[], maxSteps = 12, budget = DEFAULT_BUDGET): number | null {
   const walk = walkBack(boardId, moves, maxSteps, budget);
   for (;;) {
     const step = walk.next();
@@ -124,15 +124,24 @@ export function lastGood(boardId: BoardId, moves: readonly Move[], maxSteps = 12
   }
 }
 
-/** lastGood() one search at a time, so the page can draw in between (see ui/use-analysis.ts). */
+/**
+ * lastGood() a slice at a time, so the page can draw in between (see
+ * ui/use-analysis.ts): each earlier position gets `budget` steps, in slices of `slice`.
+ */
 export function* walkBack(
   boardId: BoardId,
   moves: readonly Move[],
   maxSteps = 12,
-  budget = DEFAULT_BUDGET / 2,
+  budget = DEFAULT_BUDGET,
+  slice = budget,
 ): Generator<void, number | null> {
   for (let k = moves.length - 1; k >= Math.max(0, moves.length - maxSteps); k--) {
-    if (analyseMoves(boardId, moves.slice(0, k), budget).status === "solvable") return k;
+    for (let used = 0, round = 0; used < budget; used += slice, round++) {
+      const status = analyseMoves(boardId, moves.slice(0, k), Math.min(slice, budget - used), round).status;
+      if (status === "solvable") return k;
+      if (status === "impossible") break;
+      yield;
+    }
     yield;
   }
   return null;

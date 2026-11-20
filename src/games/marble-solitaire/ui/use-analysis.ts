@@ -52,6 +52,6 @@ function* work(board: BoardId, moves: readonly Move[]): Generator<void, Position
     analysis = analyseMoves(board, moves, SLICE, round);
     yield;
   }
-  const back = analysis.status === "impossible" ? yield* walkBack(board, moves, 12, SLICE) : null;
+  const back = analysis.status === "impossible" ? yield* walkBack(board, moves, 12, SLICE * 5, SLICE) : null;
   return { analysis, back };
 }
