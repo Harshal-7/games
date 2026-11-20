@@ -203,6 +203,9 @@ html[data-room] .saved-slot:empty {
 [data-game="imposter"] .game-card h2 {
   color: var(--red-deep);
 }
+[data-game="mafia"] .game-card h2 {
+  color: var(--night-deep);
+}
 [data-game="patakha"] .game-card h2 {
   color: var(--marigold-ink);
 }
@@ -233,6 +236,10 @@ html[data-room] .saved-slot:empty {
 [data-game="imposter"] .game-chip {
   background: var(--red-soft);
   color: var(--red-deep);
+}
+[data-game="mafia"] .game-chip {
+  background: var(--night-soft);
+  color: var(--night-deep);
 }
 [data-game="patakha"] .game-chip {
   background: var(--marigold-soft);

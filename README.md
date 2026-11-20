@@ -7,6 +7,7 @@ lives in its own folder and has its own page, and the home page lists them all.
 | --- | --- | --- |
 | Knight's Tour | `/knights-tour` | Move a chess knight to every square exactly once, on 5×5 to 8×8 boards. |
 | Imposter | `/imposter` | Party game for one phone: everyone gets the secret word except the imposter. |
+| Mafia | `/mafia` | Party game for one phone, 5 to 15 players: the phone narrates the night, so nobody sits out. |
 | Patakha | `/patakha` | Party game for one phone: say an answer and pass it on before the hidden fuse runs out. |
 
 ## Run it
@@ -39,6 +40,9 @@ src/
     imposter/
       logic/              rooms and rounds, the word list, with tests
       ui/                 lobby, pass-the-phone deal, talk, vote and result screens
+    mafia/
+      logic/              roles, the timed night, votes, the narrator's script, with tests
+      ui/                 setup, deal, the narrated night, day, vote and the end
     patakha/
       logic/              the room, the hidden fuse and its ticking, the prompt packs, with tests
       ui/                 setup, the burning fuse, the bang and the winner; the cracker drawing and sounds
@@ -174,6 +178,39 @@ plays with none.
 - **Words** (`logic/words.ts`): 10 categories, 30+ each, every word with a one-word hint
   for the imposter. No word repeats in a room until its category runs out, and the
   category changes every round.
+
+## Mafia notes
+
+- **Games.** One reducer over plain data (`logic/game.ts`), saved as
+  `games:mafia:room:v1`, so a reload comes back to the same step, even mid-night.
+- **The night runs on the clock.** Every role's turn lasts at least 10 seconds plus a
+  random 0 to 5, however fast its tap, and a Doctor or Police who is out is still called
+  with the same wait, so the timing gives nothing away. The screen ticks the reducer with
+  `Date.now()`; nothing counts intervals. Each role's screen starts clean, so the Doctor
+  and the Police never see the Mafia's pick.
+- **The narrator** (`ui/narrator.ts`). Every line without a player's name (the night
+  scenes, the calls, the day and the end, listed in `logic/lines.ts`) is a recording in
+  the "Heart" voice of Kokoro, an open-source voice model, in `public/voice/heart/` (32
+  small MP3s, about 700 KB). They play through Web Audio and the offline worker saves them
+  with the page. Lines with names (the morning's story, who's out) use the phone's own
+  voice (`speechSynthesis`): the best American English one, or the one picked in Options.
+  What's said at each moment comes from `logic/narration.ts`, keyed so nothing is said
+  twice. Phones only make sound after a tap, so the night starts from one, and after a
+  reload mid-night Carry on says the last line again with a fresh wait. On iPhones the page
+  asks for the playback audio session (Safari 17+), so the silent switch doesn't mute it.
+- **Changing a recorded line**: edit `logic/lines.ts`, then record it again on the laptop
+  (needs Python with `kokoro-onnx`, the Kokoro model files and ffmpeg):
+  `node scripts/record-narrator.mjs <python> <models folder>`. A test fails while any line
+  is missing its clip.
+- **The screen stays on** (Screen Wake Lock, https only) from the first night to the last
+  vote.
+- **Fair roles.** One fair-pick ledger per role, booked once everyone has seen their card.
+- **Words** (`logic/script.ts`): four night scenes taken in turn (the classic night, a
+  power cut, the monsoon, the night after the match), each still calling every role to
+  open and close their eyes by name, and 40 morning stories with a `{name}` slot. No
+  story repeats in a room until they've all been told.
+- **Night sound** (`ui/night-sound.ts`): a soft hush and the odd cricket in Web Audio,
+  under the Sound switch, to cover the sound of someone leaning in to tap.
 
 ## Patakha notes
 

@@ -5,6 +5,11 @@
 
 let audio: AudioContext | null = null;
 
+/** The page's one audio context, woken up; null where there's no Web Audio. */
+export function audioContext(): AudioContext | null {
+  return context();
+}
+
 function context(): AudioContext | null {
   if (typeof window === "undefined" || !("AudioContext" in window)) return null;
   audio ??= new AudioContext();

@@ -3,6 +3,7 @@ import type { ComponentType } from "react";
 import { ImposterThumb } from "./imposter/ui/thumb";
 import { KnightsTourBestBadge } from "./knights-tour/ui/best-badge";
 import { KnightsTourThumb } from "./knights-tour/ui/thumb";
+import { MafiaThumb } from "./mafia/ui/thumb";
 import { PatakhaThumb } from "./patakha/ui/thumb";
 import { GAME_NAMES, type GameSlug } from "./slugs";
 
@@ -33,6 +34,13 @@ export const GAMES: GameEntry[] = [
     blurb: "Everyone gets the secret word except one. Find who's faking it.",
     detail: "3 to 20 players · one phone",
     Thumb: ImposterThumb,
+  },
+  {
+    slug: "mafia",
+    name: GAME_NAMES.mafia,
+    blurb: "The phone narrates the night. Find the Mafia before they take over the town.",
+    detail: "5 to 15 players · one phone",
+    Thumb: MafiaThumb,
   },
   {
     slug: "patakha",

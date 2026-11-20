@@ -39,6 +39,11 @@
   --red-deep: #9c2019;
   --red-soft: #f3d8cf;
   --on-red: #fbf3e4;
+  /* Mafia is night blue: cream text on it; blue text on cream uses --night-deep. */
+  --night: #3456b8;
+  --night-deep: #22397a;
+  --night-soft: #dbe2f3;
+  --on-night: #fbf3e4;
   /* Patakha is marigold: never small text either (2:1 on cream). Text on it is ink, and
      marigold text on cream uses --marigold-ink. */
   --marigold: #f08c1a;
@@ -133,6 +138,14 @@ html[data-mode="light"] {
   --on-game: var(--on-red);
   --pick: var(--red);
   --on-pick: var(--on-red);
+}
+[data-game="mafia"] {
+  --game: var(--night);
+  --game-deep: var(--night-deep);
+  --game-soft: var(--night-soft);
+  --on-game: var(--on-night);
+  --pick: var(--night);
+  --on-pick: var(--on-night);
 }
 [data-game="patakha"] {
   --game: var(--marigold);
@@ -338,8 +351,10 @@ body {
   box-shadow: none;
   cursor: not-allowed;
 }
-/* A picked pill (a vote, a toggle): the game's colour. */
-.btn[aria-pressed="true"] {
+/* A picked pill (a vote, a toggle): the game's colour, hovered or not (phones keep
+   :hover after a tap, which would otherwise hide the pick). */
+.btn[aria-pressed="true"],
+.btn[aria-pressed="true"]:hover:not(:disabled) {
   background: var(--pick);
   color: var(--on-pick);
 }

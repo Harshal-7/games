@@ -40,6 +40,7 @@ const SWITCHES: { key: Flag; label: string; detail: string }[] = [
 const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
   "knights-tour": KnightsTourSection,
   imposter: ImposterNote,
+  mafia: MafiaNote,
   patakha: PatakhaNote,
 };
 
@@ -207,6 +208,16 @@ function ImposterNote() {
     <p className="settings-note">
       <SpeakerIcon width={18} height={18} />
       <span>Imposter&apos;s sound and vibration are in its setup, under Options.</span>
+    </p>
+  );
+}
+
+/** Mafia keeps its options with the room too. */
+function MafiaNote() {
+  return (
+    <p className="settings-note">
+      <SpeakerIcon width={18} height={18} />
+      <span>Mafia&apos;s narrator voice, sound and roles are in its setup, under Options.</span>
     </p>
   );
 }
