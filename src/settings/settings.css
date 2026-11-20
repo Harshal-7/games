@@ -1,6 +1,6 @@
 /* Settings: the look for the whole site, then the options of the game you came from
-   (Knight's Tour's board, knight and switches). Phones: one column. Big screens with a
-   game card: Look on the left, the game on the right. */
+   (Knight's Tour's board, knight and switches). Phones: one column. Big screens: Look on
+   the left, the game's section (or a note) on the right, as the WebSettings board. */
 
 .page.is-settings {
   max-width: 640px;
@@ -51,35 +51,93 @@
   margin-top: 1px;
 }
 
+.settings-match {
+  margin-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+/* Big screens: the site's frame (1184px, 48px sides). Reset moves up into the top bar
+   and the blurb sits beside the title, so the header and its parts become grid items. */
 @media (min-width: 860px) {
-  .page.is-settings:has(.settings-game) {
-    max-width: 960px;
+  .page.is-settings {
+    max-width: 1184px;
+    padding: 0 48px 48px;
   }
-  .settings:has(> .settings-game) {
+  .settings {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
     grid-template-areas:
       "top top"
-      "intro intro"
-      "look game";
-    grid-template-rows: auto auto 1fr;
+      "title blurb"
+      "look game"
+      "offline offline";
     column-gap: 32px;
     align-items: start;
   }
-  .settings > .topbar {
+  .settings-intro,
+  .settings-head {
+    display: contents;
+  }
+  .settings > .topbar,
+  .settings-head > .btn {
     grid-area: top;
   }
-  .settings-intro {
-    grid-area: intro;
+  .settings-head > .btn {
+    align-self: center;
+    justify-self: end;
+  }
+  .settings-head .game-title {
+    grid-area: title;
+    align-self: end;
+    font-size: 56px;
+    line-height: 1;
+  }
+  .settings-intro .game-blurb {
+    grid-area: blurb;
+    align-self: end;
+    justify-self: end;
+    margin: 0 0 6px;
+    font-size: 16px;
+  }
+  .settings-look,
+  .settings-game {
+    margin-top: 46px;
   }
   .settings-look {
     grid-area: look;
   }
-  .settings-game {
+  .settings-game,
+  .settings > .settings-note:not(.settings-offline) {
     grid-area: game;
   }
+  .settings > .settings-note:not(.settings-offline) {
+    margin-top: 46px;
+  }
   .settings-offline {
+    grid-area: offline;
+  }
+
+  /* The game's card is wide: the board's styles in one row, the knight and the
+     switches side by side. */
+  .settings-game {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 22px 28px;
+    align-items: start;
+    padding: 28px 22px 12px;
+  }
+  .settings-game > .settings-preview,
+  .settings-game > .field.is-wide {
     grid-column: 1 / -1;
+  }
+  .settings-game > .settings-preview {
+    margin-bottom: 0;
+  }
+  .settings .settings-game > .field + .field {
+    margin-top: 0;
+  }
+  .settings-game .tiles.is-two {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -142,32 +200,25 @@
   color: var(--on-pick);
 }
 
-/* Each look in its own colours, whatever the page wears: a cream card and a red card
-   back on felt, paper, or half of each. */
+/* Themes: as many tiles to a row as fit (three on phones, four on big screens). */
+.tiles.is-themes {
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+}
+
+/* Each table in its own colours, whatever the page wears: the tile's data-table block
+   gives it the table's page names. A cream card and a line of text on it. */
 .theme-art {
   position: absolute;
   inset: 0;
-}
-.theme-art.is-dark {
-  background:
-    radial-gradient(rgb(255 255 255 / 0.07) 0.8px, transparent 1.3px) 0 0 / 5px 5px,
-    #1e4a38;
-}
-.theme-art.is-light {
-  background:
-    radial-gradient(rgb(34 28 21 / 0.09) 0.8px, transparent 1.3px) 0 0 / 5px 5px,
-    #efe6d3;
-}
-.theme-art.is-system {
-  background: linear-gradient(120deg, #1e4a38 0 50%, #efe6d3 50% 100%);
+  background: var(--page-texture), var(--page);
 }
 .theme-art::before {
   content: "";
   position: absolute;
   top: 10px;
   left: 9px;
-  width: 44%;
-  height: 24px;
+  width: 46%;
+  height: 26px;
   border-radius: 5px;
   background: #f7f0e1;
 }
@@ -178,18 +229,33 @@
 .theme-art::after {
   content: "";
   position: absolute;
-  top: 14px;
-  right: 9px;
-  width: 16px;
-  height: 23px;
-  border-radius: 3px;
-  background:
-    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.2) 0 1px, transparent 1px 4px),
-    #b42a22;
-  box-shadow:
-    inset 0 0 0 2px #b42a22,
-    inset 0 0 0 2.8px #fbf3e4;
-  transform: rotate(8deg);
+  bottom: 9px;
+  left: 9px;
+  width: 30%;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--on-page);
+  opacity: 0.7;
+}
+/* Each game's own: a strip of every game's table (felt, blush, midnight, haldi,
+   asphalt, studio). */
+.theme-art.is-own {
+  background: linear-gradient(
+    90deg,
+    #1e4a38 0 16.6%,
+    #f4ddd6 16.6% 33.3%,
+    #172340 33.3% 50%,
+    #f7e4c6 50% 66.6%,
+    #2d3236 66.6% 83.3%,
+    #221d1b 83.3% 100%
+  );
+}
+.theme-art.is-own::before {
+  box-shadow: 0 0 0 1px rgb(34 28 21 / 0.2);
+}
+.theme-art.is-own::after {
+  background: #f5ecd9;
+  opacity: 0.8;
 }
 
 /* A strip of the board in its own frame and squares. */
