@@ -11,7 +11,7 @@ import type { GameSlug } from "@/games/slugs";
 export const TABLES = [
   { id: "felt", label: "Felt", tone: "dark", page: "#1e4a38", deep: "#173b2c", text: "#f5ecd9", muted: "#cdc3aa" },
   { id: "midnight", label: "Midnight", tone: "dark", page: "#172340", deep: "#111a31", text: "#f1ecdf", muted: "#c5c7d4" },
-  { id: "dhaba", label: "Dhaba", tone: "dark", page: "#7a3422", deep: "#692b1b", text: "#f8ecdc", muted: "#e8cdb8" },
+  { id: "night-drive", label: "Night drive", tone: "dark", page: "#262b4a", deep: "#171a2f", text: "#f1ecdf", muted: "#c4c7d8" },
   { id: "stage", label: "Stage", tone: "dark", page: "#2a1733", deep: "#211129", text: "#f4ece0", muted: "#d3c3cf" },
   { id: "daylight", label: "Daylight", tone: "light", page: "#efe6d3", deep: "#e7dcc5", text: "#221c15", muted: "#5a4f3f" },
   { id: "notebook", label: "Notebook", tone: "light", page: "#dde8f1", deep: "#cfdde9", text: "#221c15", muted: "#45505b" },
@@ -31,7 +31,7 @@ export const GAME_TABLES: Record<GameSlug, TableId> = {
   imposter: "notebook",
   mafia: "midnight",
   patakha: "mela",
-  "highway-bingo": "dhaba",
+  "highway-bingo": "night-drive",
   ulta: "stage",
   "finger-picker": "felt",
 };

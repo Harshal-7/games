@@ -107,15 +107,20 @@ html[data-tone="light"] {
   --page-line: rgb(241 236 223 / 0.2);
   --track: rgb(0 0 0 / 0.3);
 }
-/* A brick wall at a highway dhaba, for Highway Bingo: the milestone yellow stands out on it. */
-[data-table="dhaba"] {
-  --page: #7a3422;
-  --page-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24'%3E%3Cpath d='M0 .75h48M0 12.75h48M.75 0v12.75M24.75 12.75V24' fill='none' stroke='%23000' stroke-opacity='.22' stroke-width='1.5'/%3E%3Cpath d='M3 2.4h20M27 14.4h20' stroke='%23fff' stroke-opacity='.07' stroke-width='1.2'/%3E%3C/svg%3E");
-  --page-deep: #692b1b;
-  --on-page: #f8ecdc;
-  --on-page-muted: #e8cdb8;
-  --page-line: rgb(248 236 220 / 0.2);
-  --track: rgb(0 0 0 / 0.26);
+/* A road at dusk, for Highway Bingo: dusky indigo getting darker down the page, a warm
+   streetlight glow at the top and a faint yellow centre line. --page is the top colour,
+   so the phone's address bar matches. */
+[data-table="night-drive"] {
+  --page: #262b4a;
+  --page-texture:
+    radial-gradient(ellipse 80% 340px at 50% 0, rgb(255 150 80 / 0.16), transparent) 0 0 / 100% 680px no-repeat,
+    linear-gradient(rgb(245 196 0 / 0.28) 0 30px, transparent 30px) 50% 0 / 4px 64px repeat-y,
+    linear-gradient(#262b4a, #171a2f) 0 0 / 100% 100% no-repeat;
+  --page-deep: #171a2f;
+  --on-page: #f1ecdf;
+  --on-page-muted: #c4c7d8;
+  --page-line: rgb(241 236 223 / 0.2);
+  --track: rgb(0 0 0 / 0.3);
 }
 /* Velvet curtains under a spotlight, for Ulta. Too dark for a black track, so its tracks
    are a light veil. */

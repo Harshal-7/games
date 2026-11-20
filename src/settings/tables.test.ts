@@ -71,7 +71,7 @@ describe("tableFor", () => {
     expect(tableFor(own, "/imposter", false)).toBe("notebook");
     expect(tableFor(own, "/mafia", false)).toBe("midnight");
     expect(tableFor(own, "/patakha", false)).toBe("mela");
-    expect(tableFor(own, "/highway-bingo", false)).toBe("dhaba");
+    expect(tableFor(own, "/highway-bingo", false)).toBe("night-drive");
     expect(tableFor(own, "/ulta", false)).toBe("stage");
     expect(tableFor(own, "/knights-tour", false)).toBe("felt");
     expect(tableFor(own, "/", false)).toBe("felt");

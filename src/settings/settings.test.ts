@@ -121,7 +121,7 @@ describe("start-up script", () => {
       { mode: "neon", knightsTour: { board: "marble" } },
       { rev: 3, theme: "game", matchPhone: false },
       { rev: 3, theme: "game", matchPhone: true },
-      { rev: 3, theme: "dhaba", matchPhone: true, knightsTour: { board: "stone" } },
+      { rev: 3, theme: "night-drive", matchPhone: true, knightsTour: { board: "stone" } },
       // A table that's gone (the first set of colours): each game's own.
       { rev: 3, theme: "haldi", matchPhone: false },
       { rev: 3, theme: "notebook", matchPhone: "yes" },
