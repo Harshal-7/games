@@ -6,6 +6,8 @@ import { ImposterThumb } from "./imposter/ui/thumb";
 import { KnightsTourBestBadge } from "./knights-tour/ui/best-badge";
 import { KnightsTourThumb } from "./knights-tour/ui/thumb";
 import { MafiaThumb } from "./mafia/ui/thumb";
+import { MarbleSolitaireBestBadge } from "./marble-solitaire/ui/best-badge";
+import { MarbleSolitaireThumb } from "./marble-solitaire/ui/thumb";
 import { PatakhaThumb } from "./patakha/ui/thumb";
 import { GAME_NAMES, type GameSlug } from "./slugs";
 import { UltaThumb } from "./ulta/ui/thumb";
@@ -82,5 +84,13 @@ export const GAMES: GameEntry[] = [
     blurb: "Sing a line, a teammate copies it backwards, and the team guesses the song.",
     detail: "4+ in two teams · one phone",
     Thumb: UltaThumb,
+  },
+  {
+    slug: "marble-solitaire",
+    name: GAME_NAMES["marble-solitaire"],
+    blurb: "Jump marbles over each other until only one is left.",
+    detail: "1 player · 3 boards",
+    Thumb: MarbleSolitaireThumb,
+    Badge: MarbleSolitaireBestBadge,
   },
 ];

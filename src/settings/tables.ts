@@ -34,6 +34,7 @@ export const GAME_TABLES: Record<GameSlug, TableId> = {
   "highway-bingo": "night-drive",
   ulta: "stage",
   "finger-picker": "felt",
+  "marble-solitaire": "felt",
 };
 
 /** The game whose page this is: the first part of the path, if it's a game's slug. */

@@ -81,6 +81,9 @@
 [data-game="ulta"] .game-card h2 {
   color: var(--teal-deep);
 }
+[data-game="marble-solitaire"] .game-card h2 {
+  color: var(--violet-deep);
+}
 .game-card p {
   margin: 6px 0 0;
   color: var(--muted);
@@ -124,6 +127,10 @@
 [data-game="ulta"] .game-chip {
   background: var(--teal-soft);
   color: var(--teal-deep);
+}
+[data-game="marble-solitaire"] .game-chip {
+  background: var(--violet-soft);
+  color: var(--violet-deep);
 }
 .game-chip.is-best {
   padding-left: 5px;

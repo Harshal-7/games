@@ -8,6 +8,8 @@ import { BOARD_STYLES, PIECE_STYLES } from "@/games/knights-tour/styles";
 import { Board } from "@/games/knights-tour/ui/board";
 import { cue } from "@/games/knights-tour/ui/feedback";
 import { PIECES } from "@/games/knights-tour/ui/knight-piece";
+import { clack } from "@/games/marble-solitaire/ui/sounds";
+import { setOptions as setMarbleOptions, useOptions as useMarbleOptions } from "@/games/marble-solitaire/ui/stores";
 import type { GameSlug } from "@/games/slugs";
 import { CheckIcon, RestartIcon, SpeakerIcon } from "@/ui/icons";
 import { TopBar } from "@/ui/top-bar";
@@ -47,6 +49,7 @@ const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
   "highway-bingo": HighwayBingoNote,
   ulta: UltaNote,
   "finger-picker": FingerPickerSection,
+  "marble-solitaire": MarbleSolitaireSection,
 };
 
 /**
@@ -238,6 +241,28 @@ function FingerPickerSection() {
             on={sound}
             onToggle={() => setPickerOptions({ sound: !sound })}
           />
+        </div>
+      </Field>
+    </section>
+  );
+}
+
+function MarbleSolitaireSection() {
+  const { sound } = useMarbleOptions();
+  const id = useId();
+  function toggle() {
+    setMarbleOptions({ sound: !sound });
+    // Let people hear what they just switched on.
+    if (!sound) clack();
+  }
+  return (
+    <section className="card section settings-game" data-game="marble-solitaire" aria-labelledby={id}>
+      <h2 className="tape is-game" id={id}>
+        Marble solitaire
+      </h2>
+      <Field label="Options" group>
+        <div className="switches">
+          <SwitchRow label="Sound" detail="A soft clack on each jump, and a chime at the end" on={sound} onToggle={toggle} />
         </div>
       </Field>
     </section>
