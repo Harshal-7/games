@@ -83,7 +83,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
             <p className="party-help">Only {name} looks. Everyone else, eyes off the screen.</p>
           </div>
         ) : (
-          <div className="imp-deal-body" key={`card-${id}-${round.word}`}>
+          <div className="imp-deal-body" key={`card-${id}-${round.mode === "words" ? round.word : round.question.id}`}>
             <h2 className="imp-card-kicker">{name}&apos;s card</h2>
             <HoldCard name={name} opens={opens} buzz={sound} onOpen={() => act({ type: "open", id })}>
               <SecretFace round={round} id={id} clue={room.options.clue} />

@@ -38,7 +38,7 @@ export function Imposter() {
     case "vote":
       return <Vote key={key} room={room} round={round} />;
     case "guess":
-      return <Guess key={key} room={room} round={round} />;
+      return round.mode === "words" ? <Guess key={key} room={room} round={round} /> : null;
     case "result":
       return <Result key={key} room={room} round={round} />;
   }
