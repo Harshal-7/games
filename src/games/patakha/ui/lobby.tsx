@@ -23,77 +23,29 @@ export function Lobby({ room }: { room: Room }) {
   const count = room.players.length;
 
   return (
-    <div className="pk-lobby">
-      <header className="pk-intro">
-        <div className="pk-title-card">
+    <div className="party-setup">
+      <header className="party-setup-intro">
+        <div className="pk-title-card party-setup-title">
           <Firecracker lit className="pk-title-cracker" />
-          <div className="pk-title-plate">
-            <h1 className="pk-title-name">Patakha</h1>
-            <span className="pk-title-meta">
+          <div className="pk-title-plate party-setup-plate">
+            <h1 className="pk-title-name party-setup-name">Patakha</h1>
+            <span className="pk-title-meta party-setup-meta">
               {MIN_PLAYERS}–{MAX_PLAYERS} players · one phone
             </span>
           </div>
         </div>
-        <p className="game-blurb pk-blurb">
+        <p className="game-blurb pk-blurb party-setup-blurb">
           The phone is a firecracker with a hidden fuse. Say an answer, pass it on, and don&apos;t be holding it when
           it bursts.
         </p>
       </header>
 
-      <section className="card section pk-players" aria-labelledby="pk-players-title">
-        <h2 className="tape" id="pk-players-title">
-          Players <span className="tape-count">· {count}</span>
-        </h2>
-        {/* After a game: a new room keeps the players. Before one: Reset clears them. */}
-        {room.played > 0 ? (
-          <button type="button" className="btn pk-small pk-corner" onClick={() => setAsk("new-room")}>
-            <RestartIcon width={15} height={15} strokeWidth={2.6} />
-            New room
-          </button>
-        ) : (
-          count > 0 && (
-            <button type="button" className="btn pk-small pk-corner" onClick={() => setAsk("reset")}>
-              <RestartIcon width={15} height={15} strokeWidth={2.6} />
-              Reset
-            </button>
-          )
-        )}
-        {ask === "new-room" && (
-          <Confirm
-            title="Start a new room?"
-            detail="Everyone's wins go back to zero. Players and options stay."
-            yes="New room"
-            onNo={() => setAsk(null)}
-            onYes={() => {
-              act({ type: "new-room" });
-              setAsk(null);
-            }}
-          />
-        )}
-        {ask === "reset" && (
-          <Confirm
-            title="Start over?"
-            detail={`Removes ${count === 1 ? "the player" : `all ${count} players`}, so you can quick start or add names again. Options stay.`}
-            yes="Reset"
-            onNo={() => setAsk(null)}
-            onYes={() => {
-              act({ type: "clear-room" });
-              setAsk(null);
-            }}
-          />
-        )}
-        <Roster players={room.players} scores={room.played > 0 ? room.wins : undefined} onAction={act} />
-        {count > 1 && <p className="pk-seat-note">The phone goes round in this order. Sit the same way.</p>}
-      </section>
-
-      <OptionsCard options={room.options} />
-
-      <details className="pk-rules">
+      <details className="party-setup-rules">
         <summary className="btn">
           How to play
-          <ChevronDownIcon className="pk-rules-chevron" />
+          <ChevronDownIcon className="party-setup-rules-chevron" />
         </summary>
-        <div className="card pk-rules-body">
+        <div className="card party-setup-rules-body">
           <ol>
             <li>Sit in a circle, in the order of the list. The phone goes round that way.</li>
             <li>
@@ -116,19 +68,70 @@ export function Lobby({ room }: { room: Room }) {
         </div>
       </details>
 
-      {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach. */}
-      <div className="pk-start">
-        {problem && <p className="pk-start-note">{problem}</p>}
-        <button
-          type="button"
-          className="btn btn-primary btn-big"
-          disabled={problem !== null}
-          onClick={() => act({ type: "start", rng: cryptoRandom })}
-        >
-          {room.played > 0 ? "Play again" : "Start the game"}
-          <FlameIcon width={22} height={22} />
-        </button>
+      <div className="party-setup-side">
+        <section className="card section party-setup-players pk-players" aria-labelledby="pk-players-title">
+          <h2 className="tape" id="pk-players-title">
+            Players <span className="tape-count">· {count}</span>
+          </h2>
+          {/* After a game: a new room keeps the players. Before one: Reset clears them. */}
+          {room.played > 0 ? (
+            <button type="button" className="btn pk-small pk-corner" onClick={() => setAsk("new-room")}>
+              <RestartIcon width={15} height={15} strokeWidth={2.6} />
+              New room
+            </button>
+          ) : (
+            count > 0 && (
+              <button type="button" className="btn pk-small pk-corner" onClick={() => setAsk("reset")}>
+                <RestartIcon width={15} height={15} strokeWidth={2.6} />
+                Reset
+              </button>
+            )
+          )}
+          {ask === "new-room" && (
+            <Confirm
+              title="Start a new room?"
+              detail="Everyone's wins go back to zero. Players and options stay."
+              yes="New room"
+              onNo={() => setAsk(null)}
+              onYes={() => {
+                act({ type: "new-room" });
+                setAsk(null);
+              }}
+            />
+          )}
+          {ask === "reset" && (
+            <Confirm
+              title="Start over?"
+              detail={`Removes ${count === 1 ? "the player" : `all ${count} players`}, so you can quick start or add names again. Options stay.`}
+              yes="Reset"
+              onNo={() => setAsk(null)}
+              onYes={() => {
+                act({ type: "clear-room" });
+                setAsk(null);
+              }}
+            />
+          )}
+          <Roster players={room.players} scores={room.played > 0 ? room.wins : undefined} onAction={act} />
+          {count > 1 && <p className="pk-seat-note">The phone goes round in this order. Sit the same way.</p>}
+        </section>
+
+        {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach; on big
+            screens right under Players. */}
+        <div className="party-setup-start">
+          {problem && <p className="party-setup-start-note">{problem}</p>}
+          <button
+            type="button"
+            className="btn btn-primary btn-big"
+            disabled={problem !== null}
+            onClick={() => act({ type: "start", rng: cryptoRandom })}
+          >
+            {room.played > 0 ? "Play again" : "Start the game"}
+            <FlameIcon width={22} height={22} />
+          </button>
+        </div>
       </div>
+
+      <OptionsCard options={room.options} />
     </div>
   );
 }
@@ -140,117 +143,120 @@ function OptionsCard({ options }: { options: Options }) {
   const packsId = useId();
 
   return (
-    <section className="card section pk-options" aria-labelledby="pk-options-title">
+    <section className="card section party-setup-options" aria-labelledby="pk-options-title">
       <h2 className="tape is-game" id="pk-options-title">
         Options
       </h2>
 
-      <Choice
-        label="Lives"
-        narrow
-        note={`Everyone starts with ${options.lives === 1 ? "1 life" : `${options.lives} lives`}. Last one standing wins.`}
-      >
-        {LIVES_CHOICES.map((n) => (
-          <SegButton key={n} on={options.lives === n} onClick={() => set({ lives: n })}>
-            {n}
-          </SegButton>
-        ))}
-      </Choice>
+      <div className="party-setup-fields">
+        <Choice
+          label="Lives"
+          narrow
+          note={`Everyone starts with ${options.lives === 1 ? "1 life" : `${options.lives} lives`}. Last one standing wins.`}
+        >
+          {LIVES_CHOICES.map((n) => (
+            <SegButton key={n} on={options.lives === n} onClick={() => set({ lives: n })}>
+              {n}
+            </SegButton>
+          ))}
+        </Choice>
 
-      <Choice
-        label="Fuse"
-        note={`Burns for ${min / 1000} to ${max / 1000} seconds, different every round. Nobody sees how long.`}
-      >
-        {FUSE_IDS.map((id) => (
-          <SegButton key={id} on={options.fuse === id} onClick={() => set({ fuse: id })}>
-            {FUSE_LENGTHS[id].label}
-          </SegButton>
-        ))}
-      </Choice>
+        <Choice
+          label="Fuse"
+          note={`Burns for ${min / 1000} to ${max / 1000} seconds, different every round. Nobody sees how long.`}
+        >
+          {FUSE_IDS.map((id) => (
+            <SegButton key={id} on={options.fuse === id} onClick={() => set({ fuse: id })}>
+              {FUSE_LENGTHS[id].label}
+            </SegButton>
+          ))}
+        </Choice>
 
-      <div className="pk-field">
-        <div className="pk-field-head">
-          <span className="field-label" id={packsId}>
-            Prompts
-            <span className="pk-pack-count">
-              {options.packs.length} of {PACK_IDS.length}
+        <div className="pk-field party-setup-wide">
+          <div className="pk-field-head">
+            <span className="field-label" id={packsId}>
+              Prompts
+              <span className="pk-pack-count">
+                {options.packs.length} of {PACK_IDS.length}
+              </span>
             </span>
-          </span>
-          <button type="button" className="btn pk-small" onClick={() => set({ packs: allOn ? [] : [...PACK_IDS] })}>
-            {allOn ? "Clear" : "Pick all"}
-          </button>
-        </div>
-        <div className="pk-chips" role="group" aria-labelledby={packsId}>
-          {PACKS.map(({ id, label, emoji, prompts }) => {
-            const on = options.packs.includes(id);
-            return (
-              <button
-                key={id}
-                type="button"
-                className="pk-chip"
-                aria-pressed={on}
-                title={`${prompts.length} prompts`}
-                onClick={() =>
-                  set({ packs: on ? options.packs.filter((p) => p !== id) : PACK_IDS.filter((p) => p === id || options.packs.includes(p)) })
-                }
-              >
-                <span className="pk-chip-emoji" aria-hidden="true">
-                  {emoji}
-                </span>
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <Choice
-        label="Answers"
-        note={
-          options.english
-            ? "Only English words count. Film and people's names are fine."
-            : "Any language counts: Hindi, Marathi, Tamil, anything the table understands."
-        }
-      >
-        <SegButton on={!options.english} onClick={() => set({ english: false })}>
-          Any language
-        </SegButton>
-        <SegButton on={options.english} onClick={() => set({ english: true })}>
-          English only
-        </SegButton>
-      </Choice>
-
-      <div className="switches pk-switches">
-        <div className="switch-row">
-          <span>
-            <span className="switch-label" id="pk-sound-label">
-              Sound and buzz
-            </span>
-            <span className="switch-detail" id="pk-sound-detail">
-              The ticking fuse and the bang, with a buzz on Android. The game is mostly sound.
-            </span>
-          </span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={options.sound}
-            aria-labelledby="pk-sound-label"
-            aria-describedby="pk-sound-detail"
-            className="switch"
-            onClick={() => set({ sound: !options.sound })}
-          >
-            <span />
-          </button>
-        </div>
-        {options.sound && (
-          <div className="pk-test">
-            <button type="button" className="btn pk-small" onClick={testSound}>
-              <SpeakerIcon width={16} height={16} />
-              Test sound
+            <button type="button" className="btn pk-small" onClick={() => set({ packs: allOn ? [] : [...PACK_IDS] })}>
+              {allOn ? "Clear" : "Pick all"}
             </button>
-            <p className="pk-field-note">Hear nothing? Turn the volume up. On an older iPhone, flip the silent switch off.</p>
           </div>
-        )}
+          <div className="pk-chips" role="group" aria-labelledby={packsId}>
+            {PACKS.map(({ id, label, emoji, prompts }) => {
+              const on = options.packs.includes(id);
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  className="pk-chip"
+                  aria-pressed={on}
+                  title={`${prompts.length} prompts`}
+                  onClick={() =>
+                    set({ packs: on ? options.packs.filter((p) => p !== id) : PACK_IDS.filter((p) => p === id || options.packs.includes(p)) })
+                  }
+                >
+                  <span className="pk-chip-emoji" aria-hidden="true">
+                    {emoji}
+                  </span>
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <Choice
+          label="Answers"
+          note={
+            options.english
+              ? "Only English words count. Film and people's names are fine."
+              : "Any language counts: Hindi, Marathi, Tamil, anything the table understands."
+          }
+        >
+          <SegButton on={!options.english} onClick={() => set({ english: false })}>
+            Any language
+          </SegButton>
+          <SegButton on={options.english} onClick={() => set({ english: true })}>
+            English only
+          </SegButton>
+        </Choice>
+
+        <div className="switches party-setup-switches">
+          <span className="field-label party-setup-switches-label">Sound</span>
+          <div className="switch-row">
+            <span>
+              <span className="switch-label" id="pk-sound-label">
+                Sound and buzz
+              </span>
+              <span className="switch-detail" id="pk-sound-detail">
+                The ticking fuse and the bang, with a buzz on Android. The game is mostly sound.
+              </span>
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={options.sound}
+              aria-labelledby="pk-sound-label"
+              aria-describedby="pk-sound-detail"
+              className="switch"
+              onClick={() => set({ sound: !options.sound })}
+            >
+              <span />
+            </button>
+          </div>
+          {options.sound && (
+            <div className="pk-test">
+              <button type="button" className="btn pk-small" onClick={testSound}>
+                <SpeakerIcon width={16} height={16} />
+                Test sound
+              </button>
+              <p className="pk-field-note">Hear nothing? Turn the volume up. On an older iPhone, flip the silent switch off.</p>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
