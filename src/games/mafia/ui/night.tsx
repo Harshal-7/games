@@ -81,7 +81,8 @@ function CarryOn({ room, game }: { room: Room; game: Game }) {
           Carry on
         </button>
       </div>
-      <Foot room={room} />
+      {/* Say it again here would skip the fresh wait: Carry on says the line. */}
+      <Foot room={room} sayAgain={false} />
     </div>
   );
 }

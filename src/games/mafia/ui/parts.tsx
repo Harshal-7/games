@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 
 import { playNotes } from "@/ui/sound";
 import { Confirm } from "@/ui/confirm";
@@ -112,7 +112,7 @@ export function SayAgain({ room }: { room: Room }) {
  * The quiet way out of a game, under every play screen: Say it again (when the voice is
  * on) and Stop the game, which asks first and keeps every role a secret.
  */
-export function Foot({ room, children }: { room: Room; children?: ReactNode }) {
+export function Foot({ room, sayAgain = true }: { room: Room; sayAgain?: boolean }) {
   const [stopping, setStopping] = useState(false);
   if (stopping) {
     return (
@@ -130,8 +130,7 @@ export function Foot({ room, children }: { room: Room; children?: ReactNode }) {
   }
   return (
     <div className="party-foot">
-      {children}
-      <SayAgain room={room} />
+      {sayAgain && <SayAgain room={room} />}
       <button type="button" className="btn" onClick={() => setStopping(true)}>
         Stop the game
       </button>
