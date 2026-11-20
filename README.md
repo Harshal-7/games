@@ -9,6 +9,7 @@ lives in its own folder and has its own page, and the home page lists them all.
 | Imposter | `/imposter` | Party game for one phone: everyone gets the secret word except the imposter. |
 | Mafia | `/mafia` | Party game for one phone, 5 to 15 players: the phone narrates the night, so nobody sits out. |
 | Patakha | `/patakha` | Party game for one phone: say an answer and pass it on before the hidden fuse runs out. |
+| Highway Bingo | `/highway-bingo` | Bingo cards of Indian road sights, on everyone's own phone with a shared code, or on one phone. |
 | Ulta | `/ulta` | Party game for one phone: sing a line, a teammate copies it backwards, and the team guesses the song. |
 
 ## Run it
@@ -47,6 +48,9 @@ src/
     patakha/
       logic/              the room, the hidden fuse and its ticking, the prompt packs, with tests
       ui/                 setup, the burning fuse, the bang and the winner; the cracker drawing and sounds
+    highway-bingo/
+      logic/              the frozen sight lists, shared codes, the deal and lines, the room, with tests
+      ui/                 setup, join and Check a card, the code, the card and the bingo; the milestone
     ulta/
       logic/              reversing and evening out recordings, the song list, the turns, with tests
       ui/                 setup and teams, the mic button, the turn screens; recordings kept in memory
@@ -242,6 +246,37 @@ plays with none.
 - **Prompts** (`logic/prompts.ts`): 4 packs, 135 prompts, each with at least 15 easy answers.
   None repeats in a room until the packs run out. Answers in any language by default; English
   only is a table rule shown on the play screen, and the table judges.
+
+## Highway Bingo notes
+
+- **Shared codes, nothing sent.** A code like `CHAI-42` carries everything a phone needs: the
+  word belongs to one edition (a pack and its sight list version, `logic/code.ts`) and the digits
+  pick the size (even 5×5, odd 4×4). Each phone hashes the code, seat, pack, version and size
+  into a seed for `seeded()` and deals from it (`logic/card.ts`), so the same code and seat give
+  the same card on every phone, with no signal. A word this copy doesn't know (a newer edition)
+  asks the phone to update rather than dealing a wrong card.
+- **Sight lists are frozen once shipped.** Editing `HIGHWAY_V1`, or the hash, shuffle or order of
+  the deal, changes every card for every code. Tests pin the list and one deal. To change a pack,
+  add `HIGHWAY_V2` with its own code words in `EDITIONS` and keep v1. New games use the newest
+  edition; old codes keep dealing their own.
+- **Every card has the same mix**: 10 easy, 10 medium and 4 rare sights on 5×5 (7 / 7 / 2 on 4×4),
+  no repeats, and the free middle on 5×5. Labels are 2–4 words, no word over 9 letters, so a
+  square never breaks mid-word on a small phone.
+- **Seats** are 1 to 20; whoever starts is seat 1. It runs on trust: anyone can type any seat,
+  and two phones on the same seat get the same card. Check a card (on the setup screen) opens any
+  seat's card from the code to check a Bingo! claim.
+- **Join links.** The code screen (or Invite on the card) shares `/highway-bingo?join=CODE` through
+  the phone's share sheet, or copies it. Opening it brings up Join with the code filled in, then
+  takes `?join=` off the address so a reload doesn't ask again. The offline worker ignores the
+  query, so a link opens with no signal on a phone that has opened the game before.
+- **Saves.** `games:highway-bingo:room:v1` keeps the options, the game on screen and the marks of
+  the last 30 cards, per code and seat, so a reload, or joining the same code and seat again,
+  brings them back. Leaving through "‹ Games" ends the game (asking first once a square is marked)
+  but keeps the marks.
+- **Sound** follows the Sound switch: a stamp, a tick for unmarking, and two honks and a fanfare
+  for a bingo (with a buzz on Android). It doesn't ask iPhones to play through the silent switch,
+  which would pause the car's music, so an iPhone on silent stays quiet.
+- **The screen stays on** while a card is open (Options → Keep the screen on, https only).
 
 ## Ulta notes
 

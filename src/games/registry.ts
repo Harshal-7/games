@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 
+import { HighwayBingoThumb } from "./highway-bingo/ui/thumb";
 import { ImposterThumb } from "./imposter/ui/thumb";
 import { KnightsTourBestBadge } from "./knights-tour/ui/best-badge";
 import { KnightsTourThumb } from "./knights-tour/ui/thumb";
@@ -49,6 +50,13 @@ export const GAMES: GameEntry[] = [
     blurb: "Say an answer and pass the phone on before the hidden fuse runs out.",
     detail: "3 to 20 players · one phone",
     Thumb: PatakhaThumb,
+  },
+  {
+    slug: "highway-bingo",
+    name: GAME_NAMES["highway-bingo"],
+    blurb: "Bingo cards of things you spot on Indian roads. The first full line wins.",
+    detail: "2+ players · own phones",
+    Thumb: HighwayBingoThumb,
   },
   {
     slug: "ulta",
