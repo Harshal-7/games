@@ -135,6 +135,11 @@ export function KnightsTour() {
 
   return (
     <div className="kt">
+      <div className="kt-intro">
+        <h1 className="game-title">Knight&apos;s Tour</h1>
+        <p className="game-blurb">Jump like a chess knight and land on every square exactly once.</p>
+      </div>
+
       <div className="seg kt-sizes" role="radiogroup" aria-label="Board size">
         {SIZES.map((s) => (
           <button key={s} type="button" role="radio" aria-checked={s === size} onClick={() => resize(s)}>
@@ -143,19 +148,19 @@ export function KnightsTour() {
         ))}
       </div>
 
-      <div className="kt-play">
-        <div className="kt-status" data-phase={phase}>
-          <div className="kt-status-row">
-            <span aria-live="polite">{status}</span>
-            <span className="kt-time" aria-label={`Time ${formatDuration(time)}`}>
-              {formatDuration(time)}
-            </span>
-          </div>
-          <div className="kt-progress" aria-hidden="true">
-            <span style={{ width: `${(path.length / total) * 100}%` }} />
-          </div>
+      <div className="kt-status" data-phase={phase}>
+        <div className="kt-status-row">
+          <span aria-live="polite">{status}</span>
+          <span className="kt-time" aria-label={`Time ${formatDuration(time)}`}>
+            {formatDuration(time)}
+          </span>
         </div>
+        <div className="kt-progress" aria-hidden="true">
+          <span style={{ width: `${(path.length / total) * 100}%` }} />
+        </div>
+      </div>
 
+      <div className="kt-board-area">
         <Board
           size={size}
           path={path}
@@ -166,7 +171,9 @@ export function KnightsTour() {
           onSquare={play}
           options={options}
         />
+      </div>
 
+      <div className="kt-actions">
         {finished ? (
           <ResultCard
             outcome={phase}

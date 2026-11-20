@@ -165,6 +165,25 @@ body {
   padding-top: 8px;
 }
 
+/* Game pages on big screens: the whole page fits the window, nothing scrolls. */
+@media (min-width: 900px) and (min-height: 600px) {
+  .page.is-game {
+    display: flex;
+    flex-direction: column;
+    max-width: 1240px;
+    height: 100dvh;
+    padding-bottom: 0;
+    box-sizing: border-box;
+  }
+  .page.is-game .game-main {
+    display: grid;
+    flex: 1;
+    align-content: center;
+    min-height: 0;
+    padding: 0 0 40px;
+  }
+}
+
 .game-title {
   margin: 0;
   font-size: clamp(28px, 7vw, 36px);

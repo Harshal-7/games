@@ -41,14 +41,75 @@ html[data-mode="dark"] .kt-board {
   --piece-shadow: rgb(0 0 0 / 0.55);
 }
 
+/* Layout. Phones and small windows: one column (title, sizes, status, board,
+   buttons, best time). Big screens: the board on the left as large as the window
+   allows, everything else in a column on the right, and no scrolling. */
 .kt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "intro" "sizes" "status" "board" "actions" "best";
+}
+.kt-intro {
+  grid-area: intro;
+}
+.kt-sizes {
+  grid-area: sizes;
   margin-top: 24px;
 }
+.kt-status {
+  grid-area: status;
+}
+.kt-board-area {
+  grid-area: board;
+}
+.kt-actions {
+  grid-area: actions;
+  margin-top: 14px;
+}
+.kt-best {
+  grid-area: best;
+}
 
-/* Board, status and buttons share one width, small enough that the board and its
-   buttons fit in the window on a laptop without scrolling. */
-.kt-play {
+/* One column: keep the board small enough that it and its buttons fit a laptop
+   window without scrolling. */
+.kt-status,
+.kt-board-area,
+.kt-actions {
   max-width: max(300px, calc(100dvh - 330px));
+}
+
+@media (min-width: 900px) and (min-height: 600px) {
+  .kt {
+    --side: 380px;
+    --board: min(calc(100dvh - 112px), calc(100vw - var(--side) - 112px), 820px);
+    grid-template-columns: var(--board) var(--side);
+    grid-template-rows: 1fr repeat(5, auto) 1fr;
+    grid-template-areas:
+      "board ."
+      "board intro"
+      "board sizes"
+      "board status"
+      "board actions"
+      "board best"
+      "board .";
+    column-gap: 64px;
+    justify-content: center;
+    height: var(--board);
+  }
+  .kt-status,
+  .kt-board-area,
+  .kt-actions {
+    max-width: none;
+  }
+  .kt-board-area {
+    align-self: center;
+  }
+  .kt-sizes {
+    margin-top: 22px;
+  }
+  .kt-status {
+    margin-top: 26px;
+  }
 }
 
 .kt-sizes {
@@ -302,7 +363,6 @@ html[data-mode="dark"] .kt-board {
 /* ---------- Result card (takes the buttons' place when the tour ends) ---------- */
 
 .kt-result {
-  margin-top: 14px;
   padding: 16px;
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -377,7 +437,6 @@ html[data-mode="dark"] .kt-board {
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr) auto;
   gap: 8px;
-  margin-top: 14px;
 }
 .kt-controls .btn {
   padding: 0 14px;
