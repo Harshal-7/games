@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { ringFraction, tickDue, timeLeft, timerTone } from "@/party/logic/timer";
 import { Confirm } from "@/ui/confirm";
 import { formatDuration } from "@/ui/format";
 import { EyeOffIcon, PauseIcon, PlayIcon, PlusIcon } from "@/ui/icons";
 
-import { ringFraction, TALK_MS, tickDue, timeLeft, timerTone, type Room, type Round } from "../logic/room";
+import { TALK_MS, type Room, type Round } from "../logic/room";
 import { HoldCard } from "./hold-card";
 import { BigName, listNames, namesOf, PlayHead, SecretFace } from "./parts";
 import { tick, timeUp, wakeAudio } from "./sounds";

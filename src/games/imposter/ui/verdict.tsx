@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 
+import { cryptoRandom } from "@/party/logic/random";
 import { CheckIcon } from "@/ui/icons";
 
-import { cryptoRandom } from "../logic/random";
 import { startProblem, verdict, type Room, type Round } from "../logic/room";
 import { Face, imposterFace, listNames, namesOf, PlayHead, Stamp, wordFace } from "./parts";
 import { act } from "./use-room";

@@ -2,24 +2,12 @@
 
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 
+import { cleanName, MAX_NAME, MAX_PLAYERS, MIN_PLAYERS, nameProblem, QUICK_PLAYERS, type Player } from "@/party/logic/players";
+import { cryptoRandom, randomId } from "@/party/logic/random";
 import { Confirm } from "@/ui/confirm";
 import { CloseIcon, MinusIcon, PlusIcon, RestartIcon } from "@/ui/icons";
 
-import { cryptoRandom, randomId } from "../logic/random";
-import {
-  cleanName,
-  imposterCount,
-  MAX_NAME,
-  MAX_PLAYERS,
-  maxImposters,
-  MIN_PLAYERS,
-  nameProblem,
-  QUICK_PLAYERS,
-  startProblem,
-  type Clue,
-  type Player,
-  type Room,
-} from "../logic/room";
+import { imposterCount, maxImposters, startProblem, type Clue, type Room } from "../logic/room";
 import { CATEGORIES, CATEGORY_IDS } from "../logic/words";
 import { ChevronDownIcon, DealIcon } from "./marks";
 import { act } from "./use-room";
@@ -292,7 +280,7 @@ function NameInput({ player, players }: { player: Player; players: Player[] }) {
         onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
         onBlur={() => {
           const name = cleanName(value);
-          if (name === player.name || nameProblem(players, value, player.id)) setValue(player.name);
+          if (name === player.name || nameProblem(players, value, { self: player.id })) setValue(player.name);
           else act({ type: "rename-player", id: player.id, name });
         }}
       />
