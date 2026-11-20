@@ -103,10 +103,11 @@ html[data-mode="light"] {
 
 /* Each page wrapper says which game it is (GameShell sets data-game). The main button
    takes --game; picked and on states take --pick: ink for site-wide choices, the
-   game's colour inside a game. */
+   game's colour inside a game. Soft fills (a points chip) take --game-soft. */
 :root {
   --game: var(--card);
   --game-deep: var(--inset);
+  --game-soft: var(--inset);
   --on-game: var(--ink);
   --pick: var(--ink);
   --on-pick: var(--card);
@@ -121,6 +122,7 @@ html[data-mode="light"] {
 [data-game="imposter"] {
   --game: var(--red);
   --game-deep: var(--red-deep);
+  --game-soft: var(--red-soft);
   --on-game: var(--on-red);
   --pick: var(--red);
   --on-pick: var(--on-red);

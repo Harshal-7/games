@@ -1,0 +1,819 @@
+/* Shared parts for party games around one phone (src/party/ui): the page frame and
+   play screens, the hold-to-see card, faces, stamps, the ring timer, the vote and the
+   player list. Built on the tokens and parts in globals.css; everything here is
+   prefixed party- so it can't touch other games.
+
+   Colours come from the game's [data-game] block: --game for marks and the card back,
+   --game-deep for its text on cream, --on-game on it, --game-soft for soft fills.
+   Errors stay the site's red (--red-deep on cream) in every game.
+
+   A game imports this file before its own styles, so its own rules win a tie. */
+
+/* ---------- Page frame: scrolls like a normal page ---------- */
+
+.page.is-party {
+  max-width: 640px;
+}
+@media (min-width: 860px) {
+  .page.is-party {
+    max-width: var(--frame-width, 1040px);
+  }
+}
+
+.party-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Players: Roster ---------- */
+
+.party-roster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+/* A seat pill: seat number, the name (edit in place), points, remove. */
+.party-seat-pill {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  max-width: 100%;
+  height: 52px;
+  padding: 0 0 0 6px;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.party-seat-pill:has(.party-name-input:focus-visible) {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}
+.party-seat {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--inset);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 13px;
+  font-weight: 500;
+}
+/* The field is as wide as the name: a hidden copy of it (data-value) sizes the cell. */
+.party-name {
+  display: inline-grid;
+  grid-template-columns: minmax(0, max-content);
+  min-width: 0;
+  overflow: hidden;
+}
+.party-name::after,
+.party-name-input {
+  grid-area: 1 / 1;
+  padding: 0 2px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+}
+.party-name::after {
+  content: attr(data-value) " ";
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  white-space: pre;
+}
+.party-name-input {
+  width: 100%;
+  min-width: 1ch;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  text-overflow: ellipsis;
+}
+.party-name-input:focus {
+  outline: none;
+}
+.party-points {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--game-soft);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 13px;
+  font-weight: 500;
+}
+.party-remove {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.party-remove:hover {
+  color: var(--red-deep);
+}
+
+/* Quick start: no names, just a number of players. */
+.party-quick-title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.party-quick-note {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.party-quick-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+.party-quick-row .btn-primary {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 14px;
+}
+.party-stepper {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+}
+.party-stepper output {
+  width: 32px;
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 22px;
+  font-weight: 500;
+  text-align: center;
+}
+.party-stepper .icon-btn:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+.party-or {
+  margin: 20px 0 10px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.party-add {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.party-or + .party-add {
+  margin-top: 0;
+}
+.party-input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  padding: 0 18px;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--inset);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px; /* 16px stops iPhones zooming in on focus */
+}
+.party-input::placeholder {
+  color: var(--ink-muted);
+}
+.party-input[aria-invalid="true"] {
+  border-color: var(--red);
+}
+.party-add .btn {
+  min-height: 48px;
+}
+.party-error {
+  margin: 8px 0 0;
+  color: var(--red-deep);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ---------- Play screens: the frame, PlayHead and BigName ---------- */
+
+/* As tall as the window under the top bar (64px, then 4px) above the page's 48px foot,
+   so the foot buttons sit at the bottom without the page scrolling. The secret card's
+   size is set here too: every screen of the deal keeps the height of the card screen. */
+.party-play {
+  --card-w: min(288px, calc(100vw - 40px), max(216px, calc((100dvh - 400px) * 0.75)));
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 440px;
+  min-height: calc(100dvh - 64px - 4px - 48px);
+  margin: 0 auto;
+}
+
+/* "Round 3" chip on the left, where the round is on the right. */
+.party-play-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+}
+.party-round {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.party-play-label {
+  font-family: var(--num);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+/* The middle of a play screen, centred between the head and the foot. */
+.party-stage {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 0;
+  text-align: center;
+}
+.party-stage.is-left {
+  align-items: stretch;
+  text-align: left;
+}
+/* Pass the phone and the card screen take the same room (the card screen's: name, card,
+   button), so handing the phone on never moves the buttons below, even on short phones. */
+.party-stage.is-deal {
+  min-height: calc(var(--card-w) * 4 / 3 + 156px);
+}
+
+.party-help {
+  max-width: 34ch;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.party-stage.is-left .party-help {
+  max-width: none;
+}
+.party-title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.party-title.is-big {
+  margin-top: 10px;
+  font-size: 44px;
+  line-height: 1.02;
+}
+.party-big-name {
+  margin: 6px 0 0;
+  font-family: var(--display);
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.party-big-name.is-long {
+  font-size: 40px;
+}
+
+/* The quiet way out of a screen: two pills side by side, the same width. They stack
+   only on the narrowest phones. */
+.party-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 12px;
+  padding: 12px 0 4px;
+}
+.party-foot > .btn {
+  flex: 1 1 140px;
+}
+.party-play > .confirm {
+  margin-top: 12px;
+}
+
+/* ---------- The secret card ---------- */
+
+/* 288×384 at full size, smaller on short phones (--card-w, on .party-play). Everything on
+   it is measured in --u (1px at full size), so the whole card scales together. */
+.party-hold {
+  --u: calc(var(--card-w) / 288);
+  position: relative;
+  display: block;
+  flex: none;
+  width: var(--card-w);
+  height: calc(var(--card-w) * 4 / 3);
+  margin-top: 14px;
+  padding: 0;
+  border: 0;
+  border-radius: calc(22 * var(--u));
+  background: transparent;
+  color: var(--on-game);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  perspective: 1100px;
+  rotate: -1.5deg;
+  transition: rotate 0.2s ease;
+}
+.party-hold[data-state="held"] {
+  rotate: none;
+}
+/* Holding turns the card face up. Letting go wipes the word at once (it leaves the page),
+   then the blank face turns back over, a little slower than it came. */
+.party-hold-turn {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-style: preserve-3d;
+  transition: transform 0.22s ease-in-out;
+}
+.party-hold[data-state="held"] .party-hold-turn {
+  transform: rotateY(180deg);
+  transition-duration: 0.16s;
+  transition-timing-function: ease-out;
+}
+.party-back,
+.party-face.is-held {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: calc(22 * var(--u));
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.party-face.is-held {
+  transform: rotateY(180deg);
+}
+
+/* The back: the same TOP SECRET card for everyone. */
+.party-back {
+  --lattice: color-mix(in srgb, var(--on-game) 15%, transparent);
+  display: block;
+  background:
+    repeating-linear-gradient(45deg, var(--lattice) 0 1.5px, transparent 1.5px 10px),
+    repeating-linear-gradient(-45deg, var(--lattice) 0 1.5px, transparent 1.5px 10px),
+    var(--game);
+  color: var(--on-game);
+  box-shadow:
+    inset 0 0 0 calc(9 * var(--u)) var(--game),
+    inset 0 0 0 calc(11 * var(--u)) var(--on-game),
+    var(--shadow);
+}
+.party-back::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(var(--on-game) 1.2px, transparent 1.7px) 0 0 / 12px 12px;
+  opacity: 0.12;
+}
+.party-back-secret {
+  position: absolute;
+  top: calc(34 * var(--u));
+  left: calc(24 * var(--u));
+  padding: calc(6 * var(--u)) calc(10 * var(--u));
+  border: calc(3 * var(--u)) solid var(--on-game);
+  border-radius: calc(6 * var(--u));
+  font-family: var(--num);
+  font-size: calc(18 * var(--u));
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  white-space: nowrap;
+  rotate: -9deg;
+}
+.party-back-for {
+  position: absolute;
+  top: calc(94 * var(--u));
+  left: calc(28 * var(--u));
+  max-width: calc(240 * var(--u));
+  overflow: hidden;
+  font-family: var(--num);
+  font-size: calc(13 * var(--u));
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+/* DON'T PEEK tape across the card, a paler SEALED strip under it. */
+.party-tape {
+  position: absolute;
+  top: calc(170 * var(--u));
+  left: calc(-56 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(400 * var(--u));
+  height: calc(44 * var(--u));
+  border-block: calc(2 * var(--u)) solid var(--ink);
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: calc(15 * var(--u));
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.3);
+  rotate: -14deg;
+}
+.party-tape.is-under {
+  top: calc(190 * var(--u));
+  height: calc(30 * var(--u));
+  border-block: 0;
+  background: var(--inset);
+  font-size: calc(12 * var(--u));
+  letter-spacing: 0.16em;
+  opacity: 0.9;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 0.25);
+  rotate: 11deg;
+}
+.party-back-note {
+  position: absolute;
+  bottom: calc(30 * var(--u));
+  left: calc(24 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--u));
+  max-width: calc(124 * var(--u));
+  font-size: calc(14 * var(--u));
+  font-weight: 600;
+  line-height: 1.3;
+}
+.party-back-title {
+  font-family: var(--display);
+  font-size: calc(26 * var(--u));
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+.party-back-note.is-opened {
+  left: calc(22 * var(--u));
+  align-items: flex-start;
+  gap: calc(8 * var(--u));
+  max-width: calc(170 * var(--u));
+}
+/* "Opened" in a rubber stamp, on the coloured back so in --on-game. */
+.party-back-stamp {
+  display: inline-flex;
+  align-items: center;
+  padding: calc(4 * var(--u)) calc(12 * var(--u));
+  border: calc(3 * var(--u)) solid currentColor;
+  border-radius: calc(8 * var(--u));
+  font-family: var(--display);
+  font-size: calc(20 * var(--u));
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  rotate: -8deg;
+}
+/* The wax seal: where to hold. */
+.party-wax {
+  position: absolute;
+  right: calc(22 * var(--u));
+  bottom: calc(26 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: calc(84 * var(--u));
+  height: calc(84 * var(--u));
+  border: calc(5 * var(--u)) dotted var(--game-deep);
+  border-radius: 50%;
+  background: var(--game-deep);
+  color: var(--on-game);
+  font-family: var(--display);
+  font-size: calc(14 * var(--u));
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.1;
+  box-shadow:
+    0 0 0 calc(2 * var(--u)) var(--game-deep),
+    inset 0 0 0 calc(2 * var(--u)) color-mix(in srgb, var(--on-game) 25%, transparent),
+    0 6px 14px -4px rgb(0 0 0 / 0.55);
+  rotate: 8deg;
+}
+.party-wax svg {
+  width: calc(24 * var(--u));
+  height: calc(24 * var(--u));
+}
+
+/* ---------- Face-up cards ---------- */
+
+/* One face for every card: a held card, and cards face up on the table (.is-wide,
+   .is-small). Every card shares it exactly and none takes the game's colour, so a
+   glance across the table gives nothing away. */
+.party-face {
+  --face-kicker: 12px;
+  --face-word: 44px;
+  --face-note: 15px;
+  --face-gap: 12px;
+  --face-pad: 24px;
+  --face-round: 22px;
+  --face-frame: 9px;
+  --face-pip: 10px;
+  --face-pip-at: 26px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--face-gap);
+  padding: var(--face-pad);
+  box-sizing: border-box;
+  border-radius: var(--face-round);
+  background: var(--card);
+  color: var(--ink);
+  text-align: center;
+  box-shadow:
+    inset 0 0 0 var(--face-frame) var(--card),
+    inset 0 0 0 calc(var(--face-frame) * 7 / 6) var(--card-line),
+    var(--shadow);
+}
+/* Two pips, top left and bottom right. */
+.party-face::before,
+.party-face::after {
+  content: "";
+  position: absolute;
+  top: var(--face-pip-at);
+  left: var(--face-pip-at);
+  width: var(--face-pip);
+  height: var(--face-pip);
+  background: var(--ink);
+  rotate: 45deg;
+}
+.party-face::after {
+  top: auto;
+  right: var(--face-pip-at);
+  bottom: var(--face-pip-at);
+  left: auto;
+}
+.party-face-kicker {
+  font-family: var(--num);
+  font-size: var(--face-kicker);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+.party-face-word {
+  max-width: 100%;
+  font-family: var(--display);
+  font-size: var(--face-word);
+  font-weight: 700;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.party-face-note {
+  color: var(--ink-muted);
+  font-size: var(--face-note);
+  font-weight: 600;
+  line-height: 1.4;
+}
+.party-face.is-held {
+  --face-kicker: calc(12 * var(--u));
+  --face-word: calc(44 * var(--u));
+  --face-note: calc(15 * var(--u));
+  --face-gap: calc(12 * var(--u));
+  --face-pad: calc(28 * var(--u));
+  --face-round: calc(22 * var(--u));
+  --face-frame: calc(9 * var(--u));
+  --face-pip: calc(10 * var(--u));
+  --face-pip-at: calc(26 * var(--u));
+}
+.party-face.is-wide {
+  width: min(100%, 300px);
+  height: 200px;
+  margin-top: 20px;
+}
+.party-face.is-small {
+  --face-kicker: 11px;
+  --face-word: 28px;
+  --face-note: 13.5px;
+  --face-gap: 8px;
+  --face-pad: 16px 12px;
+  --face-round: 18px;
+  --face-frame: 7px;
+  --face-pip: 8px;
+  --face-pip-at: 19.5px;
+  width: 160px;
+  height: 218px;
+}
+
+/* A rubber stamp ("Caught!"): the game's colour, and only ever on cream. It drops in once. */
+.party-stamp {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border: 3px solid currentColor;
+  border-radius: 8px;
+  color: var(--game);
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  rotate: -8deg;
+}
+.party-stamp.is-dropping {
+  animation: party-stamp-drop 0.45s 0.15s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+/* Not much bigger than it lands, so even mid-drop it stays inside a phone's width. */
+@keyframes party-stamp-drop {
+  0% {
+    opacity: 0;
+    scale: 1.5;
+  }
+  65% {
+    opacity: 1;
+    scale: 0.94;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* ---------- Ring timer ---------- */
+
+/* The timer: a ring on the table in the page's text colour; in the last 30 seconds
+   the game's colour with an edge of the page's colour (a game colour straight on
+   felt can be too faint). */
+.party-ring {
+  position: relative;
+  flex: none;
+  width: 200px;
+  height: 200px;
+  margin-top: 18px;
+}
+.party-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  rotate: -90deg;
+}
+.party-ring circle {
+  fill: none;
+}
+.party-ring-track {
+  stroke: var(--track);
+  stroke-width: 18;
+}
+.party-ring-edge {
+  stroke: transparent;
+  stroke-width: 24;
+  stroke-linecap: round;
+}
+.party-ring-arc {
+  stroke: var(--on-page);
+  stroke-width: 16;
+  stroke-linecap: round;
+}
+.party-ring[data-tone="hurry"] .party-ring-edge {
+  stroke: var(--on-page);
+}
+.party-ring[data-tone="hurry"] .party-ring-arc {
+  stroke: var(--game);
+}
+.party-ring[data-state="paused"] svg {
+  opacity: 0.55;
+}
+.party-ring-dial {
+  position: absolute;
+  top: 34px;
+  left: 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 132px;
+  height: 132px;
+  box-sizing: border-box;
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.party-ring-time {
+  font-family: var(--num);
+  font-size: 40px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.party-ring[data-tone="hurry"] .party-ring-time,
+.party-ring[data-state="done"] .party-ring-label {
+  color: var(--game-deep);
+}
+.party-ring[data-state="paused"] .party-ring-time {
+  color: var(--ink-muted);
+}
+.party-ring-label {
+  margin-top: 8px;
+  font-family: var(--num);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.party-timer-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* ---------- Vote: point on three, tap who got the most fingers ---------- */
+
+.party-picks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 24px;
+}
+.btn.party-pick {
+  width: calc(50% - 6px);
+  min-height: 56px;
+  padding: 0 12px;
+  font-size: 18px;
+}
+.party-pick span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.party-vote-go {
+  margin-top: 28px;
+}

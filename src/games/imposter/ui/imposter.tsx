@@ -8,6 +8,7 @@ import { Talk } from "./talk";
 import { useRoom } from "./use-room";
 import { Guess, Result, Vote } from "./verdict";
 
+import "@/party/ui/party.css";
 import "./imposter.css";
 
 /** The whole game: the lobby between rounds, then one screen per stage of a round. */

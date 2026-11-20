@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
-import { ringFraction, tickDue, timeLeft, timerTone } from "@/party/logic/timer";
-import { tick, timeUp, wakeAudio } from "@/party/ui/sounds";
-import { useClock } from "@/party/ui/use-clock";
+import { HoldCard } from "@/party/ui/hold-card";
+import { BigName, PlayHead } from "@/party/ui/parts";
+import { RingTimer } from "@/party/ui/ring-timer";
 import { Confirm } from "@/ui/confirm";
-import { formatDuration } from "@/ui/format";
-import { EyeOffIcon, PauseIcon, PlayIcon, PlusIcon } from "@/ui/icons";
+import { EyeOffIcon } from "@/ui/icons";
 
 import { TALK_MS, type Room, type Round } from "../logic/room";
-import { HoldCard } from "./hold-card";
-import { BigName, listNames, namesOf, PlayHead, SecretFace } from "./parts";
+import { listNames, namesOf, SecretFace } from "./parts";
 import { act } from "./use-room";
 
 type Check = null | "pick" | { id: string };
@@ -27,9 +25,9 @@ export function Talk({ room, round }: { room: Room; round: Round }) {
   if (check !== null) return <Recheck room={room} round={round} check={check} onChange={setCheck} />;
 
   return (
-    <div className="imp-play">
+    <div className="party-play">
       <PlayHead round={round.number} label={imposters === 1 ? "1 imposter" : `${imposters} imposters`} />
-      <div className="imp-stage">
+      <div className="party-stage">
         <p className="imp-talk-kicker">Put the phone down. First up:</p>
         <div className="imp-first">
           <BigName name={starter} />
@@ -37,11 +35,18 @@ export function Talk({ room, round }: { room: Room; round: Round }) {
             1st
           </span>
         </div>
-        <p className="imp-help imp-talk-help">
+        <p className="party-help imp-talk-help">
           Then go round the circle. Everyone says one word about the secret word. Too obvious and the imposter
           catches on; too vague and you look like the imposter.
         </p>
-        {round.timer && <Countdown room={room} round={round} />}
+        {round.timer && (
+          <RingTimer
+            timer={round.timer}
+            total={TALK_MS}
+            sound={room.options.sound}
+            onTimer={(op, now) => act({ type: "timer", op, now })}
+          />
+        )}
         <button type="button" className="btn btn-primary btn-big imp-vote-go" onClick={() => act({ type: "vote" })}>
           Time to vote
         </button>
@@ -64,7 +69,7 @@ export function Talk({ room, round }: { room: Room; round: Round }) {
           onYes={() => act({ type: "lobby" })}
         />
       ) : (
-        <div className="imp-foot">
+        <div className="party-foot">
           <button type="button" className="btn" onClick={() => setCheck("pick")}>
             Forgot your word?
           </button>
@@ -84,94 +89,6 @@ function summarise(names: string[]): string[] {
   return [...counts].map(([name, n]) => (n > 1 ? `${name} ×${n}` : name));
 }
 
-/** The ring: radius 86 in a 200 box, drawn from the top, clockwise. */
-const R = 86;
-const LOOP = 2 * Math.PI * R;
-
-/** "2 minutes 41 seconds", "24 seconds", "3 minutes". */
-function spoken(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  const parts = [];
-  if (m > 0) parts.push(`${m} ${m === 1 ? "minute" : "minutes"}`);
-  if (s > 0 || m === 0) parts.push(`${s} ${s === 1 ? "second" : "seconds"}`);
-  return parts.join(" ");
-}
-
-/**
- * Talking time as a ring on the table: the page's text colour, then red with an edge
- * of it for the last 30 seconds, a soft tick for each of the last 10 and a buzz at 0.
- */
-function Countdown({ room, round }: { room: Room; round: Round }) {
-  const timer = round.timer!;
-  const now = useClock();
-  const left = timeLeft(timer, now);
-  const running = timer.endsAt !== null;
-  const total = TALK_MS;
-  const { sound } = room.options;
-  const done = left === 0;
-
-  // Time's up: buzz once, then park the timer at zero so a reload doesn't buzz again.
-  useEffect(() => {
-    if (!running || left > 0) return;
-    if (sound) timeUp();
-    act({ type: "timer", op: "pause", now: Date.now() });
-  }, [running, left, sound]);
-
-  // The last 10 seconds tick, once per second as the shown time drops.
-  const last = useRef(left);
-  useEffect(() => {
-    const prev = last.current;
-    last.current = left;
-    if (sound && tickDue(prev, left)) tick();
-  }, [left, sound]);
-
-  const seconds = Math.ceil(left / 1000);
-  const of = left <= total ? ` of ${formatDuration(total)}` : "";
-  const state = done ? "done" : running ? "running" : "paused";
-  const arc = ringFraction(left, total) * LOOP;
-  const label = done
-    ? "Time's up"
-    : `Time left${running ? "" : ", paused"}: ${spoken(seconds)}${left <= total ? ` of ${spoken(total / 1000)}` : ""}`;
-
-  const change = (op: "pause" | "resume" | "add") => {
-    if (sound) wakeAudio();
-    act({ type: "timer", op, now: Date.now() });
-  };
-
-  return (
-    <>
-      <div className="imp-ring" data-tone={timerTone(left)} data-state={state} role="timer" aria-label={label}>
-        <svg viewBox="0 0 200 200" aria-hidden="true">
-          <circle className="imp-ring-track" cx="100" cy="100" r={R} />
-          {arc > 0 && (
-            <>
-              <circle className="imp-ring-edge" cx="100" cy="100" r={R} strokeDasharray={`${arc} ${LOOP}`} />
-              <circle className="imp-ring-arc" cx="100" cy="100" r={R} strokeDasharray={`${arc} ${LOOP}`} />
-            </>
-          )}
-        </svg>
-        <div className="imp-ring-dial">
-          <span className="imp-ring-time">{formatDuration(seconds * 1000)}</span>
-          <span className="imp-ring-label">{done ? "Time's up" : running ? `left${of}` : "Paused"}</span>
-        </div>
-      </div>
-      <div className="imp-timer-buttons">
-        {!done && (
-          <button type="button" className="btn" onClick={() => change(running ? "pause" : "resume")}>
-            {running ? <PauseIcon width={16} height={16} /> : <PlayIcon width={16} height={16} />}
-            {running ? "Pause" : "Resume"}
-          </button>
-        )}
-        <button type="button" className="btn" aria-label="Add 30 seconds" onClick={() => change("add")}>
-          <PlusIcon width={16} height={16} strokeWidth={2.6} />
-          30 sec
-        </button>
-      </div>
-    </>
-  );
-}
-
 /** Someone forgot their word: they pick their name and hold their card again. Everyone sees who did. */
 function Recheck({
   room,
@@ -187,15 +104,15 @@ function Recheck({
   const names = namesOf(room);
   if (check === "pick") {
     return (
-      <div className="imp-play">
+      <div className="party-play">
         <PlayHead round={round.number} label="Forgot your word?" />
-        <div className="imp-stage">
+        <div className="party-stage">
           <EyeOffIcon className="imp-forgot-mark" width={44} height={44} strokeWidth={1.6} />
-          <h2 className="imp-title is-big">Who are you?</h2>
-          <p className="imp-help">Everyone will see that you looked again.</p>
-          <div className="imp-picks" role="group" aria-label="Pick your name">
+          <h2 className="party-title is-big">Who are you?</h2>
+          <p className="party-help">Everyone will see that you looked again.</p>
+          <div className="party-picks" role="group" aria-label="Pick your name">
             {round.seats.map((id) => (
-              <button key={id} type="button" className="btn imp-pick" onClick={() => onChange({ id })}>
+              <button key={id} type="button" className="btn party-pick" onClick={() => onChange({ id })}>
                 <span>{names[id]}</span>
               </button>
             ))}
@@ -209,9 +126,9 @@ function Recheck({
   }
   const name = names[check.id];
   return (
-    <div className="imp-play">
+    <div className="party-play">
       <PlayHead round={round.number} label="Forgot your word?" />
-      <div className="imp-stage">
+      <div className="party-stage">
         <h2 className="imp-card-kicker">{name}&apos;s card</h2>
         <HoldCard
           name={name}

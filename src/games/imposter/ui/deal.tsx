@@ -3,13 +3,14 @@
 import { useState } from "react";
 
 import { cryptoRandom } from "@/party/logic/random";
+import { HoldCard } from "@/party/ui/hold-card";
+import { BigName, PlayHead } from "@/party/ui/parts";
 import { wakeAudio } from "@/party/ui/sounds";
 import { Confirm } from "@/ui/confirm";
 import { CheckIcon, EyeOffIcon, ShuffleIcon } from "@/ui/icons";
 
 import type { Room, Round } from "../logic/room";
-import { HoldCard } from "./hold-card";
-import { BigName, namesOf, PlayHead, SecretFace } from "./parts";
+import { namesOf, SecretFace } from "./parts";
 import { act } from "./use-room";
 
 type Ask = "redeal" | "leave" | null;
@@ -36,7 +37,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
   };
 
   return (
-    <div className="imp-play">
+    <div className="party-play">
       <PlayHead round={round.number} label={`Card ${round.turn + 1} of ${round.seats.length}`} />
       <ol className="imp-turns" aria-label="Who has seen their card">
         {round.seats.map((seat, i) => {
@@ -45,7 +46,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
             <li key={seat} className="imp-turn" data-state={state}>
               {state === "done" && <CheckIcon width={12} height={12} strokeWidth={3.2} />}
               {names[seat]}
-              <span className="imp-visually-hidden">
+              <span className="party-visually-hidden">
                 {state === "done" ? ", has seen their card" : state === "now" ? ", now" : ", next"}
               </span>
             </li>
@@ -54,19 +55,19 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
       </ol>
 
       {!round.looking ? (
-        <div className="imp-stage is-deal imp-pass" key={`pass-${id}`}>
+        <div className="party-stage is-deal imp-pass" key={`pass-${id}`}>
           <span className="imp-pass-mark" aria-hidden="true">
             <EyeOffIcon width={44} height={44} strokeWidth={2} />
           </span>
           <p className="imp-pass-kicker">Pass the phone to</p>
           <BigName name={name} />
-          <p className="imp-help">Only {name} looks. Everyone else, eyes off the screen.</p>
+          <p className="party-help">Only {name} looks. Everyone else, eyes off the screen.</p>
           <button type="button" className="btn btn-primary btn-big" onClick={() => act({ type: "look" })}>
             I&apos;m {name}
           </button>
         </div>
       ) : (
-        <div className="imp-stage is-deal" key={`card-${id}-${round.word}`}>
+        <div className="party-stage is-deal" key={`card-${id}-${round.word}`}>
           <h2 className="imp-card-kicker">{name}&apos;s card</h2>
           <HoldCard name={name} opens={opens} buzz={sound} onOpen={() => act({ type: "open", id })}>
             <SecretFace round={round} id={id} clue={room.options.clue} />
@@ -103,7 +104,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
           onYes={() => act({ type: "lobby" })}
         />
       ) : (
-        <div className="imp-foot">
+        <div className="party-foot">
           <button type="button" className="btn imp-small" onClick={() => setAsk("redeal")}>
             <ShuffleIcon width={16} height={16} strokeWidth={2.4} />
             Re-deal
