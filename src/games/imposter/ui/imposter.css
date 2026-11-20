@@ -19,42 +19,7 @@
 
 /* ---------- Setup: title card, players, options ---------- */
 
-/* Phones: one column. A column of flex items, not a grid, so the sticky start tray can
-   travel the whole page (a grid item can't leave its own grid area). */
-.imp-lobby {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-@media (min-width: 860px) {
-  .imp-lobby {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    grid-template-rows: auto auto auto 1fr;
-    grid-template-areas:
-      "intro intro"
-      "players options"
-      "start options"
-      "rules options";
-    gap: 28px 32px;
-    align-items: start;
-  }
-  .imp-intro {
-    grid-area: intro;
-  }
-  .imp-players {
-    grid-area: players;
-  }
-  .imp-options {
-    grid-area: options;
-  }
-  .imp-rules {
-    grid-area: rules;
-  }
-  .imp-start {
-    grid-area: start;
-  }
-}
+/* The layout is the shared one in party.css (.party-setup); these are Imposter's parts. */
 
 /* The red "Imposter" title card: the card back's lattice with a cream name plate. */
 .imp-title-card {
@@ -129,6 +94,18 @@
   max-width: 44ch;
   margin: 12px 4px 0;
 }
+/* The title card is bigger on big screens (party.css); its marks grow with it. */
+@media (min-width: 860px) {
+  .imp-title-mark {
+    top: 14px;
+    left: 22px;
+    font-size: 22px;
+  }
+  .imp-title-mark.is-turned {
+    right: 22px;
+    bottom: 14px;
+  }
+}
 
 /* Players */
 .imp-new-room {
@@ -141,10 +118,6 @@
 }
 
 /* Options */
-.imp-field + .imp-field,
-.imp-field + .imp-switches {
-  margin-top: 20px;
-}
 .imp-field .seg {
   display: grid;
   width: 100%;
@@ -226,94 +199,6 @@
 .imp-chip[aria-pressed="false"] .imp-chip-emoji {
   filter: grayscale(1);
   opacity: 0.6;
-}
-
-.imp-switches {
-  margin-top: 22px;
-  padding-top: 5px;
-  border-top: 1.5px dashed var(--line);
-}
-
-/* How to play: an outlined row; open, the rules in a reading card under it. */
-.imp-rules > summary {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  min-height: 48px;
-  padding: 0 18px 0 20px;
-  list-style: none;
-}
-.imp-rules > summary::-webkit-details-marker {
-  display: none;
-}
-.imp-rules-chevron {
-  transition: rotate 0.2s ease;
-}
-.imp-rules[open] .imp-rules-chevron {
-  rotate: 180deg;
-}
-.imp-rules-body {
-  margin-top: 14px;
-  padding: 16px 18px 18px;
-}
-.imp-rules-body ol {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding-left: 22px;
-  font-size: 15px;
-  line-height: 1.45;
-  list-style: decimal;
-}
-.imp-rules-body li::marker {
-  color: var(--muted);
-  font-family: var(--num);
-  font-size: 13px;
-}
-.imp-rules-body p {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-/* Start: stuck to the bottom on phones, on a solid tray (a see-through fade would show
-   a band over the felt's texture). The page's bottom padding goes under it. */
-.imp-start {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-  display: grid;
-  gap: 10px;
-  margin: 0 -20px -48px;
-  padding: 12px 20px 20px;
-  border-top: 1px solid var(--edge);
-  background: var(--page-deep);
-  box-shadow: 0 -12px 22px -14px rgb(0 0 0 / 0.55);
-}
-.imp-start-note {
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-  text-align: center;
-}
-/* Wider than a phone the page stops growing: a shelf rather than a full-width tray. */
-@media (min-width: 640px) {
-  .imp-start {
-    border: 1px solid var(--edge);
-    border-bottom: 0;
-    border-radius: var(--radius) var(--radius) 0 0;
-  }
-}
-@media (min-width: 860px) {
-  .imp-start {
-    position: static;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: none;
-    box-shadow: none;
-  }
 }
 
 /* ---------- Playing a round ---------- */

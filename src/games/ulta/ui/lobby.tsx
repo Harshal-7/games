@@ -35,20 +35,20 @@ export function Lobby({ room }: { room: Room }) {
   const teams = playsInTeams(count);
 
   return (
-    <div className="ul-lobby">
-      <header className="ul-intro">
-        <div className="ul-title-card">
+    <div className="party-setup">
+      <header className="party-setup-intro">
+        <div className="ul-title-card party-setup-title">
           <UltaMark className="ul-title-mark" />
-          <div className="ul-title-plate">
-            <h1 className="ul-title-name">Ulta</h1>
-            <span className="ul-title-meta">2–20 players · one phone</span>
+          <div className="ul-title-plate party-setup-plate">
+            <h1 className="ul-title-name party-setup-name">Ulta</h1>
+            <span className="ul-title-meta party-setup-meta">2–20 players · one phone</span>
           </div>
         </div>
-        <p className="game-blurb ul-blurb">
+        <p className="game-blurb ul-blurb party-setup-blurb">
           Sing a line and the phone plays it backwards. A teammate copies the backwards sound, the phone flips the copy
           the right way round, and the team guesses the song.
         </p>
-        <p className="ul-privacy">
+        <p className="ul-privacy party-setup-note">
           <MicIcon width={16} height={16} />
           <span>
             The mic is only on while you hold the button. Recordings stay in this phone&apos;s memory, are never saved or
@@ -57,47 +57,12 @@ export function Lobby({ room }: { room: Room }) {
         </p>
       </header>
 
-      <section className="card section ul-players" aria-labelledby="ul-players-title">
-        <h2 className="tape" id="ul-players-title">
-          Players <span className="tape-count">· {count}</span>
-        </h2>
-        {count > 0 && (
-          <button type="button" className="btn ul-small ul-corner" onClick={() => setAsk(true)}>
-            <RestartIcon width={15} height={15} strokeWidth={2.6} />
-            Reset
-          </button>
-        )}
-        {ask && (
-          <Confirm
-            title="Start over?"
-            detail={`Removes ${count === 1 ? "the player" : `all ${count} players`}, so you can quick start or add names again. Options stay.`}
-            yes="Reset"
-            onNo={() => setAsk(false)}
-            onYes={() => {
-              act({ type: "clear-room" });
-              setAsk(false);
-            }}
-          />
-        )}
-        <Roster players={room.players} limits={LIMITS} onAction={act} />
-        {count > 0 && !teams && (
-          <p className="ul-note-line">
-            With {count === 1 ? "1 player" : `${count} players`} it&apos;s just for fun: everyone takes turns singing and
-            copying, and there&apos;s no score. From 4 players on, it&apos;s two teams.
-          </p>
-        )}
-      </section>
-
-      {teams && <TeamsCard room={room} />}
-
-      <OptionsCard options={room.options} teams={teams} />
-
-      <details className="ul-rules">
+      <details className="party-setup-rules">
         <summary className="btn">
           How to play
-          <ChevronDownIcon className="ul-rules-chevron" />
+          <ChevronDownIcon className="party-setup-rules-chevron" />
         </summary>
-        <div className="card ul-rules-body">
+        <div className="card party-setup-rules-body">
           <ol>
             <li>
               The singer picks a song: one of their own, or &ldquo;Suggest one&rdquo;, which only they see. Then they
@@ -118,18 +83,57 @@ export function Lobby({ room }: { room: Room }) {
         </div>
       </details>
 
-      {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach. */}
-      <div className="ul-start">
-        {problem && <p className="ul-start-note">{problem}</p>}
-        <button
-          type="button"
-          className="btn btn-primary btn-big"
-          disabled={problem !== null}
-          onClick={() => act({ type: "start", rng: cryptoRandom })}
-        >
-          Start the game
-          <MicIcon width={22} height={22} />
-        </button>
+      <div className="party-setup-side">
+        <section className="card section party-setup-players ul-players" aria-labelledby="ul-players-title">
+          <h2 className="tape" id="ul-players-title">
+            Players <span className="tape-count">· {count}</span>
+          </h2>
+          {count > 0 && (
+            <button type="button" className="btn ul-small ul-corner" onClick={() => setAsk(true)}>
+              <RestartIcon width={15} height={15} strokeWidth={2.6} />
+              Reset
+            </button>
+          )}
+          {ask && (
+            <Confirm
+              title="Start over?"
+              detail={`Removes ${count === 1 ? "the player" : `all ${count} players`}, so you can quick start or add names again. Options stay.`}
+              yes="Reset"
+              onNo={() => setAsk(false)}
+              onYes={() => {
+                act({ type: "clear-room" });
+                setAsk(false);
+              }}
+            />
+          )}
+          <Roster players={room.players} limits={LIMITS} onAction={act} />
+          {count > 0 && !teams && (
+            <p className="ul-note-line">
+              With {count === 1 ? "1 player" : `${count} players`} it&apos;s just for fun: everyone takes turns singing and
+              copying, and there&apos;s no score. From 4 players on, it&apos;s two teams.
+            </p>
+          )}
+        </section>
+
+        {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach; on big
+            screens right under Players. */}
+        <div className="party-setup-start">
+          {problem && <p className="party-setup-start-note">{problem}</p>}
+          <button
+            type="button"
+            className="btn btn-primary btn-big"
+            disabled={problem !== null}
+            onClick={() => act({ type: "start", rng: cryptoRandom })}
+          >
+            Start the game
+            <MicIcon width={22} height={22} />
+          </button>
+        </div>
+      </div>
+
+      <div className="party-setup-main">
+        {teams && <TeamsCard room={room} />}
+        <OptionsCard options={room.options} teams={teams} />
       </div>
     </div>
   );
@@ -184,46 +188,48 @@ function TeamsCard({ room }: { room: Room }) {
 function OptionsCard({ options, teams }: { options: Options; teams: boolean }) {
   const set = (patch: Partial<Options>) => act({ type: "options", patch });
   return (
-    <section className="card section ul-options" aria-labelledby="ul-options-title">
+    <section className="card section party-setup-options" aria-labelledby="ul-options-title">
       <h2 className="tape is-game" id="ul-options-title">
         Options
       </h2>
 
-      {teams && (
-        <Choice label="Play to" note={`The first team to ${options.target} points wins.`}>
-          {TARGETS.map((n) => (
-            <button key={n} type="button" role="radio" aria-checked={options.target === n} onClick={() => set({ target: n })}>
-              {n}
+      <div className="party-setup-fields ul-fields">
+        {teams && (
+          <Choice label="Play to" note={`The first team to ${options.target} points wins.`}>
+            {TARGETS.map((n) => (
+              <button key={n} type="button" role="radio" aria-checked={options.target === n} onClick={() => set({ target: n })}>
+                {n}
+              </button>
+            ))}
+          </Choice>
+        )}
+
+        <div className={teams ? "switches ul-switches" : "switches ul-switches party-setup-wide"}>
+          <div className="switch-row">
+            <span>
+              <span className="switch-label" id="ul-sound-label">
+                Sound
+              </span>
+              <span className="switch-detail" id="ul-sound-detail">
+                The timer&apos;s ticks and the cheers. The singing always plays.
+              </span>
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={options.sound}
+              aria-labelledby="ul-sound-label"
+              aria-describedby="ul-sound-detail"
+              className="switch"
+              onClick={() => set({ sound: !options.sound })}
+            >
+              <span />
             </button>
-          ))}
-        </Choice>
-      )}
-
-      <div className="switches ul-switches">
-        <div className="switch-row">
-          <span>
-            <span className="switch-label" id="ul-sound-label">
-              Sound
-            </span>
-            <span className="switch-detail" id="ul-sound-detail">
-              The timer&apos;s ticks and the cheers. The singing always plays.
-            </span>
-          </span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={options.sound}
-            aria-labelledby="ul-sound-label"
-            aria-describedby="ul-sound-detail"
-            className="switch"
-            onClick={() => set({ sound: !options.sound })}
-          >
-            <span />
-          </button>
+          </div>
         </div>
-      </div>
 
-      <TryMic />
+        <TryMic />
+      </div>
     </section>
   );
 }
@@ -234,7 +240,7 @@ function TryMic() {
   const [trouble, setTrouble] = useState<MicError | null>(null);
   const [note, setNote] = useState<string | null>(null);
   return (
-    <div className="ul-try">
+    <div className="ul-try party-setup-wide">
       <span className="field-label">Try the mic</span>
       <div className="ul-try-row">
         <HoldMic

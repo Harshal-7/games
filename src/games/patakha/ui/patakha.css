@@ -99,42 +99,7 @@ html[data-mode="light"] .pk-cracker {
 
 /* ---------- Setup: title card, players, options ---------- */
 
-/* Phones: one column. A column of flex items, not a grid, so the sticky start tray can
-   travel the whole page (a grid item can't leave its own grid area). */
-.pk-lobby {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-@media (min-width: 860px) {
-  .pk-lobby {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    grid-template-rows: auto auto auto 1fr;
-    grid-template-areas:
-      "intro intro"
-      "players options"
-      "start options"
-      "rules options";
-    gap: 28px 32px;
-    align-items: start;
-  }
-  .pk-intro {
-    grid-area: intro;
-  }
-  .pk-players {
-    grid-area: players;
-  }
-  .pk-options {
-    grid-area: options;
-  }
-  .pk-rules {
-    grid-area: rules;
-  }
-  .pk-start {
-    grid-area: start;
-  }
-}
+/* The layout is the shared one in party.css (.party-setup); these are Patakha's parts. */
 
 /* The marigold title card: a dotted wrapper, the cracker, and a cream name plate. */
 .pk-title-card {
@@ -212,6 +177,21 @@ html[data-mode="light"] .pk-cracker {
   max-width: 46ch;
   margin: 12px 4px 0;
 }
+/* The title card is bigger on big screens (party.css): the plate keeps its own width and
+   the cracker grows beside it. */
+@media (min-width: 860px) {
+  .pk-title-card {
+    justify-content: center;
+    padding: 0 20px 0 8px;
+  }
+  .pk-title-cracker {
+    width: 108px;
+    margin: -16px 0 0;
+  }
+  .pk-title-plate {
+    flex: none;
+  }
+}
 
 /* Players */
 .pk-corner {
@@ -230,10 +210,6 @@ html[data-mode="light"] .pk-cracker {
 }
 
 /* Options */
-.pk-field + .pk-field,
-.pk-field + .pk-switches {
-  margin-top: 20px;
-}
 .pk-field .seg {
   display: grid;
   width: 100%;
@@ -317,11 +293,6 @@ html[data-mode="light"] .pk-cracker {
   opacity: 0.6;
 }
 
-.pk-switches {
-  margin-top: 22px;
-  padding-top: 5px;
-  border-top: 1.5px dashed var(--line);
-}
 .pk-test {
   display: flex;
   flex-wrap: wrap;
@@ -333,88 +304,6 @@ html[data-mode="light"] .pk-cracker {
   flex: 1 1 200px;
   margin: 0;
   font-size: 13.5px;
-}
-
-/* How to play: an outlined row; open, the rules in a reading card under it. */
-.pk-rules > summary {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  min-height: 48px;
-  padding: 0 18px 0 20px;
-  list-style: none;
-}
-.pk-rules > summary::-webkit-details-marker {
-  display: none;
-}
-.pk-rules-chevron {
-  transition: rotate 0.2s ease;
-}
-.pk-rules[open] .pk-rules-chevron {
-  rotate: 180deg;
-}
-.pk-rules-body {
-  margin-top: 14px;
-  padding: 16px 18px 18px;
-}
-.pk-rules-body ol {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding-left: 22px;
-  font-size: 15px;
-  line-height: 1.45;
-  list-style: decimal;
-}
-.pk-rules-body li::marker {
-  color: var(--muted);
-  font-family: var(--num);
-  font-size: 13px;
-}
-.pk-rules-body p {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-/* Start: stuck to the bottom on phones, on a solid tray (a see-through fade would show a
-   band over the felt's texture). The page's bottom padding goes under it. */
-.pk-start {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-  display: grid;
-  gap: 10px;
-  margin: 0 -20px -48px;
-  padding: 12px 20px 20px;
-  border-top: 1px solid var(--edge);
-  background: var(--page-deep);
-  box-shadow: 0 -12px 22px -14px rgb(0 0 0 / 0.55);
-}
-.pk-start-note {
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-  text-align: center;
-}
-/* Wider than a phone the page stops growing: a shelf rather than a full-width tray. */
-@media (min-width: 640px) {
-  .pk-start {
-    border: 1px solid var(--edge);
-    border-bottom: 0;
-    border-radius: var(--radius) var(--radius) 0 0;
-  }
-}
-@media (min-width: 860px) {
-  .pk-start {
-    position: static;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: none;
-    box-shadow: none;
-  }
 }
 
 /* ---------- Ready and paused ---------- */

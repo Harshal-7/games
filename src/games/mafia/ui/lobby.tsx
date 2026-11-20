@@ -24,83 +24,30 @@ export function Lobby({ room }: { room: Room }) {
   const count = room.players.length;
 
   return (
-    <div className="maf-lobby">
-      <header className="maf-intro">
-        <div className="maf-title-card">
+    <div className="party-setup">
+      <header className="party-setup-intro">
+        <div className="maf-title-card party-setup-title">
           <MoonMark />
           <StarMark />
-          <div className="maf-title-plate">
-            <h1 className="maf-title-name">Mafia</h1>
-            <span className="maf-title-meta">
+          <div className="maf-title-plate party-setup-plate">
+            <h1 className="maf-title-name party-setup-name">Mafia</h1>
+            <span className="maf-title-meta party-setup-meta">
               {LIMITS.min}–{LIMITS.max} players · one phone
             </span>
           </div>
         </div>
-        <p className="game-blurb maf-blurb">
+        <p className="game-blurb maf-blurb party-setup-blurb">
           The phone narrates the night, so nobody has to sit out to run it. Find the Mafia before they take over the
           town.
         </p>
       </header>
 
-      <section className="card section maf-players" aria-labelledby="maf-players-title">
-        <h2 className="tape" id="maf-players-title">
-          Players <span className="tape-count">· {count}</span>
-        </h2>
-        {/* After a game: a new room keeps the players. Before one: Reset clears them. */}
-        {room.played > 0 ? (
-          <button type="button" className="btn maf-small maf-new-room" onClick={() => setAsk("new-room")}>
-            <RestartIcon width={15} height={15} strokeWidth={2.6} />
-            New room
-          </button>
-        ) : (
-          count > 0 && (
-            <button type="button" className="btn maf-small maf-new-room" onClick={() => setAsk("reset")}>
-              <RestartIcon width={15} height={15} strokeWidth={2.6} />
-              Reset
-            </button>
-          )
-        )}
-        {ask === "new-room" && (
-          <Confirm
-            title="Start a new room?"
-            detail="Scores and everyone's turns as Mafia go back to zero. Players and options stay."
-            yes="New room"
-            onNo={() => setAsk(null)}
-            onYes={() => {
-              act({ type: "new-room" });
-              setAsk(null);
-            }}
-          />
-        )}
-        {ask === "reset" && (
-          <Confirm
-            title="Start over?"
-            detail={`Removes ${count === 1 ? "the player" : `all ${count} players`}, so you can quick start or add names again. Options stay.`}
-            yes="Reset"
-            onNo={() => setAsk(null)}
-            onYes={() => {
-              act({ type: "clear-room" });
-              setAsk(null);
-            }}
-          />
-        )}
-        <Roster
-          players={room.players}
-          scores={room.played > 0 ? room.scores : undefined}
-          limits={LIMITS}
-          onAction={act}
-        />
-        {count > 0 && count < 7 && <p className="maf-players-note">Best with 7 to 12 players.</p>}
-      </section>
-
-      <Options room={room} />
-
-      <details className="maf-rules">
+      <details className="party-setup-rules">
         <summary className="btn">
           How to play
-          <ChevronDownIcon className="maf-rules-chevron" />
+          <ChevronDownIcon className="party-setup-rules-chevron" />
         </summary>
-        <div className="card maf-rules-body">
+        <div className="card party-setup-rules-body">
           <ol>
             <li>Add everyone in the order you&apos;re sitting. Pass the phone: each player holds their card to see their role, alone.</li>
             <li>
@@ -118,17 +65,75 @@ export function Lobby({ room }: { room: Room }) {
         </div>
       </details>
 
-      {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach. */}
-      <div className="maf-start">
-        {problem && <p className="maf-start-note">{problem}</p>}
-        <button
-          type="button"
-          className="btn btn-primary btn-big"
-          disabled={problem !== null}
-          onClick={() => act({ type: "start", rng: cryptoRandom })}
-        >
-          {room.played > 0 ? `Deal game ${room.played + 1}` : "Deal the roles"}
-        </button>
+      <div className="party-setup-side">
+        <section className="card section party-setup-players maf-players" aria-labelledby="maf-players-title">
+          <h2 className="tape" id="maf-players-title">
+            Players <span className="tape-count">· {count}</span>
+          </h2>
+          {/* After a game: a new room keeps the players. Before one: Reset clears them. */}
+          {room.played > 0 ? (
+            <button type="button" className="btn maf-small maf-new-room" onClick={() => setAsk("new-room")}>
+              <RestartIcon width={15} height={15} strokeWidth={2.6} />
+              New room
+            </button>
+          ) : (
+            count > 0 && (
+              <button type="button" className="btn maf-small maf-new-room" onClick={() => setAsk("reset")}>
+                <RestartIcon width={15} height={15} strokeWidth={2.6} />
+                Reset
+              </button>
+            )
+          )}
+          {ask === "new-room" && (
+            <Confirm
+              title="Start a new room?"
+              detail="Scores and everyone's turns as Mafia go back to zero. Players and options stay."
+              yes="New room"
+              onNo={() => setAsk(null)}
+              onYes={() => {
+                act({ type: "new-room" });
+                setAsk(null);
+              }}
+            />
+          )}
+          {ask === "reset" && (
+            <Confirm
+              title="Start over?"
+              detail={`Removes ${count === 1 ? "the player" : `all ${count} players`}, so you can quick start or add names again. Options stay.`}
+              yes="Reset"
+              onNo={() => setAsk(null)}
+              onYes={() => {
+                act({ type: "clear-room" });
+                setAsk(null);
+              }}
+            />
+          )}
+          <Roster
+            players={room.players}
+            scores={room.played > 0 ? room.scores : undefined}
+            limits={LIMITS}
+            onAction={act}
+          />
+          {count > 0 && count < 7 && <p className="maf-players-note">Best with 7 to 12 players.</p>}
+        </section>
+
+        {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach; on big
+            screens right under Players. */}
+        <div className="party-setup-start">
+          {problem && <p className="party-setup-start-note">{problem}</p>}
+          <button
+            type="button"
+            className="btn btn-primary btn-big"
+            disabled={problem !== null}
+            onClick={() => act({ type: "start", rng: cryptoRandom })}
+          >
+            {room.played > 0 ? `Deal game ${room.played + 1}` : "Deal the roles"}
+          </button>
+        </div>
+      </div>
+
+      <div className="party-setup-main">
+        <Options room={room} />
       </div>
     </div>
   );
@@ -151,74 +156,77 @@ function Options({ room }: { room: Room }) {
   }
 
   return (
-    <section className="card section maf-options" aria-labelledby="maf-options-title">
+    <section className="card section party-setup-options" aria-labelledby="maf-options-title">
       <h2 className="tape is-game" id="maf-options-title">
         Options
       </h2>
 
-      <Choice label="Mafia" note={mafiaNote || undefined}>
-        <SegButton on={options.mafia === null} onClick={() => set({ mafia: null })}>
-          Auto
-        </SegButton>
-        {MAFIA_CHOICES.map((m) => (
-          <SegButton key={m} on={options.mafia === m} disabled={m > max} onClick={() => set({ mafia: m })}>
-            {m}
+      <div className="party-setup-fields">
+        <Choice label="Mafia" note={mafiaNote || undefined} wide>
+          <SegButton on={options.mafia === null} onClick={() => set({ mafia: null })}>
+            Auto
           </SegButton>
-        ))}
-      </Choice>
+          {MAFIA_CHOICES.map((m) => (
+            <SegButton key={m} on={options.mafia === m} disabled={m > max} onClick={() => set({ mafia: m })}>
+              {m}
+            </SegButton>
+          ))}
+        </Choice>
 
-      <div className="maf-field">
-        <span className="field-label">Roles</span>
-        <div className="switches">
+        <div className="maf-field">
+          <span className="field-label">Roles</span>
+          <div className="switches">
+            <SwitchRow
+              label="Doctor"
+              detail="Saves one person each night"
+              on={options.doctor}
+              onToggle={() => set({ doctor: !options.doctor })}
+            />
+            <SwitchRow
+              label="Police"
+              detail="Checks one person each night: Mafia or not"
+              on={options.police}
+              onToggle={() => set({ police: !options.police })}
+            />
+          </div>
+        </div>
+
+        <Choice label="Talk time">
+          {TALK_MINUTES.map((m) => (
+            <SegButton key={m} on={options.talk === m} onClick={() => set({ talk: m })}>
+              {m} min
+            </SegButton>
+          ))}
+        </Choice>
+
+        <Choice label="A tied vote" note={TIE_LABELS[options.tie].note}>
+          {(Object.keys(TIE_LABELS) as Tie[]).map((tie) => (
+            <SegButton key={tie} on={options.tie === tie} onClick={() => set({ tie })}>
+              {TIE_LABELS[tie].label}
+            </SegButton>
+          ))}
+        </Choice>
+
+        <div className="switches party-setup-switches">
+          <span className="field-label party-setup-switches-label">Narrator and sound</span>
           <SwitchRow
-            label="Doctor"
-            detail="Saves one person each night"
-            on={options.doctor}
-            onToggle={() => set({ doctor: !options.doctor })}
+            label="Narrator voice"
+            detail={
+              canSpeak()
+                ? "A narrator reads every line out loud. Off: the lines only show on screen."
+                : "This browser can't play sound, so the lines only show on screen."
+            }
+            on={options.voice}
+            onToggle={() => set({ voice: !options.voice })}
           />
+          {options.voice && <VoicePicker chosen={options.voiceName} onChoose={(voiceName) => set({ voiceName })} />}
           <SwitchRow
-            label="Police"
-            detail="Checks one person each night: Mafia or not"
-            on={options.police}
-            onToggle={() => set({ police: !options.police })}
+            label="Sound and vibration"
+            detail="A buzz when you hold your card, a quiet night sound that hides who leans in to tap, ticks in the last 10 seconds of talking"
+            on={options.sound}
+            onToggle={() => set({ sound: !options.sound })}
           />
         </div>
-      </div>
-
-      <Choice label="Talk time">
-        {TALK_MINUTES.map((m) => (
-          <SegButton key={m} on={options.talk === m} onClick={() => set({ talk: m })}>
-            {m} min
-          </SegButton>
-        ))}
-      </Choice>
-
-      <Choice label="A tied vote" note={TIE_LABELS[options.tie].note}>
-        {(Object.keys(TIE_LABELS) as Tie[]).map((tie) => (
-          <SegButton key={tie} on={options.tie === tie} onClick={() => set({ tie })}>
-            {TIE_LABELS[tie].label}
-          </SegButton>
-        ))}
-      </Choice>
-
-      <div className="switches maf-switches">
-        <SwitchRow
-          label="Narrator voice"
-          detail={
-            canSpeak()
-              ? "A narrator reads every line out loud. Off: the lines only show on screen."
-              : "This browser can't play sound, so the lines only show on screen."
-          }
-          on={options.voice}
-          onToggle={() => set({ voice: !options.voice })}
-        />
-        {options.voice && <VoicePicker chosen={options.voiceName} onChoose={(voiceName) => set({ voiceName })} />}
-        <SwitchRow
-          label="Sound and vibration"
-          detail="A buzz when you hold your card, a quiet night sound that hides who leans in to tap, ticks in the last 10 seconds of talking"
-          on={options.sound}
-          onToggle={() => set({ sound: !options.sound })}
-        />
       </div>
     </section>
   );
@@ -270,10 +278,21 @@ function VoicePicker({ chosen, onChoose }: { chosen: string | null; onChoose: (n
   );
 }
 
-function Choice({ label, note, children }: { label: string; note?: string; children: ReactNode }) {
+function Choice({
+  label,
+  note,
+  wide,
+  children,
+}: {
+  label: string;
+  note?: string;
+  /** Across both columns when Options has two. */
+  wide?: boolean;
+  children: ReactNode;
+}) {
   const id = useId();
   return (
-    <div className="maf-field">
+    <div className={wide ? "maf-field party-setup-wide" : "maf-field"}>
       <span className="field-label" id={id}>
         {label}
       </span>

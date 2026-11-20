@@ -284,6 +284,7 @@ export function KnightsTour() {
               </button>
               <button type="button" className="btn kt-restart" onClick={askRestart} aria-label="Restart" title="Restart">
                 <RestartIcon width={18} height={18} strokeWidth={2.6} />
+                <span className="kt-restart-label">Restart</span>
               </button>
             </div>
             <button type="button" className="btn btn-primary btn-big kt-solve" onClick={() => setSolving((s) => !s)}>

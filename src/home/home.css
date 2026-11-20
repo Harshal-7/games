@@ -458,16 +458,91 @@
   font-style: italic;
   font-weight: 700;
 }
-/* Big screens: the cards side by side. */
-@media (min-width: 760px) {
+/* Wide windows: the cards side by side; from 860px the page takes the shared frame. */
+@media (min-width: 760px) and (max-width: 859px) {
   .page.is-home {
     max-width: 920px;
   }
+}
+@media (min-width: 760px) {
   .game-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .game-card {
     height: 100%;
     box-sizing: border-box;
+  }
+}
+
+/* Big screens, as the WebHome board: a big "Games." with the intro beside it on its
+   baseline, bigger cards two by two (each keeps its tilt), and "More soon" across both
+   columns. The page takes the shared frame from globals.css. */
+@media (min-width: 860px) {
+  .home-hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px 48px;
+    padding-top: 10px;
+  }
+  .home-title {
+    font-size: 104px;
+    line-height: 0.9;
+  }
+  .home-lede {
+    max-width: 420px;
+    margin: 0 0 8px;
+    font-size: 19px;
+  }
+
+  .game-list {
+    gap: 24px;
+    padding-top: 36px;
+  }
+  .game-card {
+    gap: 20px;
+    padding: 18px;
+  }
+  .game-card h2 {
+    font-size: 28px;
+  }
+  .game-card p {
+    margin-top: 8px;
+    font-size: 15.5px;
+    line-height: 1.45;
+  }
+  .game-chip {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+  .game-list .game-thumb {
+    width: 104px;
+    height: 140px;
+  }
+  .game-thumb-seal {
+    width: 50px;
+    height: 64px;
+    font-size: 36px;
+  }
+  .game-thumb-cracker {
+    width: 90px;
+  }
+  .game-thumb-mic,
+  .game-thumb-milestone {
+    width: 74px;
+  }
+  .game-list > li:last-child {
+    grid-column: 1 / -1;
+  }
+  .game-soon {
+    gap: 16px;
+    padding: 16px 20px;
+  }
+  .game-soon h2 {
+    font-size: 20px;
+  }
+  .game-soon p {
+    font-size: 14.5px;
   }
 }

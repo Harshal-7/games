@@ -260,30 +260,37 @@ body {
   padding-top: 4px;
 }
 
-/* Game pages on big screens: the whole page fits the window, nothing scrolls. The
-   frame is the board (as tall as the window allows), a gap and a side column; game
-   pages and Settings share its width so moving between them doesn't jump. */
+/* Big screens: every page sits in one frame, 1184px at most with 48px either side, so the
+   top bar and the content of every page line up (1088px of content). */
+@media (min-width: 860px) {
+  .page {
+    max-width: 1184px;
+    padding-right: 48px;
+    padding-left: 48px;
+    box-sizing: border-box;
+  }
+}
+
+/* Board games on big screens: the whole page fits the window, nothing scrolls. The
+   board is as big as the window allows, up to 600px, with a side column next to it. */
 @media (min-width: 860px) and (min-height: 480px) {
   :root {
     --frame-side: 380px;
-    --frame-gap: 56px;
-    --frame-board: min(calc(100dvh - 104px), calc(100vw - var(--frame-side) - var(--frame-gap) - 56px), 820px);
-    --frame-width: calc(var(--frame-board) + var(--frame-gap) + var(--frame-side) + 40px);
+    --frame-gap: 40px;
+    --frame-board: min(calc(100dvh - 112px), calc(100vw - 96px - var(--frame-gap) - var(--frame-side)), 600px);
   }
   .page.is-game {
     display: flex;
     flex-direction: column;
-    max-width: var(--frame-width);
     height: 100dvh;
     padding-bottom: 0;
-    box-sizing: border-box;
   }
   .page.is-game .game-main {
     display: grid;
     flex: 1;
-    align-content: safe center;
+    align-content: start;
     min-height: 0;
-    padding: 0 0 40px;
+    padding: 4px 0 40px;
   }
 }
 

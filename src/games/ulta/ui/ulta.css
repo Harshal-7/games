@@ -46,44 +46,7 @@
 
 /* ---------- Setup: title card, players, teams, options ---------- */
 
-/* Phones: one column. A column of flex items, not a grid, so the sticky start tray can
-   travel the whole page (a grid item can't leave its own grid area). */
-.ul-lobby {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-@media (min-width: 860px) {
-  .ul-lobby {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    grid-template-areas:
-      "intro intro"
-      "players options"
-      "teams options"
-      "start rules";
-    gap: 28px 32px;
-    align-items: start;
-  }
-  .ul-intro {
-    grid-area: intro;
-  }
-  .ul-players {
-    grid-area: players;
-  }
-  .ul-teams {
-    grid-area: teams;
-  }
-  .ul-options {
-    grid-area: options;
-  }
-  .ul-rules {
-    grid-area: rules;
-  }
-  .ul-start {
-    grid-area: start;
-  }
-}
+/* The layout is the shared one in party.css (.party-setup); these are Ulta's parts. */
 
 /* The teal title card: a dotted wrapper, the drawing, and a cream name plate. */
 .ul-title-card {
@@ -159,6 +122,20 @@
 .ul-privacy svg {
   flex: none;
   margin-top: 2px;
+}
+/* The title card is bigger on big screens (party.css): the plate keeps its own width and
+   the drawing grows beside it. */
+@media (min-width: 860px) {
+  .ul-title-card {
+    justify-content: center;
+    padding: 0 20px 0 12px;
+  }
+  .ul-title-mark {
+    width: 104px;
+  }
+  .ul-title-plate {
+    flex: none;
+  }
 }
 
 .ul-corner {
@@ -273,85 +250,17 @@
   margin: 0;
   font-size: 13.5px;
 }
-
-/* How to play: an outlined row; open, the rules in a reading card under it. */
-.ul-rules > summary {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  min-height: 48px;
-  padding: 0 18px 0 20px;
-  list-style: none;
+/* The fields sit in the shared box (party.css) but keep Ulta's own gaps on phones; in
+   two columns the shared gaps take over. */
+.ul-fields {
+  gap: 0;
 }
-.ul-rules > summary::-webkit-details-marker {
-  display: none;
-}
-.ul-rules-chevron {
-  transition: rotate 0.2s ease;
-}
-.ul-rules[open] .ul-rules-chevron {
-  rotate: 180deg;
-}
-.ul-rules-body {
-  margin-top: 14px;
-  padding: 16px 18px 18px;
-}
-.ul-rules-body ol {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding-left: 22px;
-  font-size: 15px;
-  line-height: 1.45;
-  list-style: decimal;
-}
-.ul-rules-body li::marker {
-  color: var(--muted);
-  font-family: var(--num);
-  font-size: 13px;
-}
-.ul-rules-body p {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-/* Start: stuck to the bottom on phones, on a solid tray (a see-through fade would show a
-   band over the felt's texture). The page's bottom padding goes under it. */
-.ul-start {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-  display: grid;
-  gap: 10px;
-  margin: 0 -20px -48px;
-  padding: 12px 20px 20px;
-  border-top: 1px solid var(--edge);
-  background: var(--page-deep);
-  box-shadow: 0 -12px 22px -14px rgb(0 0 0 / 0.55);
-}
-.ul-start-note {
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-  text-align: center;
-}
-@media (min-width: 640px) {
-  .ul-start {
-    border: 1px solid var(--edge);
-    border-bottom: 0;
-    border-radius: var(--radius) var(--radius) 0 0;
-  }
-}
-@media (min-width: 860px) {
-  .ul-start {
-    position: static;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: none;
-    box-shadow: none;
+@container party-options (min-width: 500px) {
+  .ul-field + .ul-switches,
+  .ul-try {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
   }
 }
 
@@ -703,8 +612,7 @@
 @media (prefers-reduced-motion: reduce) {
   .ul-mic-btn,
   .ul-mic-meter span,
-  .ul-team-pill,
-  .ul-rules-chevron {
+  .ul-team-pill {
     transition: none;
   }
 }
