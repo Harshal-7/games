@@ -40,6 +40,7 @@ const SWITCHES: { key: Flag; label: string; detail: string }[] = [
 const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
   "knights-tour": KnightsTourSection,
   imposter: ImposterNote,
+  patakha: PatakhaNote,
 };
 
 /**
@@ -206,6 +207,16 @@ function ImposterNote() {
     <p className="settings-note">
       <SpeakerIcon width={18} height={18} />
       <span>Imposter&apos;s sound and vibration are in its setup, under Options.</span>
+    </p>
+  );
+}
+
+/** Patakha keeps its options with the room, in its setup screen. */
+function PatakhaNote() {
+  return (
+    <p className="settings-note">
+      <SpeakerIcon width={18} height={18} />
+      <span>Patakha&apos;s sound, lives and fuse length are in its setup, under Options.</span>
     </p>
   );
 }
