@@ -45,10 +45,10 @@
 }
 
 @media (min-width: 860px) and (min-height: 480px) {
-  /* Sizes come from the shared game frame in globals.css; the page is exactly
-     that wide, so the top bar lines up with the board and the side column. */
+  /* The board's size comes from the shared frame in globals.css; the side column takes
+     the rest of the page. */
   .kt {
-    grid-template-columns: var(--frame-board) var(--frame-side);
+    grid-template-columns: var(--frame-board) minmax(0, 1fr);
     grid-template-rows: 1fr repeat(5, auto) 1fr;
     grid-template-areas:
       "board ."

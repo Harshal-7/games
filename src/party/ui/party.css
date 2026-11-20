@@ -9,17 +9,6 @@
 
    A game imports this file before its own styles, so its own rules win a tie. */
 
-/* ---------- Page frame: scrolls like a normal page ---------- */
-
-.page.is-party {
-  max-width: 640px;
-}
-@media (min-width: 860px) {
-  .page.is-party {
-    max-width: var(--frame-width, 1040px);
-  }
-}
-
 /* ---------- Setup screen: title, players, options ---------- */
 
 /* Every party game's setup screen has the same parts, in this order in the page (the
