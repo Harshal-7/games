@@ -11,7 +11,7 @@ import { isClosedTour, SIZES, type Size } from "../logic/board";
 import { elapsed, HINT_GO_BACK, newGame, phaseOf, reduce, type Action } from "../logic/game";
 import { analyseCached, lastFinishable, warnsdorffMove } from "../logic/solver";
 import { Board } from "./board";
-import { ResultPanel } from "./result-panel";
+import { ResultCard } from "./result-card";
 import { recordBest, useBestTimes } from "./use-best-times";
 import { useNow } from "./use-clock";
 
@@ -23,7 +23,6 @@ export function KnightsTour() {
   const { knightsTour: options } = useSettings();
   const [game, setGame] = useState(() => newGame(FIRST_SIZE));
   const [solving, setSolving] = useState(false);
-  const [closedPanel, setClosedPanel] = useState<string | null>(null);
 
   const { size, path } = game;
   const total = size * size;
@@ -121,9 +120,7 @@ export function KnightsTour() {
     return () => window.removeEventListener("keydown", listener);
   }, []);
 
-  const finished = phase === "won" || phase === "stuck";
-  const panelKey = `${game.id}:${path.length}`;
-  const showPanel = finished && !solving && closedPanel !== panelKey;
+  const finished = (phase === "won" || phase === "stuck") && !solving;
   const nextSize = SIZES.find((s) => s > size) ?? null;
   const canHint = !solving && (phase === "start" || phase === "playing");
 
@@ -147,67 +144,69 @@ export function KnightsTour() {
       </div>
 
       <div className="kt-play">
-        <div className="kt-status">
-          <span aria-live="polite">{status}</span>
-          <span className="kt-time" aria-label={`Time ${formatDuration(time)}`}>
-            {formatDuration(time)}
-          </span>
+        <div className="kt-status" data-phase={phase}>
+          <div className="kt-status-row">
+            <span aria-live="polite">{status}</span>
+            <span className="kt-time" aria-label={`Time ${formatDuration(time)}`}>
+              {formatDuration(time)}
+            </span>
+          </div>
+          <div className="kt-progress" aria-hidden="true">
+            <span style={{ width: `${(path.length / total) * 100}%` }} />
+          </div>
         </div>
 
-        <div className="kt-board-wrap">
-          <Board
-            size={size}
-            path={path}
-            phase={phase}
-            hint={game.hint}
-              locked={solving}
-            moveMs={solving ? Math.round(stepMs * 0.8) : 180}
-            onSquare={play}
-            options={options}
+        <Board
+          size={size}
+          path={path}
+          phase={phase}
+          hint={game.hint}
+          locked={solving}
+          moveMs={solving ? Math.round(stepMs * 0.8) : 180}
+          onSquare={play}
+          options={options}
+        />
+
+        {finished ? (
+          <ResultCard
+            outcome={phase}
+            game={game}
+            closed={closed}
+            newBest={newBest}
+            backTo={backTo}
+            nextSize={nextSize}
+            onRestart={restart}
+            onUndo={undo}
+            onBack={goBack}
+            onNextSize={() => nextSize && resize(nextSize)}
           />
-          {showPanel && (
-            <ResultPanel
-              outcome={phase}
-              game={game}
-              time={time}
-              closed={closed}
-              newBest={newBest}
-              backTo={backTo}
-              onRestart={restart}
-              onUndo={undo}
-              onBack={goBack}
-              nextSize={nextSize}
-              onNextSize={nextSize ? () => resize(nextSize) : null}
-              onClose={() => setClosedPanel(panelKey)}
-            />
-          )}
-        </div>
-
-        <div className="kt-controls">
-          <button
-            type="button"
-            className={game.hint === HINT_GO_BACK ? "btn kt-text-only is-nudged" : "btn kt-text-only"}
-            onClick={undo}
-            disabled={path.length === 0}
-          >
-            <UndoIcon /> Undo
-          </button>
-          <button type="button" className="btn kt-text-only" onClick={hint} disabled={!canHint}>
-            <BulbIcon /> Hint
-          </button>
-          <button
-            type="button"
-            className={solving ? "btn btn-primary" : "btn"}
-            onClick={() => setSolving((s) => !s)}
-            disabled={!solving && phase === "won"}
-          >
-            {solving ? <StopIcon /> : <PlayIcon />}
-            {solving ? "Stop" : "Watch it solve"}
-          </button>
-          <button type="button" className="btn kt-restart" onClick={restart} aria-label="Restart" title="Restart">
-            <RestartIcon />
-          </button>
-        </div>
+        ) : (
+          <div className="kt-controls">
+            <button
+              type="button"
+              className={game.hint === HINT_GO_BACK ? "btn kt-text-only is-nudged" : "btn kt-text-only"}
+              onClick={undo}
+              disabled={path.length === 0}
+              title="Undo (U)"
+            >
+              <UndoIcon /> Undo
+            </button>
+            <button type="button" className="btn kt-text-only" onClick={hint} disabled={!canHint} title="Hint (H)">
+              <BulbIcon /> Hint
+            </button>
+            <button
+              type="button"
+              className={solving ? "btn btn-primary" : "btn"}
+              onClick={() => setSolving((s) => !s)}
+            >
+              {solving ? <StopIcon /> : <PlayIcon />}
+              {solving ? "Stop" : "Watch it solve"}
+            </button>
+            <button type="button" className="btn kt-restart" onClick={restart} aria-label="Restart" title="Restart">
+              <RestartIcon />
+            </button>
+          </div>
+        )}
       </div>
 
       <p className="kt-best">
