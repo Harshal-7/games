@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Mono, DM_Sans, Fraunces } from "next/font/google";
 
 import { SAVED_ROOM_SCRIPT } from "@/games/imposter/logic/saved";
+import { OfflineWorker } from "@/offline/offline-worker";
 import { SETTINGS_SCRIPT } from "@/settings/settings";
 import { SettingsSync } from "@/settings/settings-sync";
 import { AUTHOR } from "@/ui/site";
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         {children}
         <SettingsSync />
+        <OfflineWorker />
       </body>
     </html>
   );
