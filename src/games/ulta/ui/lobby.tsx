@@ -3,6 +3,7 @@
 import { useId, useState, type ReactNode } from "react";
 
 import { cryptoRandom } from "@/party/logic/random";
+import { PickerLink } from "@/games/finger-picker/ui/setup-link";
 import { Roster } from "@/party/ui/roster";
 import { Confirm } from "@/ui/confirm";
 import { RestartIcon, ShuffleIcon } from "@/ui/icons";
@@ -113,6 +114,7 @@ export function Lobby({ room }: { room: Room }) {
               copying, and there&apos;s no score. From 4 players on, it&apos;s two teams.
             </p>
           )}
+          <PickerLink from="ulta" teams />
         </section>
 
         {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach; on big

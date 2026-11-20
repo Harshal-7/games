@@ -2,6 +2,7 @@
 
 import { useId, useState, type ReactNode } from "react";
 
+import { PickerLink } from "@/games/finger-picker/ui/setup-link";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/party/logic/players";
 import { cryptoRandom } from "@/party/logic/random";
 import { Roster } from "@/party/ui/roster";
@@ -129,6 +130,7 @@ export function Lobby({ room }: { room: Room }) {
             />
           )}
           <Roster players={room.players} scores={room.played > 0 ? room.scores : undefined} onAction={act} />
+          <PickerLink from="imposter" />
         </section>
 
         {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach; on big
