@@ -274,6 +274,39 @@
 
 /* ---------- The deal ---------- */
 
+/* Every deal screen keeps the card screen's height, with the main button in one fixed
+   slot near the bottom and a row under it for Go back, so handing the phone on never
+   moves the button you tap next. */
+.party-stage.maf-deal {
+  justify-content: flex-start;
+  min-height: calc(var(--card-w) * 4 / 3 + 172px);
+  padding-bottom: 0;
+}
+.maf-deal-body {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.maf-deal-main {
+  width: 100%;
+  margin-top: 20px;
+}
+/* The hold button opens the card above it: pressing it mustn't select text or scroll. */
+.maf-hold-go {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.maf-deal-under {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+}
+
 .maf-pass-mark {
   display: grid;
   place-items: center;
@@ -298,9 +331,6 @@
   font-size: 16px;
   line-height: 1.5;
 }
-.maf-pass .btn-big {
-  margin-top: 32px;
-}
 .maf-card-kicker {
   margin: 0;
   font-family: var(--display);
@@ -308,13 +338,6 @@
   font-weight: 700;
   line-height: 1.15;
   overflow-wrap: anywhere;
-}
-.maf-after-card {
-  margin-top: 20px;
-}
-/* "Go back" is smaller than "Done": same slot, so the card doesn't shift when it swaps. */
-.btn.maf-after-card:not(.btn-big) {
-  margin-block: 26px 6px;
 }
 /* On a Mafia card: who else is Mafia, in ink, between the role and its line. */
 .maf-face-team {
