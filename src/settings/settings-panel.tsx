@@ -43,6 +43,7 @@ const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
   mafia: MafiaNote,
   patakha: PatakhaNote,
   "highway-bingo": HighwayBingoNote,
+  ulta: UltaNote,
 };
 
 /**
@@ -239,6 +240,16 @@ function HighwayBingoNote() {
     <p className="settings-note">
       <SpeakerIcon width={18} height={18} />
       <span>Highway Bingo&apos;s card size, sound and screen options are in its setup, under Options.</span>
+    </p>
+  );
+}
+
+/** Ulta keeps its options with the room, in its setup screen. */
+function UltaNote() {
+  return (
+    <p className="settings-note">
+      <SpeakerIcon width={18} height={18} />
+      <span>Ulta&apos;s sound and target score are in its setup, under Options.</span>
     </p>
   );
 }

@@ -56,6 +56,10 @@
   --milestone-deep: #e0b000;
   --milestone-ink: #755500;
   --milestone-soft: #fbedb0;
+  /* Ulta is peacock teal: cream text on it (5:1); teal text on cream uses --teal-deep. */
+  --teal: #0e7479;
+  --teal-deep: #0a5f63;
+  --teal-soft: #cfe7e4;
 
   --radius: 16px;
   --radius-sm: 12px;
@@ -85,6 +89,7 @@ html[data-mode="light"] {
   --red-soft: #f6dcd3;
   --marigold-soft: #fce6c9;
   --milestone-soft: #fdf0c0;
+  --teal-soft: #d5ece9;
 
   color-scheme: light;
 }
@@ -169,6 +174,14 @@ html[data-mode="light"] {
   --on-game: var(--ink);
   --pick: var(--milestone);
   --on-pick: var(--ink);
+}
+[data-game="ulta"] {
+  --game: var(--teal);
+  --game-deep: var(--teal-deep);
+  --game-soft: var(--teal-soft);
+  --on-game: var(--on-red);
+  --pick: var(--teal);
+  --on-pick: var(--on-red);
 }
 
 @theme inline {
