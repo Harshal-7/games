@@ -58,21 +58,18 @@ export default function Home() {
       </main>
 
       <footer className="site-footer">
-        <span className="site-made">
-          <svg viewBox="0 0 44 44" width="34" height="34" role="img" aria-label="HS" className="hs-seal">
+        <a href={PORTFOLIO_URL} target="_blank" rel="noopener noreferrer" className="site-made">
+          <svg viewBox="0 0 44 44" width="34" height="34" aria-hidden="true" className="hs-seal">
             <circle cx="22" cy="22" r="18" className="hs-seal-wax" />
             <circle cx="22" cy="22" r="13.5" className="hs-seal-ring" />
             <text x="22" y="26.5" textAnchor="middle" className="hs-seal-text">
               HS
             </text>
           </svg>
-          <span>
+          <span className="site-made-text">
             Made by <b>{AUTHOR}</b>
           </span>
-        </span>
-        <a href={PORTFOLIO_URL} target="_blank" rel="noopener noreferrer" className="btn site-portfolio">
-          Portfolio
-          <ArrowUpRightIcon width={14} height={14} strokeWidth={2.4} />
+          <ArrowUpRightIcon className="site-made-arrow" width={15} height={15} strokeWidth={2.4} aria-hidden="true" />
         </a>
       </footer>
     </div>

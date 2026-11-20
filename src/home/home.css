@@ -409,9 +409,50 @@ html[data-room] .saved-slot:empty {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  border-radius: 10px;
   color: var(--muted);
   font-size: 14px;
+  text-decoration: none;
   white-space: nowrap;
+}
+.site-made-text {
+  text-decoration: underline 1.5px transparent;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 0.15s;
+}
+.site-made-arrow {
+  flex: none;
+  opacity: 0;
+  transform: translate(-3px, 3px);
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+}
+.site-made:hover .site-made-text,
+.site-made:focus-visible .site-made-text {
+  text-decoration-color: currentColor;
+}
+.site-made:hover .site-made-arrow,
+.site-made:focus-visible .site-made-arrow {
+  opacity: 1;
+  transform: none;
+}
+.site-made:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+}
+/* Phones can't hover: show the arrow softly so it still reads as a link. */
+@media (hover: none) {
+  .site-made-arrow {
+    opacity: 0.7;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-made-text,
+  .site-made-arrow {
+    transition: none;
+  }
 }
 .site-made b {
   color: var(--fg);
@@ -443,13 +484,6 @@ html[data-room] .saved-slot:empty {
   font-style: italic;
   font-weight: 700;
 }
-.site-portfolio {
-  flex: none;
-  padding: 0 14px;
-  font-size: 14px;
-  text-decoration: none;
-}
-
 /* Big screens: the cards side by side. */
 @media (min-width: 760px) {
   .page.is-home {
