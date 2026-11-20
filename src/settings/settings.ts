@@ -1,3 +1,4 @@
+import { isSize, type Size } from "@/games/knights-tour/logic/board";
 import { BOARD_STYLES, PIECE_STYLES, type BoardStyleId, type PieceStyleId } from "@/games/knights-tour/styles";
 
 /** Everything on the Settings page. Saved in this browser only. */
@@ -9,10 +10,11 @@ export const MODES = [
 ] as const;
 export type ModeId = (typeof MODES)[number]["id"];
 
+// The default first.
 export const ACCENTS = [
+  { id: "ocean", label: "Ocean" },
   { id: "sage", label: "Sage" },
   { id: "indigo", label: "Indigo" },
-  { id: "ocean", label: "Ocean" },
   { id: "plum", label: "Plum" },
   { id: "ember", label: "Ember" },
 ] as const;
@@ -27,6 +29,12 @@ export type KnightsTourSettings = {
   moves: boolean;
   /** A dotted line for the last two jumps. */
   trail: boolean;
+  /** A soft click on each jump and a chime at the end. */
+  sound: boolean;
+  /** A short buzz on each jump (phones that support it). */
+  vibrate: boolean;
+  /** The board size picked last time; not shown on the Settings page. */
+  size: Size;
 };
 
 export type Settings = {
@@ -36,9 +44,18 @@ export type Settings = {
 };
 
 export const DEFAULT_SETTINGS: Settings = {
-  mode: "system",
-  accent: "sage",
-  knightsTour: { board: "stone", piece: "classic", numbers: true, moves: true, trail: true },
+  mode: "dark",
+  accent: "ocean",
+  knightsTour: {
+    board: "stone",
+    piece: "classic",
+    numbers: true,
+    moves: true,
+    trail: true,
+    sound: false,
+    vibrate: false,
+    size: 5,
+  },
 };
 
 export const SETTINGS_KEY = "games-settings:v1";
@@ -65,6 +82,9 @@ export function parseSettings(raw: unknown): Settings {
       numbers: flag(kt.numbers, d.numbers),
       moves: flag(kt.moves, d.moves),
       trail: flag(kt.trail, d.trail),
+      sound: flag(kt.sound, d.sound),
+      vibrate: flag(kt.vibrate, d.vibrate),
+      size: isSize(kt.size) ? kt.size : d.size,
     },
   };
 }
@@ -76,9 +96,7 @@ export function parseSettings(raw: unknown): Settings {
  */
 export const SETTINGS_SCRIPT = `(function(){try{var d=document.documentElement,s={};try{s=JSON.parse(localStorage.getItem(${JSON.stringify(
   SETTINGS_KEY,
-)}))||{}}catch(e){}var k=s.knightsTour||{};function p(v,l,f){return l.indexOf(v)>=0?v:f}var m=p(s.mode,${JSON.stringify(
-  ids(MODES),
-)},"system");if(m==="system")m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";d.setAttribute("data-mode",m);d.style.colorScheme=m;d.setAttribute("data-accent",p(s.accent,${JSON.stringify(
+)}))||{}}catch(e){}var k=s.knightsTour||{};function p(v,l,f){return l.indexOf(v)>=0?v:f}var m=p(s.mode,${JSON.stringify(ids(MODES))},${JSON.stringify(DEFAULT_SETTINGS.mode)});if(m==="system")m=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";d.setAttribute("data-mode",m);d.style.colorScheme=m;d.setAttribute("data-accent",p(s.accent,${JSON.stringify(
   ids(ACCENTS),
 )},${JSON.stringify(DEFAULT_SETTINGS.accent)}));d.setAttribute("data-kt-board",p(k.board,${JSON.stringify(
   ids(BOARD_STYLES),

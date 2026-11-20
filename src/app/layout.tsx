@@ -15,16 +15,14 @@ export const metadata: Metadata = {
   description: `Small browser games designed and built by ${AUTHOR}.`,
 };
 
+// Dark is the default theme, so the phone's address bar matches it.
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f5f1" },
-    { media: "(prefers-color-scheme: dark)", color: "#131312" },
-  ],
+  themeColor: "#131312",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${geist.variable} ${geistMono.variable}`}>
+    <html lang="en" data-mode="dark" suppressHydrationWarning className={`${geist.variable} ${geistMono.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: SETTINGS_SCRIPT }} />
       </head>

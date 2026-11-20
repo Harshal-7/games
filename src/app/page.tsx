@@ -3,12 +3,10 @@ import Link from "next/link";
 import { GAMES } from "@/games/registry";
 import { ArrowUpRightIcon } from "@/ui/icons";
 import { AUTHOR, PORTFOLIO_URL } from "@/ui/site";
-import { TopBar } from "@/ui/top-bar";
 
 export default function Home() {
   return (
-    <div className="page">
-      <TopBar />
+    <div className="page is-home">
       <main>
         <section className="home-hero">
           <h1 className="home-title">Games</h1>

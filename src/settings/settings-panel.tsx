@@ -1,13 +1,16 @@
 "use client";
 
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 
 import { BOARD_STYLES, PIECE_STYLES } from "@/games/knights-tour/styles";
 import { Board } from "@/games/knights-tour/ui/board";
+import { cue } from "@/games/knights-tour/ui/feedback";
 import { PIECES } from "@/games/knights-tour/ui/knight-piece";
-import { CheckIcon, MonitorIcon, MoonIcon, SunIcon } from "@/ui/icons";
+import { BackButton } from "@/ui/back-button";
+import { CheckIcon, MonitorIcon, MoonIcon, RestartIcon, SunIcon } from "@/ui/icons";
+import { TopBar } from "@/ui/top-bar";
 
-import { ACCENTS, MODES, type KnightsTourSettings } from "./settings";
+import { ACCENTS, DEFAULT_SETTINGS, MODES, type KnightsTourSettings, type Settings } from "./settings";
 import { updateSettings, useSettings } from "./store";
 
 import "@/games/knights-tour/ui/knights-tour.css";
@@ -17,26 +20,78 @@ const MODE_ICONS = { system: MonitorIcon, light: SunIcon, dark: MoonIcon };
 // A few real knight jumps, so the preview shows numbers, the trail and the dots.
 const PREVIEW_PATH = [0, 7, 14, 23];
 
+type Flag = "numbers" | "moves" | "trail" | "sound" | "vibrate";
+
+const SWITCHES: { key: Flag; label: string; detail: string }[] = [
+  { key: "numbers", label: "Move numbers", detail: "Number each visited square" },
+  { key: "moves", label: "Possible moves", detail: "Dots where the knight can go" },
+  { key: "trail", label: "Trail", detail: "Line for the last two jumps" },
+  { key: "sound", label: "Sound", detail: "Click on each jump, chime at the end" },
+  { key: "vibrate", label: "Vibration", detail: "Short buzz on phones that support it" },
+];
+
+// The remembered board size isn't on this page, so it never counts as a change and
+// Reset leaves it alone.
+const withoutSize = (s: Settings) => ({
+  ...s,
+  knightsTour: { ...s.knightsTour, size: DEFAULT_SETTINGS.knightsTour.size },
+});
+
 export function SettingsPanel() {
   const settings = useSettings();
   const kt = settings.knightsTour;
   const setKnightsTour = (patch: Partial<KnightsTourSettings>) =>
     updateSettings((s) => ({ ...s, knightsTour: { ...s.knightsTour, ...patch } }));
-  const ids = { theme: useId(), colour: useId(), board: useId(), knight: useId() };
+  const isDefault = JSON.stringify(withoutSize(settings)) === JSON.stringify(DEFAULT_SETTINGS);
+  const reset = () =>
+    updateSettings((s) => ({
+      ...DEFAULT_SETTINGS,
+      knightsTour: { ...DEFAULT_SETTINGS.knightsTour, size: s.knightsTour.size },
+    }));
   const accentLabel = ACCENTS.find((a) => a.id === settings.accent)?.label;
+
+  function toggle(key: Flag) {
+    const on = !kt[key];
+    setKnightsTour({ [key]: on });
+    // Let people hear or feel what they just switched on.
+    if (on && key === "sound") cue("move", { sound: true, vibrate: false });
+    if (on && key === "vibrate") cue("move", { sound: false, vibrate: true });
+  }
 
   return (
     <div className="settings">
-      <h1 className="game-title">Settings</h1>
-      <p className="game-blurb">Saved in this browser.</p>
+      <TopBar
+        back={<BackButton label="Knight's Tour" fallback="/knights-tour" />}
+        actions={
+          <button type="button" className="btn" onClick={reset} disabled={isDefault} title="Back to the default look">
+            <RestartIcon width={16} height={16} />
+            Reset
+          </button>
+        }
+      />
 
-      <section className="settings-section">
+      <div className="settings-intro">
+        <h1 className="game-title">Settings</h1>
+        <p className="game-blurb">Saved in this browser. Changes show up straight away.</p>
+      </div>
+
+      <div className="settings-preview" inert aria-hidden="true">
+        <Board
+          size={5}
+          path={PREVIEW_PATH}
+          phase="playing"
+          hint={null}
+          locked
+          moveMs={0}
+          onSquare={() => {}}
+          options={kt}
+        />
+      </div>
+
+      <section className="settings-card settings-look">
         <h2>Look</h2>
-        <div className="setting-row">
-          <span className="setting-label" id={ids.theme}>
-            Theme
-          </span>
-          <div className="seg" role="radiogroup" aria-labelledby={ids.theme}>
+        <Field label="Theme" inline>
+          <div className="seg">
             {MODES.map(({ id, label }) => {
               const Icon = MODE_ICONS[id];
               return (
@@ -53,12 +108,9 @@ export function SettingsPanel() {
               );
             })}
           </div>
-        </div>
-        <div className="setting-row">
-          <span className="setting-label" id={ids.colour}>
-            Colour <span className="setting-value">{accentLabel}</span>
-          </span>
-          <div className="swatches" role="radiogroup" aria-labelledby={ids.colour}>
+        </Field>
+        <Field label="Colour" note={accentLabel} inline>
+          <div className="swatches">
             {ACCENTS.map(({ id, label }) => (
               <button
                 key={id}
@@ -71,129 +123,124 @@ export function SettingsPanel() {
                 className="swatch"
                 onClick={() => updateSettings((s) => ({ ...s, accent: id }))}
               >
-                <CheckIcon width={16} height={16} strokeWidth={2.6} />
+                <CheckIcon width={15} height={15} strokeWidth={2.8} />
               </button>
             ))}
           </div>
-        </div>
+        </Field>
       </section>
 
-      <section className="settings-section">
+      <section className="settings-card settings-kt">
         <h2>Knight&apos;s Tour</h2>
-        <div className="settings-preview" inert>
-          <Board
-            size={5}
-            path={PREVIEW_PATH}
-            phase="playing"
-            hint={null}
-            locked
-            moveMs={0}
-            onSquare={() => {}}
-            options={kt}
-          />
-        </div>
-
-        <div className="setting-block">
-          <span className="setting-label" id={ids.board}>
-            Board
-          </span>
-          <div className="option-grid" role="radiogroup" aria-labelledby={ids.board}>
+        <Field label="Board">
+          <div className="tiles">
             {BOARD_STYLES.map(({ id, label }) => (
-              <button
-                key={id}
-                type="button"
-                role="radio"
-                aria-checked={kt.board === id}
-                className="option-card"
-                onClick={() => setKnightsTour({ board: id })}
-              >
-                <span className="mini-board" data-kt-board={id} aria-hidden="true">
+              <Tile key={id} label={label} selected={kt.board === id} onSelect={() => setKnightsTour({ board: id })}>
+                <span className="mini-board" data-kt-board={id}>
                   {Array.from({ length: 16 }, (_, i) => (
                     <span key={i} className={((i >> 2) + (i & 3)) % 2 ? "is-dark" : "is-light"} />
                   ))}
                 </span>
-                {label}
-              </button>
+              </Tile>
             ))}
           </div>
-        </div>
-
-        <div className="setting-block">
-          <span className="setting-label" id={ids.knight}>
-            Knight
-          </span>
-          <div className="option-grid" role="radiogroup" aria-labelledby={ids.knight}>
+        </Field>
+        <Field label="Knight">
+          <div className="tiles">
             {PIECE_STYLES.map(({ id, label }) => {
               const Piece = PIECES[id];
               return (
-                <button
-                  key={id}
-                  type="button"
-                  role="radio"
-                  aria-checked={kt.piece === id}
-                  className="option-card"
-                  onClick={() => setKnightsTour({ piece: id })}
-                >
-                  <span className="option-piece" aria-hidden="true">
-                    <Piece />
-                  </span>
-                  {label}
-                </button>
+                <Tile key={id} label={label} selected={kt.piece === id} onSelect={() => setKnightsTour({ piece: id })}>
+                  <Piece className="tile-piece" />
+                </Tile>
               );
             })}
           </div>
-        </div>
-
-        <Toggle
-          label="Move numbers"
-          detail="Number each square in the order you visit it."
-          checked={kt.numbers}
-          onChange={(numbers) => setKnightsTour({ numbers })}
-        />
-        <Toggle
-          label="Possible moves"
-          detail="Dots on the squares the knight can jump to. Turn off for a harder game."
-          checked={kt.moves}
-          onChange={(moves) => setKnightsTour({ moves })}
-        />
-        <Toggle
-          label="Trail"
-          detail="A dotted line for the knight's last two jumps."
-          checked={kt.trail}
-          onChange={(trail) => setKnightsTour({ trail })}
-        />
+        </Field>
+        <Field label="Options" group>
+          <div className="switches">
+            {SWITCHES.map(({ key, label, detail }) => (
+              <SwitchRow key={key} label={label} detail={detail} on={kt[key]} onToggle={() => toggle(key)} />
+            ))}
+          </div>
+        </Field>
       </section>
     </div>
   );
 }
 
-function Toggle({
+/** A labelled setting. `inline` puts the label beside the choices instead of above. */
+function Field({
   label,
-  detail,
-  checked,
-  onChange,
+  note,
+  inline = false,
+  group = false,
+  children,
 }: {
   label: string;
-  detail: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
+  note?: string;
+  inline?: boolean;
+  group?: boolean;
+  children: ReactNode;
 }) {
   const id = useId();
   return (
-    <div className="setting-row">
-      <div>
-        <span className="setting-label" id={id}>
+    <div className={inline ? "field is-inline" : "field"}>
+      <span className="field-label" id={id}>
+        {label}
+        {note && <span className="field-note">{note}</span>}
+      </span>
+      <div role={group ? "group" : "radiogroup"} aria-labelledby={id}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Tile({
+  label,
+  selected,
+  onSelect,
+  children,
+}: {
+  label: string;
+  selected: boolean;
+  onSelect: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button type="button" role="radio" aria-checked={selected} className="tile" onClick={onSelect}>
+      <span className="tile-art" aria-hidden="true">
+        {children}
+      </span>
+      <span className="tile-name">{label}</span>
+      <span className="tile-check" aria-hidden="true">
+        <CheckIcon width={11} height={11} strokeWidth={3.2} />
+      </span>
+    </button>
+  );
+}
+
+function SwitchRow({ label, detail, on, onToggle }: { label: string; detail: string; on: boolean; onToggle: () => void }) {
+  const id = useId();
+  return (
+    <div className="switch-row">
+      <span>
+        <span className="switch-label" id={`${id}-label`}>
           {label}
         </span>
-        <span className="setting-detail">{detail}</span>
-      </div>
+        <span className="switch-detail" id={`${id}-detail`}>
+          {detail}
+        </span>
+      </span>
       <button
         type="button"
         role="switch"
-        aria-checked={checked}
-        aria-labelledby={id}
+        aria-checked={on}
+        aria-labelledby={`${id}-label`}
+        aria-describedby={`${id}-detail`}
         className="switch"
-        onClick={() => onChange(!checked)}
+        onClick={onToggle}
       >
         <span />
       </button>

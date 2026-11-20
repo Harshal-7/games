@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 
 import { SettingsPanel } from "@/settings/settings-panel";
-import { BackButton } from "@/ui/back-button";
-import { TopBar } from "@/ui/top-bar";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -11,11 +9,8 @@ export const metadata: Metadata = {
 
 export default function SettingsPage() {
   return (
-    <div className="page">
-      <TopBar back={<BackButton />} settings={false} />
-      <main>
-        <SettingsPanel />
-      </main>
+    <div className="page is-settings">
+      <SettingsPanel />
     </div>
   );
 }

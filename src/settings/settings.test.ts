@@ -5,7 +5,7 @@ import { DEFAULT_SETTINGS, parseSettings, SETTINGS_SCRIPT } from "./settings";
 describe("settings", () => {
   it("falls back to the defaults for missing or broken values", () => {
     expect(parseSettings(null)).toEqual(DEFAULT_SETTINGS);
-    expect(parseSettings({ mode: "neon", accent: 3, knightsTour: { board: "wood", numbers: "yes" } })).toEqual(
+    expect(parseSettings({ mode: "neon", accent: 3, knightsTour: { board: "wood", numbers: "yes", size: 9 } })).toEqual(
       DEFAULT_SETTINGS,
     );
   });
@@ -14,7 +14,16 @@ describe("settings", () => {
     const saved = {
       mode: "dark",
       accent: "plum",
-      knightsTour: { board: "slate", piece: "pixel", numbers: false, moves: false, trail: false },
+      knightsTour: {
+        board: "slate",
+        piece: "pixel",
+        numbers: false,
+        moves: false,
+        trail: false,
+        sound: true,
+        vibrate: true,
+        size: 7,
+      },
     };
     expect(parseSettings(saved)).toEqual(saved);
   });
