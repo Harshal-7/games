@@ -215,8 +215,11 @@ plays with none.
   `touch-action: none` and no selecting or callouts. Once nobody has joined or left for 1.5
   seconds, a 3-second countdown runs; any finger joining or leaving starts it over. Time
   comes in with each event from `Date.now()`. A cancelled pointer (a call, a system
-  gesture) leaves like a lifted finger; switching apps or turning the phone starts clean.
-  The pick stays until every finger lifts, and fingers that join late are ignored.
+  gesture) leaves like a lifted finger, and switching apps drops every finger.
+- **The result stays.** Once it picks, the screen freezes: the pick, the teams or the order
+  stay up with every disc where it was, after fingers lift and through an app switch,
+  until Go again clears it. Turning the phone starts clean, since the discs would be in
+  the wrong places.
 - **Fair** (`logic/pick.ts`): Pick one is one uniform `cryptoRandom` pick, Teams (2 to 4)
   shuffles and deals in turn so sizes differ by one at most, and Order is a shuffle. Tests
   check the picks over many runs.

@@ -112,17 +112,26 @@ describe("the countdown", () => {
     expect(reduce(table, tick(2000 + END))).toBe(table);
   });
 
-  it("keeps the pick until every finger lifts, ignoring late fingers", () => {
+  it("keeps the result on screen after every finger lifts, until Go again", () => {
     let table = run(EMPTY, down(1, 0), down(2, 0), down(3, 0), tick(END));
-    const result = table.result;
-    expect(result).not.toBeNull();
-    table = run(table, down(9, END + 100), up(1, END + 200), up(2, END + 300));
-    expect(table.result).toBe(result);
-    expect(table.fingers.map((f) => f.id)).toEqual([3]);
-    table = reduce(table, up(3, END + 400));
-    expect(table.result).toBe(result);
-    table = reduce(table, up(9, END + 500));
+    const decided = table;
+    expect(decided.result).not.toBeNull();
+    // Lifting, moving and new fingers change nothing: the discs stay where they were.
+    table = run(table, up(1, END + 100), up(2, END + 200), up(3, END + 300), down(9, END + 400));
+    table = reduce(table, { type: "move", id: 3, x: 999, y: 999 });
+    expect(table).toBe(decided);
+    // The phone dropping its touches keeps the result too.
+    expect(reduce(table, { type: "lost" })).toBe(decided);
+    // Go again clears it, and new fingers start a new round.
+    table = reduce(table, { type: "reset" });
     expect(table).toBe(EMPTY);
+    expect(reduce(table, down(9, END + 500)).fingers.map((f) => f.id)).toEqual([9]);
+  });
+
+  it("loses every finger when the phone drops its touches before a result", () => {
+    const table = run(EMPTY, down(1, 0), down(2, 0));
+    expect(reduce(table, { type: "lost" })).toBe(EMPTY);
+    expect(reduce(EMPTY, { type: "lost" })).toBe(EMPTY);
   });
 
   it("a cancelled finger (a call, a system gesture) leaves like a lifted one", () => {

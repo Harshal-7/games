@@ -8,8 +8,9 @@ import { makeOrder, makeTeams, pickOne, type Mode } from "./pick";
  * countdown runs, and a finger joining or leaving starts it all over. Time comes in with
  * each event (`now`, from Date.now()), so a slow or paused page can't stretch it.
  *
- * After the pick the result stays until every finger has lifted. Fingers that join then
- * are only counted so the table knows when it's empty again.
+ * Once something is decided the table freezes: the result stays on screen with every
+ * finger's disc where it was, lifted or not, and touches do nothing until Go again
+ * (a reset) clears it.
  */
 
 /** How long nobody may move before the countdown starts. */
@@ -35,11 +36,9 @@ export type Table = {
   /** When a finger last joined or left: the countdown runs off this. */
   changedAt: number | null;
   result: Result | null;
-  /** After a pick: fingers that joined late, still down. */
-  late: number[];
 };
 
-export const EMPTY: Table = { fingers: [], changedAt: null, result: null, late: [] };
+export const EMPTY: Table = { fingers: [], changedAt: null, result: null };
 
 export type Event =
   | { type: "down"; id: number; x: number; y: number; now: number }
@@ -47,6 +46,9 @@ export type Event =
   /** A finger lifted, or the phone took it away (pointercancel). */
   | { type: "up"; id: number; now: number }
   | { type: "tick"; now: number; mode: Mode; teams: number; rng: Rng }
+  /** The phone dropped every touch (a call, an app switch): fingers go, a result stays. */
+  | { type: "lost" }
+  /** Go again: everything goes. */
   | { type: "reset" };
 
 /** The lowest colour no finger is using, so colours stay put as fingers come and go. */
@@ -66,9 +68,14 @@ export function reduce(table: Table, event: Event): Table {
   switch (event.type) {
     case "reset":
       return table === EMPTY ? table : EMPTY;
+    case "lost":
+      return table.result || table === EMPTY ? table : EMPTY;
+  }
+  // A decided table is frozen until Go again.
+  if (table.result) return table;
+  switch (event.type) {
     case "down": {
-      if (table.fingers.some((f) => f.id === event.id) || table.late.includes(event.id)) return table;
-      if (table.result) return { ...table, late: [...table.late, event.id] };
+      if (table.fingers.some((f) => f.id === event.id)) return table;
       const finger = { id: event.id, x: event.x, y: event.y, color: freeColor(table.fingers) };
       return { ...table, fingers: [...table.fingers, finger], changedAt: event.now };
     }
@@ -81,13 +88,11 @@ export function reduce(table: Table, event: Event): Table {
     }
     case "up": {
       const fingers = table.fingers.filter((f) => f.id !== event.id);
-      const late = table.late.filter((id) => id !== event.id);
-      if (fingers.length === table.fingers.length && late.length === table.late.length) return table;
-      if (table.result) return fingers.length + late.length === 0 ? EMPTY : { ...table, fingers, late };
+      if (fingers.length === table.fingers.length) return table;
       return { ...table, fingers, changedAt: fingers.length > 0 ? event.now : null };
     }
     case "tick": {
-      if (table.result || table.changedAt === null || table.fingers.length < MIN_FINGERS) return table;
+      if (table.changedAt === null || table.fingers.length < MIN_FINGERS) return table;
       if (event.now < table.changedAt + SETTLE_MS + COUNT_MS) return table;
       const ids = table.fingers.map((f) => f.id);
       return { ...table, result: decide(ids, event.mode, event.teams, event.rng) };

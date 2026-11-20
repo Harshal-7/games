@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer, useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useReducer, useRef, type PointerEvent, type ReactNode } from "react";
 
 import { cryptoRandom } from "@/party/logic/random";
 import { tick, wakeAudio } from "@/party/ui/sounds";
@@ -75,22 +75,23 @@ export function FingerPicker() {
     }
   }, [cue, options.sound]);
 
-  // A call, an app switch or the phone turning: every finger is lost, so start clean. Only a
+  // A call or an app switch drops every touch: the fingers go, but a result stays on
+  // screen. Turning the phone moves the area under the discs, so it starts clean. Only a
   // new width counts as turning; a browser bar sliding in or out changes just the height.
   useEffect(() => {
-    const reset = () => dispatch({ type: "reset" });
-    const hidden = () => document.visibilityState === "hidden" && reset();
+    const lost = () => dispatch({ type: "lost" });
+    const hidden = () => document.visibilityState === "hidden" && lost();
     let width = window.innerWidth;
     const turned = () => {
       if (window.innerWidth === width) return;
       width = window.innerWidth;
-      reset();
+      dispatch({ type: "reset" });
     };
-    window.addEventListener("blur", reset);
+    window.addEventListener("blur", lost);
     window.addEventListener("resize", turned);
     document.addEventListener("visibilitychange", hidden);
     return () => {
-      window.removeEventListener("blur", reset);
+      window.removeEventListener("blur", lost);
       window.removeEventListener("resize", turned);
       document.removeEventListener("visibilitychange", hidden);
     };
@@ -107,9 +108,9 @@ export function FingerPicker() {
   };
 
   // Phones stop counting touches at a limit (iPhones at 5): say so once it's reached.
-  const limit = hydrated ? navigator.maxTouchPoints : 0;
-  const full = limit >= MIN_FINGERS && count > 0 && count + table.late.length >= limit;
   const result = at.kind === "picked" ? at.result : null;
+  const limit = hydrated ? navigator.maxTouchPoints : 0;
+  const full = !result && limit >= MIN_FINGERS && count >= limit;
   const chosen = result?.mode === "one" ? table.fingers.find((f) => f.id === result.picked) : undefined;
 
   return (
@@ -146,23 +147,19 @@ export function FingerPicker() {
         {table.fingers.map((finger) => (
           <Disc key={finger.id} finger={finger} at={at} result={result} />
         ))}
-        {(full || result) && (
+        {full && (
           <div className="fp-area-foot">
-            {full && (
-              <p className="card fp-limit" role="note">
-                <InfoIcon width={20} height={20} strokeWidth={2.2} />
-                <span>
-                  This phone counts {limit} fingers at once. Anyone else waits for the next go.
-                </span>
-              </p>
-            )}
-            {result && <p className="fp-again">Lift every finger to go again.</p>}
+            <p className="card fp-limit" role="note">
+              <InfoIcon width={20} height={20} strokeWidth={2.2} />
+              <span>This phone counts {limit} fingers at once. Anyone else waits for the next go.</span>
+            </p>
           </div>
         )}
       </div>
 
+      {/* Everything under the area shares one spot, so the area keeps its size as the choices
+          give way to the count and then to Go again. */}
       <div className="fp-foot">
-        {/* The choices keep their room while fingers are down, so the touch area never moves. */}
         <div className="fp-choices" inert={count > 0} data-hidden={count > 0 || undefined}>
           <Choice label="Mode" className="fp-modes">
             {MODES.map((mode) => (
@@ -181,10 +178,16 @@ export function FingerPicker() {
             </Choice>
           )}
         </div>
-        {count > 0 && (
-          <p className={result ? "fp-foot-note is-summary" : "fp-foot-note"}>
-            {result ? summary(result, count) : "A finger joins or lifts? The count starts again."}
-          </p>
+        {result ? (
+          // The result stays when fingers lift, so everyone can look; only this clears it.
+          <div className="fp-done">
+            <p className="fp-foot-note is-summary">{summary(result, count)}</p>
+            <button type="button" className="btn btn-primary btn-big fp-go" onClick={() => dispatch({ type: "reset" })}>
+              Go again
+            </button>
+          </div>
+        ) : (
+          count > 0 && <p className="fp-foot-note">A finger joins or lifts? The count starts again.</p>
         )}
       </div>
     </div>
@@ -297,15 +300,29 @@ function Disc({ finger, at, result }: { finger: Finger; at: Phase; result: Resul
   );
 }
 
-/** Pick one: the chosen finger's colour grows from under it until it fills the area. */
+/**
+ * Pick one: the chosen finger's colour grows from under it until it fills the area (150%
+ * reaches the farthest corner from anywhere). It grows once, with the Web Animations API,
+ * so a page Next shows again doesn't replay it; under reduced motion it's just there.
+ */
 function Fill({ finger }: { finger: Finger }) {
-  const [grown, setGrown] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+  const at = `${finger.x}px ${finger.y}px`;
+  useLayoutEffect(() => {
+    const fill = ref.current;
+    if (!fill || typeof fill.animate !== "function") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    fill.animate([{ clipPath: `circle(50px at ${at})` }, { clipPath: `circle(150% at ${at})` }], {
+      duration: 550,
+      easing: "cubic-bezier(0.3, 0.7, 0.4, 1)",
+    });
+  }, [at]);
   return (
     <span
-      className={grown ? "fp-fill" : "fp-fill is-growing"}
+      ref={ref}
+      className="fp-fill"
       data-color={finger.color}
-      style={{ left: finger.x, top: finger.y }}
-      onAnimationEnd={() => setGrown(true)}
+      style={{ clipPath: `circle(150% at ${at})` }}
       aria-hidden="true"
     />
   );
