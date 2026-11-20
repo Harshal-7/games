@@ -36,6 +36,24 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
     act({ type: "done", now: Date.now() });
   };
 
+  // The main button keeps one spot on every deal screen (I'm Riya, Done, I'm Aman…), so a
+  // thumb or a mouse never has to move. Before the card is opened that spot stays empty,
+  // so a double tap can't skip anything; Go back sits in the row under it.
+  let main = null;
+  if (!round.looking) {
+    main = (
+      <button type="button" className="btn btn-primary btn-big" onClick={() => act({ type: "look" })}>
+        I&apos;m {name}
+      </button>
+    );
+  } else if (opens > 0) {
+    main = (
+      <button type="button" className="btn btn-primary btn-big" onClick={done}>
+        {next ? `Done, pass to ${names[next]}` : "Done, start talking"}
+      </button>
+    );
+  }
+
   return (
     <div className="party-play">
       <PlayHead round={round.number} label={`Card ${round.turn + 1} of ${round.seats.length}`} />
@@ -54,35 +72,33 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
         })}
       </ol>
 
-      {!round.looking ? (
-        <div className="party-stage is-deal imp-pass" key={`pass-${id}`}>
-          <span className="imp-pass-mark" aria-hidden="true">
-            <EyeOffIcon width={44} height={44} strokeWidth={2} />
-          </span>
-          <p className="imp-pass-kicker">Pass the phone to</p>
-          <BigName name={name} />
-          <p className="party-help">Only {name} looks. Everyone else, eyes off the screen.</p>
-          <button type="button" className="btn btn-primary btn-big" onClick={() => act({ type: "look" })}>
-            I&apos;m {name}
-          </button>
-        </div>
-      ) : (
-        <div className="party-stage is-deal" key={`card-${id}-${round.word}`}>
-          <h2 className="imp-card-kicker">{name}&apos;s card</h2>
-          <HoldCard name={name} opens={opens} buzz={sound} onOpen={() => act({ type: "open", id })}>
-            <SecretFace round={round} id={id} clue={room.options.clue} />
-          </HoldCard>
-          {opens === 0 ? (
-            <button type="button" className="btn imp-after-card" onClick={() => act({ type: "back" })}>
+      <div className="party-stage is-deal imp-deal">
+        {!round.looking ? (
+          <div className="imp-deal-body imp-pass" key={`pass-${id}`}>
+            <span className="imp-pass-mark" aria-hidden="true">
+              <EyeOffIcon width={44} height={44} strokeWidth={2} />
+            </span>
+            <p className="imp-pass-kicker">Pass the phone to</p>
+            <BigName name={name} />
+            <p className="party-help">Only {name} looks. Everyone else, eyes off the screen.</p>
+          </div>
+        ) : (
+          <div className="imp-deal-body" key={`card-${id}-${round.word}`}>
+            <h2 className="imp-card-kicker">{name}&apos;s card</h2>
+            <HoldCard name={name} opens={opens} buzz={sound} onOpen={() => act({ type: "open", id })}>
+              <SecretFace round={round} id={id} clue={room.options.clue} />
+            </HoldCard>
+          </div>
+        )}
+        <div className="imp-deal-main">{main}</div>
+        <div className="imp-deal-under">
+          {round.looking && opens === 0 && (
+            <button type="button" className="btn imp-small" onClick={() => act({ type: "back" })}>
               Not {name}? Go back
-            </button>
-          ) : (
-            <button type="button" className="btn btn-primary btn-big imp-after-card" onClick={done}>
-              {next ? `Done, pass to ${names[next]}` : "Done, start talking"}
             </button>
           )}
         </div>
-      )}
+      </div>
 
       {ask === "redeal" ? (
         <Confirm
