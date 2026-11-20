@@ -28,3 +28,14 @@ export const MIC_HELP: Record<MicProblem, { title: string; detail: string }> = {
     detail: "Hold the button again. If it keeps failing, reload the page.",
   },
 };
+
+/** The mic didn't work: what happened and how to fix it, in the site's red. */
+export function MicTrouble({ problem }: { problem: MicProblem }) {
+  const { title, detail } = MIC_HELP[problem];
+  return (
+    <div className="ul-problem" role="alert">
+      <strong>{title}</strong>
+      <p>{detail}</p>
+    </div>
+  );
+}

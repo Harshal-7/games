@@ -1,5 +1,5 @@
 import { updatePlayers, type Limits, type Player, type PlayerAction } from "@/party/logic/players";
-import type { Rng } from "@/party/logic/random";
+import { randomId, type Rng } from "@/party/logic/random";
 import { changeTimer, timeLeft, type Timer, type TimerOp } from "@/party/logic/timer";
 
 import { drawSong, songKey, type Song } from "./songs";
@@ -78,6 +78,8 @@ export type Turn = {
 };
 
 export type Game = {
+  /** Tells this game's recordings from another's, in the page's memory. */
+  id: string;
   mode: "teams" | "fun";
   /** Singing order: each team's players, or everyone when playing for fun. */
   order: Partial<Record<TeamId, string[]>> & { all?: string[] };
@@ -198,12 +200,21 @@ function newGame(room: Room, rng: Rng): Game {
   const random = (n: number) => Math.floor(rng() * n);
   if (!playsInTeams(room.players.length)) {
     const all = room.players.map((p) => p.id);
-    const base = { mode: "fun" as const, order: { all }, sung: { all: 0 }, start: { all: random(all.length) }, scores: { a: 0, b: 0 }, over: false };
+    const base = {
+      id: randomId(rng),
+      mode: "fun" as const,
+      order: { all },
+      sung: { all: 0 },
+      start: { all: random(all.length) },
+      scores: { a: 0, b: 0 },
+      over: false,
+    };
     return { ...base, turn: newTurn(base, 1, null) };
   }
   const a = teamPlayers(room, "a").map((p) => p.id);
   const b = teamPlayers(room, "b").map((p) => p.id);
   const base = {
+    id: randomId(rng),
     mode: "teams" as const,
     order: { a, b },
     sung: { a: 0, b: 0 },
@@ -299,7 +310,8 @@ export function reduce(room: Room, action: Action): Room {
     case "open-song":
       return turn.stage === "pick" && turn.song ? setTurn({ opens: turn.opens + 1 }) : room;
     case "sing":
-      return turn.stage === "pick" && turn.song ? setTurn({ stage: "sing" }) : room;
+      // A suggested song is sung once the singer has seen it.
+      return turn.stage === "pick" && turn.song && turn.opens > 0 ? setTurn({ stage: "sing" }) : room;
     case "sung":
       return turn.stage === "sing" ? setTurn({ stage: "copy", listens: 0 }) : room;
     case "listen":
@@ -377,7 +389,7 @@ function validGame(game: unknown, players: readonly Player[]): game is Game {
   const g = game as Game;
   const ids = new Set(players.map((p) => p.id));
   const turn = g.turn;
-  if (g.mode !== "teams" && g.mode !== "fun") return false;
+  if (typeof g.id !== "string" || (g.mode !== "teams" && g.mode !== "fun")) return false;
   if (typeof g.over !== "boolean" || !g.scores || typeof g.scores.a !== "number" || typeof g.scores.b !== "number") return false;
   const orders = g.mode === "fun" ? [g.order?.all] : [g.order?.a, g.order?.b];
   if (!orders.every((o) => Array.isArray(o) && o.length > 0 && o.every((id) => ids.has(id)))) return false;

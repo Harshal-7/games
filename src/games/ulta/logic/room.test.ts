@@ -149,7 +149,9 @@ describe("a turn", () => {
     expect(room.game!.turn.stage).toBe("pick");
     room = reduce(room, { type: "sing" });
     expect(room.game!.turn.stage).toBe("pick"); // no song yet: Sing needs one
-    room = run(room, { type: "suggest", rng: seeded(2) }, { type: "open-song" }, { type: "open-song" });
+    room = run(room, { type: "suggest", rng: seeded(2) }, { type: "sing" });
+    expect(room.game!.turn.stage).toBe("pick"); // not seen yet: hold the card first
+    room = run(room, { type: "open-song" }, { type: "open-song" });
     expect(room.game!.turn.song).not.toBeNull();
     expect(room.game!.turn.opens).toBe(2);
     expect(room.used).toHaveLength(1);

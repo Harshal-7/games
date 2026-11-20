@@ -25,7 +25,7 @@ export function stopPlaying(): void {
  * iPhone play with its silent switch on, and through the speaker rather than the
  * earpiece it uses while the mic is on.
  */
-export function playClips(clips: readonly Clip[]): Playing {
+export function playClips(clips: readonly Clip[], delay = 0): Playing {
   stopPlaying();
   setAudioSession("playback");
   const ctx = audioContext();
@@ -33,7 +33,7 @@ export function playClips(clips: readonly Clip[]): Playing {
   if (ctx.state !== "running") void ctx.resume();
 
   const sources: AudioBufferSourceNode[] = [];
-  let at = ctx.currentTime + 0.05;
+  let at = ctx.currentTime + 0.05 + delay;
   for (const clip of clips) {
     if (clip.samples.length === 0) continue;
     const buffer = ctx.createBuffer(1, clip.samples.length, clip.rate);

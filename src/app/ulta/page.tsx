@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 
-import { UltaCheck } from "@/games/ulta/ui/check";
+import { Ulta } from "@/games/ulta/ui/ulta";
 import { GameShell } from "@/ui/game-shell";
 
 export const metadata: Metadata = {
   title: "Ulta",
-  description: "Sing a line, hear it backwards, copy it, and guess the song from the flipped copy.",
+  description:
+    "A party game for one phone. Sing a line, a teammate copies it backwards, and the team guesses the song from the flipped copy.",
 };
 
 export default function UltaPage() {
   return (
     <GameShell game="ulta" layout="party">
-      <UltaCheck />
+      <Ulta />
     </GameShell>
   );
 }
