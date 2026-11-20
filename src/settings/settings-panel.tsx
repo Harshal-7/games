@@ -42,6 +42,7 @@ const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
   imposter: ImposterNote,
   mafia: MafiaNote,
   patakha: PatakhaNote,
+  "highway-bingo": HighwayBingoNote,
 };
 
 /**
@@ -228,6 +229,16 @@ function PatakhaNote() {
     <p className="settings-note">
       <SpeakerIcon width={18} height={18} />
       <span>Patakha&apos;s sound, lives and fuse length are in its setup, under Options.</span>
+    </p>
+  );
+}
+
+/** Highway Bingo keeps its options on this phone, in its setup screen. */
+function HighwayBingoNote() {
+  return (
+    <p className="settings-note">
+      <SpeakerIcon width={18} height={18} />
+      <span>Highway Bingo&apos;s card size, sound and screen options are in its setup, under Options.</span>
     </p>
   );
 }
