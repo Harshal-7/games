@@ -122,6 +122,10 @@ function SettingsView({ game }: { game: GameSlug | null }) {
       ) : (
         <p className="settings-note">Open Settings from inside a game to change that game&apos;s options too.</p>
       )}
+
+      <p className="settings-note settings-offline">
+        Works offline after your first visit. Add it to your Home Screen for an app icon.
+      </p>
     </div>
   );
 }

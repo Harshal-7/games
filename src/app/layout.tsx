@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Mono, DM_Sans, Fraunces } from "next/font/google";
 
 import { SAVED_ROOM_SCRIPT } from "@/games/imposter/logic/saved";
+import { OfflineWorker } from "@/offline/offline-worker";
 import { SETTINGS_SCRIPT } from "@/settings/settings";
 import { SettingsSync } from "@/settings/settings-sync";
 import { AUTHOR } from "@/ui/site";
@@ -22,6 +23,8 @@ const dmMono = DM_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "
 export const metadata: Metadata = {
   title: { default: `Games · ${AUTHOR}`, template: "%s · Games" },
   description: `Small browser games designed and built by ${AUTHOR}.`,
+  // The name under the icon when an iPhone adds the site to its Home Screen.
+  appleWebApp: { title: "Games" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -41,6 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         {children}
         <SettingsSync />
+        <OfflineWorker />
       </body>
     </html>
   );

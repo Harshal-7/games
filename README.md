@@ -28,6 +28,7 @@ src/
                           vote and player list; party.css styles them
   home/                   the home page's saved-game card (Continue / New game / Remove) and styles
   settings/               the /settings page: theme, board and knight styles
+  offline/                the service worker's page list and the part that registers it
   games/
     registry.ts           the list of games on the home page
     knights-tour/
@@ -96,6 +97,35 @@ titles, DM Sans for reading and DM Mono for numbers.
   game's colour (`--game`); picked and on states take `--pick` (ink on site-wide pages).
 - **Buttons.** Every button you tap is an outlined pill (`.btn`); each screen has one
   solid main button. Cards you read stay soft (`.card`).
+
+## Offline mode
+
+The site installs like an app, and after one visit with signal every page opens and
+plays with none.
+
+- **Installing.** `src/app/manifest.ts` (full screen, felt green) and the icons:
+  `public/icons/` for Android, `src/app/apple-icon.png` for iPhones. All are drawn from
+  `src/app/icon.svg`; after changing it, run `node scripts/draw-icons.mjs` (needs Chrome).
+- **The service worker** (`public/sw.js`) is registered by `src/offline/offline-worker.tsx`,
+  in production builds only. On install it saves every page and every file they load, in a
+  cache named after the build. The pages come from `GAME_NAMES` (`src/offline/pages.ts`),
+  so a new game is saved without anyone listing it; a test checks the list against the
+  pages in `src/app`.
+  - Build files (`/_next/static`) come from the cache first.
+  - Pages come from the network, or from the cache after 3 seconds or a failure. After a
+    failure the network gets a 30-second rest, so patchy signal costs one wait, not one
+    per tap.
+  - Page data for links (`?_rsc=`) only comes from the network. When that fails, Next
+    loads the page as a document instead, and the cache serves it.
+- **Updates.** Each build registers `/sw.js?v=<build time>`, so the first visit with signal
+  after a deploy saves the new copy, takes over and deletes the old one (or leaves it until
+  the next deploy if another window may still show an older page).
+- **Saves** stay in localStorage, never in the cache.
+- **Development.** `pnpm dev` registers nothing and removes any worker it finds: a worker
+  left on localhost:3000 would answer for whichever project runs there next. To try
+  offline mode on the laptop, run the production build on another port
+  (`pnpm build && pnpm start -p 3999`), visit once, stop the server and reload. Running
+  `pnpm dev -p 3999` once afterwards removes that worker.
 
 ## Knight's Tour notes
 
