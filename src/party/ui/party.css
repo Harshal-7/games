@@ -127,12 +127,13 @@
 }
 
 /* Big screens: the title card and the blurb with How to play across the top; under them
-   Players with the main button, pinned while Options scrolls beside it. The title card
-   is the players column plus 52px, hence the 20px column between the two. */
+   Players with the main button, pinned while Options scrolls beside it. The players
+   column is 400px, a little less in a narrow window; the title card is that plus 52px,
+   hence the 20px column between the two. */
 @media (min-width: 860px) {
   .party-setup {
     display: grid;
-    grid-template-columns: 400px 20px minmax(0, 1fr);
+    grid-template-columns: clamp(300px, 40%, 400px) 20px minmax(0, 1fr);
     grid-template-areas:
       "title title blurb"
       "title title rules"
