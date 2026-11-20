@@ -154,6 +154,13 @@ export const SpeakerIcon = (p: P) => (
   </Icon>
 );
 
+export const ClockIcon = (p: P) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </Icon>
+);
+
 export const ShuffleIcon = (p: P) => (
   <Icon {...p}>
     <path d="M3.5 7h3.2c2 0 3.2 1 4.3 2.6l2 3c1.1 1.6 2.3 2.4 4.3 2.4h3.2M3.5 17h3.2c1.5 0 2.5-.5 3.4-1.5M14 8.5c.9-1 1.9-1.5 3.3-1.5h3.2" />

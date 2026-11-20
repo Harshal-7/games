@@ -3,12 +3,12 @@
 import { useSyncExternalStore } from "react";
 
 import { newRoom, parseRoom, reduce, type Action, type Room } from "../logic/room";
+import { ROOM_KEY as KEY } from "../logic/saved";
 
 /**
  * The room lives in this browser (localStorage), so a reload in the middle of a
  * round comes back to the same screen: a card that was opened stays opened.
  */
-const KEY = "games:imposter:room:v1";
 const EMPTY = newRoom();
 
 let room: Room | undefined;

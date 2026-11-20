@@ -1,35 +1,5 @@
-/* Knight's Tour. Board colours come from the board style ([data-kt-board]); everything else
-   from the shared tokens in globals.css. */
-
-/* Board styles (Settings → Board). Any element can carry data-kt-board, which is
-   how the option cards show their own colours. Wood is the default. A board is a
-   real object on the table, so it looks the same in felt and daylight: light and
-   dark squares, the frame around them and the a–h / 1–8 letters on the frame. */
-:root,
-[data-kt-board="wood"] {
-  --sq-light: #ecd6ae;
-  --sq-dark: #b0834f;
-  --board-frame: #5b3a1f;
-  --board-coord: #ecd6ae;
-}
-[data-kt-board="stone"] {
-  --sq-light: #ece8df;
-  --sq-dark: #bdb5a6;
-  --board-frame: #6e675c;
-  --board-coord: #ece8df;
-}
-[data-kt-board="tournament"] {
-  --sq-light: #eef0e0;
-  --sq-dark: #7f9a6c;
-  --board-frame: #3d4a33;
-  --board-coord: #eef0e0;
-}
-[data-kt-board="slate"] {
-  --sq-light: #e6eaf0;
-  --sq-dark: #8f9bb0;
-  --board-frame: #3b4352;
-  --board-coord: #e6eaf0;
-}
+/* Knight's Tour. Board colours come from the board style (../board-styles.css); everything
+   else from the shared tokens in globals.css. */
 
 /* Layout. Phones and small windows: one column (title, sizes, status, board,
    buttons, best time). Big screens: the board on the left as large as the window
@@ -111,12 +81,9 @@
 
 /* ---------- Board size ---------- */
 
-/* An outlined segmented control across the column; the sizes are numbers, in DM Mono.
-   It clips its corners, so it needs a floor: a clipped box may otherwise shrink to
-   nothing when the side column runs out of height. */
+/* An outlined segmented control across the column; the sizes are numbers, in DM Mono. */
 .seg.kt-sizes {
   display: grid;
-  min-height: min-content;
 }
 .seg.kt-sizes button {
   min-width: 0;
@@ -694,29 +661,4 @@
   .kt-result-more > .btn {
     min-height: 40px;
   }
-}
-
-/* ---------- Card picture on the games list ---------- */
-
-.kt-thumb {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.kt-thumb-light {
-  fill: var(--sq-light);
-}
-.kt-thumb-dark {
-  fill: var(--sq-dark);
-}
-.kt-thumb-trail {
-  stroke: var(--brass);
-  stroke-width: 0.07;
-  opacity: 0.75;
-}
-.kt-thumb-dot {
-  fill: var(--brass);
-}
-.kt-thumb-knight {
-  fill: var(--fg);
 }

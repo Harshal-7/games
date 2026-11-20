@@ -5,7 +5,7 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { updateSettings, useSettings } from "@/settings/store";
 import { Confirm } from "@/ui/confirm";
 import { count, formatDuration } from "@/ui/format";
-import { BulbIcon, CheckIcon, PlayIcon, RestartIcon, StopIcon, UndoIcon } from "@/ui/icons";
+import { BulbIcon, CheckIcon, ClockIcon, PlayIcon, RestartIcon, StopIcon, UndoIcon } from "@/ui/icons";
 
 import { nextSolveStep } from "../logic/autoplay";
 import { isClosedTour, SIZES, type Size } from "../logic/board";
@@ -17,6 +17,7 @@ import { ResultCard } from "./result-card";
 import { recordBest, useBestTimes } from "./use-best-times";
 import { useNow } from "./use-clock";
 
+import "../board-styles.css";
 import "./knights-tour.css";
 
 const FIRST_SIZE: Size = 5;
@@ -212,7 +213,7 @@ export function KnightsTour() {
           {/* The clock starts with the first jump; before it the instructions need the room. */}
           {phase !== "start" && (
             <span className="kt-time" aria-label={`Time ${formatDuration(time)}`}>
-              <ClockIcon />
+              <ClockIcon width={16} height={16} strokeWidth={2} />
               {formatDuration(time)}
             </span>
           )}
@@ -299,26 +300,5 @@ export function KnightsTour() {
         )}
       </p>
     </div>
-  );
-}
-
-/** The clock beside the time. */
-function ClockIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="16"
-      height="16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" />
-    </svg>
   );
 }

@@ -7,7 +7,7 @@
  * data-mode before the first paint.
  *
  * Raw colours: the page, the cards and the two game colours. Components use the
- * context names further down (--fg, --muted, --line, --ring, --bg) so the same part
+ * context names further down (--fg, --muted, --line, --ring) so the same part
  * reads right straight on the page and inside a card.
  */
 :root {
@@ -78,7 +78,6 @@ html[data-mode="light"] {
   --muted: var(--on-page-muted);
   --line: var(--page-line);
   --ring: var(--on-page);
-  --bg: var(--page);
 }
 
 /* Inside a card: ink on cream. The focus ring and insets switch too. */
@@ -88,7 +87,6 @@ html[data-mode="light"] {
   --muted: var(--ink-muted);
   --line: var(--card-line);
   --ring: var(--ink);
-  --bg: var(--inset);
 }
 
 /* Cream controls: ink text, but their focus ring stays the one of the place they sit. */
@@ -99,19 +97,6 @@ html[data-mode="light"] {
   --fg: var(--ink);
   --muted: var(--ink-muted);
   --line: var(--card-line);
-}
-
-/* Until both games move to .card (end of design 4): the surfaces they draw today. */
-.imp-panel,
-.imp-screen,
-.imp-confirm,
-.kt-result {
-  --fg: var(--ink);
-  --muted: var(--ink-muted);
-  --line: var(--card-line);
-  --ring: var(--ink);
-  --bg: var(--inset);
-  color: var(--fg);
 }
 
 /* ---------- The game's colour ---------- */
@@ -139,18 +124,6 @@ html[data-mode="light"] {
   --on-game: var(--on-red);
   --pick: var(--red);
   --on-pick: var(--on-red);
-}
-
-/* Old names, kept while the games move over and removed at the end of design 4. They
-   sit on [data-game] too because a var() is worked out where it is declared. */
-:root,
-[data-game] {
-  --accent: var(--game);
-  --accent-strong: var(--game-deep);
-  --accent-fg: var(--on-game);
-  --accent-soft: color-mix(in oklab, var(--game) 20%, transparent);
-  --surface: var(--card);
-  --surface-2: var(--inset);
 }
 
 @theme inline {
@@ -250,7 +223,7 @@ body {
   .page.is-game .game-main {
     display: grid;
     flex: 1;
-    align-content: center;
+    align-content: safe center;
     min-height: 0;
     padding: 0 0 40px;
   }
@@ -375,7 +348,11 @@ body {
   transform: translateY(2px);
   box-shadow: 0 1px 0 rgb(0 0 0 / 0.35);
 }
-/* Not ready yet: a dashed empty slot; the reason sits next to it. */
+/* Not ready yet: a dashed empty slot in the muted colour of the place it sits (cream
+   on the felt, ink in a card); the reason sits next to it. */
+.btn-primary {
+  --muted: inherit;
+}
 .btn-primary:disabled {
   border: 2px dashed var(--muted);
   background: transparent;
@@ -407,18 +384,26 @@ body {
     transform 0.08s ease,
     box-shadow 0.08s ease;
 }
-.icon-btn:active {
+.icon-btn:active:not(:disabled) {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0 var(--ink);
+}
+.icon-btn:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 /* ---------- Segmented control ---------- */
 
+/* It clips its corners, so it keeps a floor: a clipped box in a column that runs out of
+   height could otherwise shrink to its borders. */
 .seg {
   display: inline-grid;
   grid-auto-columns: minmax(0, 1fr);
   grid-auto-flow: column;
   border: 2.5px solid var(--ink);
+  min-height: min-content;
   border-radius: 999px;
   overflow: hidden;
   background: var(--card);
