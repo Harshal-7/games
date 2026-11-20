@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useLayoutEffect,
-  useState,
-  type KeyboardEvent,
-  type MouseEvent,
-  type PointerEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 
 import { EyeOffIcon, LockIcon } from "@/ui/icons";
 
@@ -21,35 +13,20 @@ import { buzzOpen } from "./sounds";
  * only in the page while the card is held, and every press counts as an open, so a card
  * someone else peeked at shows "Opened" before its owner touches it.
  */
-/** A press-and-hold: whether it's held, and the handlers for whatever is pressed. */
-export type Hold = {
-  held: boolean;
-  press: {
-    onPointerDown: (e: PointerEvent<HTMLElement>) => void;
-    onPointerUp: () => void;
-    onPointerCancel: () => void;
-    onLostPointerCapture: () => void;
-    onKeyDown: (e: KeyboardEvent<HTMLElement>) => void;
-    onKeyUp: (e: KeyboardEvent<HTMLElement>) => void;
-    onBlur: () => void;
-    onContextMenu: (e: MouseEvent<HTMLElement>) => void;
-  };
-};
-
-/**
- * The hold behind a secret card. A game can make its own and pass it to HoldCard, so a
- * second thing (a button under the card) opens the same card: every press counts as an
- * open either way. `onRelease` hears when a hold ends.
- */
-export function useHold({
+export function HoldCard({
+  name,
+  opens,
   buzz,
   onOpen,
-  onRelease,
+  children,
 }: {
+  name: string;
+  opens: number;
+  /** A short buzz on every press (the game's Sound switch). */
   buzz: boolean;
   onOpen: () => void;
-  onRelease?: () => void;
-}): Hold {
+  children: ReactNode;
+}) {
   const [held, setHeld] = useState(false);
 
   // Hide when the page loses focus mid-hold (notification, app switch, lock screen).
@@ -73,61 +50,8 @@ export function useHold({
     if (buzz) buzzOpen();
     onOpen();
   };
-  const hide = () => {
-    if (!held) return;
-    setHeld(false);
-    onRelease?.();
-  };
+  const hide = () => setHeld(false);
   const isKey = (key: string) => key === " " || key === "Enter";
-
-  return {
-    held,
-    press: {
-      onPointerDown: (e) => {
-        if (e.button !== 0) return;
-        try {
-          e.currentTarget.setPointerCapture(e.pointerId);
-        } catch {
-          // Without capture the card still hides on pointerup/cancel.
-        }
-        show();
-      },
-      onPointerUp: hide,
-      onPointerCancel: hide,
-      onLostPointerCapture: hide,
-      onKeyDown: (e) => {
-        if (!isKey(e.key)) return;
-        e.preventDefault();
-        if (!e.repeat) show();
-      },
-      onKeyUp: (e) => {
-        if (isKey(e.key)) hide();
-      },
-      onBlur: hide,
-      onContextMenu: (e) => e.preventDefault(),
-    },
-  };
-}
-
-export function HoldCard({
-  name,
-  opens,
-  buzz,
-  onOpen,
-  hold,
-  children,
-}: {
-  name: string;
-  opens: number;
-  /** A short buzz on every press (the game's Sound switch). */
-  buzz: boolean;
-  onOpen: () => void;
-  /** The game's own hold (useHold), when something else can open the card too. */
-  hold?: Hold;
-  children: ReactNode;
-}) {
-  const own = useHold({ buzz, onOpen });
-  const { held, press } = hold ?? own;
 
   let label: string | undefined;
   if (!held) {
@@ -143,7 +67,26 @@ export function HoldCard({
       className="party-hold"
       data-state={held ? "held" : opens > 0 ? "opened" : "sealed"}
       aria-label={label}
-      {...press}
+      onPointerDown={(e) => {
+        if (e.button !== 0) return;
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId);
+        } catch {
+          // Without capture the card still hides on pointerup/cancel.
+        }
+        show();
+      }}
+      onPointerUp={hide}
+      onPointerCancel={hide}
+      onLostPointerCapture={hide}
+      onKeyDown={(e) => {
+        if (!isKey(e.key)) return;
+        e.preventDefault();
+        if (!e.repeat) show();
+      }}
+      onKeyUp={(e) => isKey(e.key) && hide()}
+      onBlur={hide}
+      onContextMenu={(e) => e.preventDefault()}
     >
       <span className="party-hold-turn">
         <span className="party-back" aria-hidden="true">

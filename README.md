@@ -60,7 +60,7 @@ callbacks), never a game's own types, and Imposter shows each one in use.
 | `useClock`, `useHydrated` | `ui/use-clock.ts`, `ui/use-hydrated.ts` | A clock that ticks four times a second; whether the browser has loaded |
 | `wakeAudio`, `buzzOpen`, `tick`, `timeUp` | `ui/sounds.ts` | Party sounds, on top of `src/ui/sound.ts` |
 | `Roster` | `ui/roster.tsx` | The player list on a setup screen: Quick start, add, rename in place, remove |
-| `HoldCard`, `Face`, `useHold` | `ui/hold-card.tsx` | The hold-to-see secret card, a face-up card's lines, and its hold for a game that opens the card from a button too |
+| `HoldCard`, `Face` | `ui/hold-card.tsx` | The hold-to-see secret card, and a face-up card's lines |
 | `RingTimer` | `ui/ring-timer.tsx` | The ring timer with Pause and +30 sec |
 | `Vote` | `ui/vote.tsx` | Point on three, tap who got the most fingers |
 | `PlayHead`, `BigName`, `Stamp` | `ui/parts.tsx` | The round chip, a name in big type, a rubber stamp |

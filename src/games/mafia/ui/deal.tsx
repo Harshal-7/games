@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 import { cryptoRandom } from "@/party/logic/random";
-import { HoldCard, useHold } from "@/party/ui/hold-card";
+import { HoldCard } from "@/party/ui/hold-card";
 import { BigName } from "@/party/ui/parts";
 import { Confirm } from "@/ui/confirm";
 import { EyeOffIcon, ShuffleIcon } from "@/ui/icons";
@@ -27,38 +27,19 @@ export function Deal({ room, game }: { room: Room; game: Game }) {
   const next = game.seats[game.turn + 1];
   const opens = game.opens[id] ?? 0;
 
-  // The button under the card opens it too, so the main button never moves: I'm Riya,
-  // hold to see, Done, I'm Aman… all in one spot, for a thumb or a mouse.
-  const released = useRef(0);
-  const hold = useHold({
-    buzz: room.options.sound,
-    onOpen: () => act({ type: "open", id }),
-    onRelease: () => {
-      released.current = Date.now();
-    },
-  });
-  const done = () => {
-    // Letting go of the hold button turns it into Done: don't count that as a tap on Done.
-    if (Date.now() - released.current < 400) return;
-    act({ type: "done" });
-  };
-
-  let main;
+  // The main button keeps one spot on every deal screen (I'm Riya, Done, I'm Aman…), so a
+  // thumb or a mouse never has to move. Before the card is opened that spot stays empty,
+  // so a double tap can't skip anything; Go back sits in the row under it.
+  let main = null;
   if (!game.looking) {
     main = (
-      <button key="look" type="button" className="btn btn-primary btn-big" onClick={() => act({ type: "look" })}>
+      <button type="button" className="btn btn-primary btn-big" onClick={() => act({ type: "look" })}>
         I&apos;m {name}
       </button>
     );
-  } else if (opens === 0 || hold.held) {
+  } else if (opens > 0) {
     main = (
-      <button key="hold" type="button" className="btn btn-primary btn-big maf-hold-go" {...hold.press}>
-        {hold.held ? "Keep holding" : "Hold to see your role"}
-      </button>
-    );
-  } else {
-    main = (
-      <button key="done" type="button" className="btn btn-primary btn-big" onClick={done}>
+      <button type="button" className="btn btn-primary btn-big" onClick={() => act({ type: "done" })}>
         {next ? `Done, pass to ${names[next]}` : "Done, everyone has a role"}
       </button>
     );
@@ -81,14 +62,14 @@ export function Deal({ room, game }: { room: Room; game: Game }) {
         ) : (
           <div className="maf-deal-body" key={`card-${id}`}>
             <h2 className="maf-card-kicker">{name}&apos;s card</h2>
-            <HoldCard name={name} opens={opens} buzz={room.options.sound} onOpen={() => act({ type: "open", id })} hold={hold}>
+            <HoldCard name={name} opens={opens} buzz={room.options.sound} onOpen={() => act({ type: "open", id })}>
               <RoleFace game={game} id={id} names={names} />
             </HoldCard>
           </div>
         )}
         <div className="maf-deal-main">{main}</div>
         <div className="maf-deal-under">
-          {game.looking && opens === 0 && !hold.held && (
+          {game.looking && opens === 0 && (
             <button type="button" className="btn maf-small" onClick={() => act({ type: "back" })}>
               Not {name}? Go back
             </button>
