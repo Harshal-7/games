@@ -48,11 +48,12 @@ export function useUnlocked(): boolean {
 type AudioSessionNavigator = Navigator & { audioSession?: { type: string } };
 
 /**
- * Call from a tap, before anything is said. Speaks nothing (iPhones count that as the
- * first line), and asks iPhones to play the page's sound as playback, so the narrator
- * isn't muted by the silent switch (Safari 17 and later).
+ * Call from a tap, before anything is said. Asks iPhones to play the page's sound as
+ * playback, so the narrator isn't muted by the silent switch (Safari 17 and later). A tap
+ * that isn't about to say a line itself (`speaking` false) says nothing out loud instead:
+ * iPhones count that as the first line, so lines from the clock can follow.
  */
-export function unlock(): void {
+export function unlock(speaking = false): void {
   if (unlocked) return;
   const s = synth();
   if (s) {
@@ -62,9 +63,11 @@ export function unlock(): void {
     } catch {
       // Not every browser lets a page choose; the narrator still works with sound on.
     }
-    const silent = new SpeechSynthesisUtterance("");
-    silent.volume = 0;
-    s.speak(silent);
+    if (!speaking) {
+      const silent = new SpeechSynthesisUtterance("");
+      silent.volume = 0;
+      s.speak(silent);
+    }
   }
   unlocked = true;
   for (const listener of listeners) listener();
@@ -97,7 +100,8 @@ export function say(key: string, lines: readonly string[], again = false): void 
     }
   };
   // Some phones drop a line said straight after cancel(): give it a moment when
-  // something was still being said. A first line from a tap goes straight out.
+  // something is still being said. A line from a tap with nothing before it goes
+  // straight out, while the tap still counts (iPhones).
   if (s.speaking || s.pending) {
     s.cancel();
     pending = window.setTimeout(speak, 80);

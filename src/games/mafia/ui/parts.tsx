@@ -84,10 +84,10 @@ export function nightNotes(): void {
  * waiting for the screen to redraw.
  */
 export function actAndSay(room: Room, action: Parameters<typeof act>[0], next: Room): void {
-  unlock();
+  const line = room.options.voice ? narration(next) : null;
+  unlock(line !== null);
   act(action);
-  const line = narration(next);
-  if (line && room.options.voice) say(line.key, line.lines, true);
+  if (line) say(line.key, line.lines, true);
 }
 
 /** Says the current screen's lines again. */
@@ -99,7 +99,7 @@ export function SayAgain({ room }: { room: Room }) {
       type="button"
       className="btn"
       onClick={() => {
-        unlock();
+        unlock(true);
         say(line.key, line.lines, true);
       }}
     >
