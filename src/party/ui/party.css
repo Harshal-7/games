@@ -16,22 +16,26 @@
 
      .party-setup                  the screen
        .party-setup-intro          the title card (.party-setup-title, -plate, -name,
-                                   -meta) and the blurb (.party-setup-blurb)
+                                   -meta), the blurb (.party-setup-blurb) and, if the
+                                   game has one, a short note (.party-setup-note)
        .party-setup-rules          How to play, a <details>
-       .party-setup-side           Players (.party-setup-players) and the main button
+       .party-setup-side           the left column: Players (.party-setup-players), or
+                                   whatever starts the game, and the main button
                                    (.party-setup-start)
-       .party-setup-options        Options, its fields in .party-setup-fields
+       .party-setup-main           the right column: Options (.party-setup-options,
+                                   its fields in .party-setup-fields), and any other card
 
    Phones: one column of flex items, not a grid, so the start tray can stick to the
-   bottom of the whole page (a grid item can't leave its own grid area). The side box
-   steps aside so its two parts join that column, and How to play and the start tray
+   bottom of the whole page (a grid item can't leave its own grid area). The two column
+   boxes step aside so their cards join that column, and How to play and the start tray
    move under Options. */
 .party-setup {
   display: flex;
   flex-direction: column;
   gap: 32px;
 }
-.party-setup-side {
+.party-setup-side,
+.party-setup-main {
   display: contents;
 }
 .party-setup-rules {
@@ -55,6 +59,11 @@
 }
 .party-setup-rules[open] .party-setup-rules-chevron {
   rotate: 180deg;
+}
+@media (prefers-reduced-motion: reduce) {
+  .party-setup-rules-chevron {
+    transition: none;
+  }
 }
 .party-setup-rules-body {
   margin-top: 14px;
@@ -127,17 +136,18 @@
 }
 
 /* Big screens: the title card and the blurb with How to play across the top; under them
-   Players with the main button, pinned while Options scrolls beside it. The players
-   column is 400px, a little less in a narrow window; the title card is that plus 52px,
-   hence the 20px column between the two. */
+   Players with the main button, pinned while Options scrolls beside it. The left column
+   is 400px, a little less in a narrow window; the title card is that plus 52px, hence
+   the 20px column between the two. */
 @media (min-width: 860px) {
   .party-setup {
     display: grid;
     grid-template-columns: clamp(300px, 40%, 400px) 20px minmax(0, 1fr);
     grid-template-areas:
       "title title blurb"
+      "title title note"
       "title title rules"
-      "side options options";
+      "side main main";
     gap: 0 32px;
     align-items: start;
   }
@@ -177,6 +187,11 @@
     font-size: 19px;
     line-height: 1.5;
   }
+  .party-setup .party-setup-note {
+    grid-area: note;
+    max-width: 560px;
+    margin: 10px 0 0;
+  }
   .party-setup-rules {
     grid-area: rules;
     justify-self: start;
@@ -191,14 +206,24 @@
   }
 
   /* 42px: the 26px gap under the title row, and room for the tape on the cards. */
+  .party-setup-side,
+  .party-setup-main {
+    display: flex;
+    flex-direction: column;
+    gap: 42px;
+    margin-top: 42px;
+  }
   .party-setup-side {
     position: sticky;
     top: 36px;
-    display: flex;
-    flex-direction: column;
     grid-area: side;
     gap: 20px;
-    margin-top: 42px;
+  }
+  .party-setup-side > .card + .card {
+    margin-top: 22px;
+  }
+  .party-setup-main {
+    grid-area: main;
   }
   .party-setup .party-setup-players {
     padding: 28px 18px 18px;
@@ -213,8 +238,6 @@
   }
 
   .party-setup .party-setup-options {
-    grid-area: options;
-    margin-top: 42px;
     padding: 30px 24px 24px;
     container: party-options / inline-size;
   }
@@ -227,7 +250,7 @@
 }
 /* Options wide enough: its fields in two columns, chips and long rows across both. */
 @container party-options (min-width: 500px) {
-  .party-setup-fields {
+  .party-setup-options .party-setup-fields {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 26px 32px;

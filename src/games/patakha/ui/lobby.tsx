@@ -131,7 +131,9 @@ export function Lobby({ room }: { room: Room }) {
         </div>
       </div>
 
-      <OptionsCard options={room.options} />
+      <div className="party-setup-main">
+        <OptionsCard options={room.options} />
+      </div>
     </div>
   );
 }
