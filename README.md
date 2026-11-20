@@ -9,6 +9,7 @@ lives in its own folder and has its own page, and the home page lists them all.
 | Imposter | `/imposter` | Party game for one phone: everyone gets the secret word except the imposter. |
 | Mafia | `/mafia` | Party game for one phone, 5 to 15 players: the phone narrates the night, so nobody sits out. |
 | Patakha | `/patakha` | Party game for one phone: say an answer and pass it on before the hidden fuse runs out. |
+| Ulta | `/ulta` | Party game for one phone: sing a line, a teammate copies it backwards, and the team guesses the song. |
 
 ## Run it
 
@@ -46,6 +47,9 @@ src/
     patakha/
       logic/              the room, the hidden fuse and its ticking, the prompt packs, with tests
       ui/                 setup, the burning fuse, the bang and the winner; the cracker drawing and sounds
+    ulta/
+      logic/              reversing and evening out recordings, the song list, the turns, with tests
+      ui/                 setup and teams, the mic button, the turn screens; recordings kept in memory
 ```
 
 ### Shared parts for party games
@@ -238,3 +242,30 @@ plays with none.
 - **Prompts** (`logic/prompts.ts`): 4 packs, 135 prompts, each with at least 15 easy answers.
   None repeats in a room until the packs run out. Answers in any language by default; English
   only is a table rule shown on the play screen, and the table judges.
+
+## Ulta notes
+
+- **Turns.** One reducer over plain data (`logic/room.ts`), saved as `games:ulta:room:v1`. From 4
+  players it's two teams, Seedha and Ulta (tap a name to move it, or shuffle), playing to 5, 7 or 10;
+  2 or 3 players play for fun with no score. Teams take turns; inside a team the singer is the next in
+  line and the copier the one after, so everyone sings and copies equally. The copier hears the line
+  backwards up to 3 times, the team gets 45 seconds on the ring timer, and a miss gives the other team
+  one guess to steal. The singer judges.
+- **Recordings never leave the page's memory** (`ui/takes.ts`): not in the saved room, not in the
+  offline cache, never uploaded, and dropped when the turn ends. A reload loses them, so a turn that
+  still needs one goes back to singing and says why.
+- **The mic** (`ui/mic.ts`) is on only while the button is held. It records with `MediaRecorder` and
+  decodes the file in an `OfflineAudioContext` (iPhones record mp4/AAC, Android webm/Opus); without
+  `MediaRecorder` it copies raw samples out of an AudioWorklet. The phone's speech clean-up (echo,
+  noise, auto volume) is off, as it mangles singing. Mic blocked, mic busy (a call), no mic and
+  too-short or silent takes each get their own message. Setup has a mic check, so the permission prompt
+  comes before the first turn.
+- **The sound** (`logic/audio.ts`): each take is trimmed of silence at both ends, flipped back to front
+  by copying the samples in reverse, and turned up to an even level (steered by the loudness that 0.5%
+  of samples go above, at most +30 dB, peaks rounded off), so a quiet copy still plays loud. Playing
+  asks iPhones for the playback audio session first, which plays through the silent switch and the
+  loudspeaker rather than the earpiece the mic uses.
+- **Songs** (`logic/songs.ts`): 253 titles with the film or singer, mostly Bollywood from the 50s to
+  now plus some English and regional hits; titles only, no lyrics or music, no anthems or devotional
+  songs. "Suggest one" shows the song on the hold-to-see card, and none repeats in a room until the list
+  runs out.

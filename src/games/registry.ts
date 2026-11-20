@@ -6,6 +6,7 @@ import { KnightsTourThumb } from "./knights-tour/ui/thumb";
 import { MafiaThumb } from "./mafia/ui/thumb";
 import { PatakhaThumb } from "./patakha/ui/thumb";
 import { GAME_NAMES, type GameSlug } from "./slugs";
+import { UltaThumb } from "./ulta/ui/thumb";
 
 /** Every game on the site. Adding a game = a folder in src/games, a page, one entry here. */
 export type GameEntry = {
@@ -48,5 +49,12 @@ export const GAMES: GameEntry[] = [
     blurb: "Say an answer and pass the phone on before the hidden fuse runs out.",
     detail: "3 to 20 players · one phone",
     Thumb: PatakhaThumb,
+  },
+  {
+    slug: "ulta",
+    name: GAME_NAMES.ulta,
+    blurb: "Sing a line, a teammate copies it backwards, and the team guesses the song.",
+    detail: "4+ in two teams · one phone",
+    Thumb: UltaThumb,
   },
 ];
