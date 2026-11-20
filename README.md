@@ -20,13 +20,14 @@ pnpm check        # types, lint, tests and a production build
 ```
 src/
   app/                    pages (one folder per game) and the shared layout
-  ui/                     pieces every game shares: page frame, buttons, icons, theme
+  ui/                     pieces every game shares: page frame, top bar, buttons, icons
+  settings/               the /settings page: theme, colour, board and knight styles
   games/
     registry.ts           the list of games on the home page
     knights-tour/
       logic/              the rules and the solver, plain TypeScript with tests
-      ui/                 the board and the play screen
-      skins.ts            board and piece styles
+      ui/                 the board, the play screen, the knight drawings
+      styles.ts           the board and knight styles Settings offers
 ```
 
 ### Adding a game
@@ -45,5 +46,11 @@ src/
   only a handful of very tangled positions come back as "can't tell".
 - **Best times** are saved per board size in the browser (localStorage). Runs that
   Watch it solve finished don't count.
-- **New piece or board styles**: add an entry to `skins.ts` and a
-  `[data-skin="<id>"]` block of colours in `ui/knights-tour.css`.
+- **Settings** (theme, colour, board, knight, what the board shows) are saved in
+  the browser and put on `<html>` by a small script before the first paint, so
+  nothing flashes.
+- **New board style**: add it to `styles.ts` and a `[data-kt-board="<id>"]` colour
+  block (light and dark) in `ui/knights-tour.css`. **New knight**: add it to
+  `styles.ts` and draw it in `ui/knight-piece.tsx`. **New colour**: add it to
+  `ACCENTS` in `src/settings/settings.ts` and a `[data-accent="<id>"]` block in
+  `src/app/globals.css`.

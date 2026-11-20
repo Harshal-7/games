@@ -1,0 +1,706 @@
+@import "tailwindcss";
+
+/*
+ * Colours for every game. html[data-mode], [data-accent] and the board style are
+ * set before first paint by the settings script in the layout.
+ */
+:root {
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --surface-2: #efede7;
+  --fg: #1d1c1a;
+  --muted: #6b6861;
+  --line: #e2dfd6;
+  --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+  --shadow: 0 1px 2px rgb(29 28 26 / 0.06), 0 8px 24px -12px rgb(29 28 26 / 0.18);
+  color-scheme: light;
+}
+
+html[data-mode="dark"] {
+  --bg: #131312;
+  --surface: #1b1b19;
+  --surface-2: #252422;
+  --fg: #edebe6;
+  --muted: #9d9a92;
+  --line: #2e2d2a;
+  --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px -14px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
+
+/* Accent colours (Settings → Colour). Any element can carry data-accent, which is
+   how the colour swatches show their own colour. Ocean is the default. */
+:root,
+[data-accent="ocean"] {
+  --accent: #2563eb;
+  --accent-strong: #1d4ed8;
+  --accent-fg: #ffffff;
+}
+[data-accent="sage"] {
+  --accent: #2f7d5b;
+  --accent-strong: #256649;
+  --accent-fg: #ffffff;
+}
+[data-accent="indigo"] {
+  --accent: #4f46e5;
+  --accent-strong: #4338ca;
+  --accent-fg: #ffffff;
+}
+[data-accent="plum"] {
+  --accent: #8b3fbf;
+  --accent-strong: #7531a3;
+  --accent-fg: #ffffff;
+}
+[data-accent="ember"] {
+  --accent: #d4531f;
+  --accent-strong: #b8431a;
+  --accent-fg: #ffffff;
+}
+html[data-mode="dark"],
+html[data-mode="dark"] [data-accent="ocean"],
+html[data-mode="dark"][data-accent="ocean"] {
+  --accent: #7cb4ff;
+  --accent-strong: #a3cbff;
+  --accent-fg: #0c1a2e;
+}
+html[data-mode="dark"] [data-accent="sage"],
+html[data-mode="dark"][data-accent="sage"] {
+  --accent: #6fcf97;
+  --accent-strong: #8fdcaf;
+  --accent-fg: #0f1f17;
+}
+html[data-mode="dark"] [data-accent="indigo"],
+html[data-mode="dark"][data-accent="indigo"] {
+  --accent: #a5b4fc;
+  --accent-strong: #c3cdfd;
+  --accent-fg: #141433;
+}
+html[data-mode="dark"] [data-accent="plum"],
+html[data-mode="dark"][data-accent="plum"] {
+  --accent: #d0a2f7;
+  --accent-strong: #dfbdf9;
+  --accent-fg: #24122f;
+}
+html[data-mode="dark"] [data-accent="ember"],
+html[data-mode="dark"][data-accent="ember"] {
+  --accent: #ff7a45;
+  --accent-strong: #ff9466;
+  --accent-fg: #1a1209;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html,
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  min-height: 100dvh;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Page frame ---------- */
+
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+/* The way back, top left: a pill that lines up with the content's left edge and
+   matches the round buttons on the right. */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  padding: 0 14px 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 550;
+  text-decoration: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.back-link svg {
+  color: var(--muted);
+}
+.back-link:hover {
+  background: var(--surface-2);
+}
+.topbar .btn {
+  height: 40px;
+  padding: 0 14px;
+  font-size: 14.5px;
+}
+
+.game-main {
+  padding-top: 8px;
+}
+
+/* Game pages on big screens: the whole page fits the window, nothing scrolls. The
+   frame is the board (as tall as the window allows), a gap and a side column; game
+   pages and Settings share its width so moving between them doesn't jump. */
+@media (min-width: 860px) and (min-height: 480px) {
+  :root {
+    --frame-side: 380px;
+    --frame-gap: 56px;
+    --frame-board: min(calc(100dvh - 104px), calc(100vw - var(--frame-side) - var(--frame-gap) - 48px), 820px);
+    --frame-width: calc(var(--frame-board) + var(--frame-gap) + var(--frame-side) + 32px);
+  }
+  .page.is-game {
+    max-width: var(--frame-width);
+  }
+  .page.is-game {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    padding-bottom: 0;
+    box-sizing: border-box;
+  }
+  .page.is-game .game-main {
+    display: grid;
+    flex: 1;
+    align-content: center;
+    min-height: 0;
+    padding: 0 0 40px;
+  }
+}
+
+.game-title {
+  margin: 0;
+  font-size: clamp(28px, 7vw, 36px);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+.game-blurb {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+/* ---------- Buttons ---------- */
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--fg);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.icon-btn:hover {
+  background: var(--surface-2);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 550;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+}
+.btn svg {
+  flex: none;
+}
+.btn:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.btn-primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-strong);
+}
+.btn-quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+.btn-quiet:hover:not(:disabled) {
+  color: var(--fg);
+}
+
+/* ---------- Segmented control ---------- */
+
+.seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+.seg button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 52px;
+  height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.seg button:hover {
+  color: var(--fg);
+}
+.seg button[aria-checked="true"] {
+  background: var(--surface);
+  color: var(--fg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 0 0 1px var(--line);
+}
+
+/* ---------- Games home ---------- */
+
+.home-hero {
+  padding: 72px 0 28px;
+}
+.home-title {
+  margin: 0;
+  font-size: clamp(34px, 9vw, 48px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+.home-lede {
+  margin: 12px 0 0;
+  max-width: 36ch;
+  color: var(--muted);
+  font-size: 17px;
+}
+
+.game-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Big screens: the game cards sit side by side. */
+@media (min-width: 760px) {
+  .page.is-home {
+    max-width: 920px;
+  }
+  .game-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.game-card {
+  display: grid;
+  height: 100%;
+  box-sizing: border-box;
+  grid-template-columns: 96px 1fr;
+  gap: 18px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+a.game-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+}
+.game-card h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 620;
+  letter-spacing: -0.01em;
+}
+.game-card p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.game-card .meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+.game-card.is-soon {
+  border-style: dashed;
+  background: transparent;
+  box-shadow: none;
+}
+.game-card .thumb {
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.game-card.is-soon .thumb {
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  justify-content: space-between;
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+}
+.site-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--fg);
+  text-decoration: none;
+}
+.site-footer a:hover {
+  color: var(--accent);
+}
+
+/* ---------- Settings ---------- */
+
+/* Phones: one column. Big screens: the preview and the Look card on the left, the
+   Knight's Tour card on the right. */
+.page.is-settings {
+  max-width: 1040px;
+}
+@media (min-width: 860px) and (min-height: 480px) {
+  .page.is-settings {
+    max-width: var(--frame-width);
+  }
+}
+.settings {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "top" "intro" "preview" "look" "kt";
+  row-gap: 16px;
+}
+.settings > .topbar {
+  grid-area: top;
+}
+.settings-intro {
+  grid-area: intro;
+}
+.settings-preview {
+  grid-area: preview;
+  justify-self: center;
+  width: min(100%, 320px);
+}
+.settings-look {
+  grid-area: look;
+}
+.settings-kt {
+  grid-area: kt;
+}
+@media (min-width: 860px) {
+  .settings {
+    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+      "top top"
+      "intro intro"
+      "preview kt"
+      "look kt";
+    column-gap: 40px;
+    row-gap: 20px;
+    align-items: start;
+  }
+  .settings-preview {
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
+.settings-card {
+  padding: 22px 24px 24px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+}
+.settings-card h2 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.field {
+  margin-top: 20px;
+}
+.field-label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.field-note {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 400;
+}
+.field.is-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+}
+.field.is-inline .field-label {
+  margin-bottom: 0;
+}
+
+/* Board and knight choices: one-line tiles, a small tick on the picked one. */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  height: 56px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 550;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.tile:hover {
+  border-color: color-mix(in oklab, var(--fg) 22%, var(--line));
+}
+.tile[aria-checked="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.tile-art {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+}
+.tile-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tile-piece {
+  width: 30px;
+  height: 30px;
+  color: var(--fg);
+}
+.tile-check {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.tile[aria-checked="true"] .tile-check {
+  opacity: 1;
+  transform: none;
+}
+
+/* On/off options: one list, a switch on each row. */
+.switches {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+}
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+}
+.switch-row + .switch-row {
+  border-top: 1px solid var(--line);
+}
+.switch-label {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 550;
+}
+.switch-detail {
+  display: block;
+  margin-top: 1px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.switch {
+  position: relative;
+  flex: none;
+  width: 42px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--fg) 18%, transparent);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.switch span {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  transition: transform 0.2s ease;
+}
+.switch[aria-checked="true"] {
+  background: var(--accent);
+}
+.switch[aria-checked="true"] span {
+  transform: translateX(18px);
+}
+
+/* Colours: plain dots; the picked one gets a neutral ring and a tick. */
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.swatch {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.swatch svg {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.swatch:hover {
+  transform: scale(1.08);
+}
+.swatch[aria-checked="true"] {
+  box-shadow:
+    0 0 0 3px var(--surface),
+    0 0 0 5px var(--fg);
+}
+.swatch[aria-checked="true"] svg {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
