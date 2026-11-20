@@ -117,8 +117,23 @@ export function knownAnalysis(boardId: BoardId, moves: readonly Move[]): Analysi
  * time, where the searches are quick, giving up after `maxSteps` jumps. null: none found.
  */
 export function lastGood(boardId: BoardId, moves: readonly Move[], maxSteps = 12, budget = DEFAULT_BUDGET / 2): number | null {
+  const walk = walkBack(boardId, moves, maxSteps, budget);
+  for (;;) {
+    const step = walk.next();
+    if (step.done) return step.value;
+  }
+}
+
+/** lastGood() one search at a time, so the page can draw in between (see ui/use-analysis.ts). */
+export function* walkBack(
+  boardId: BoardId,
+  moves: readonly Move[],
+  maxSteps = 12,
+  budget = DEFAULT_BUDGET / 2,
+): Generator<void, number | null> {
   for (let k = moves.length - 1; k >= Math.max(0, moves.length - maxSteps); k--) {
     if (analyseMoves(boardId, moves.slice(0, k), budget).status === "solvable") return k;
+    yield;
   }
   return null;
 }
