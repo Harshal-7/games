@@ -21,10 +21,12 @@ describe("parseSettings", () => {
     expect(
       parseSettings({ theme: "neon", matchPhone: "yes", knightsTour: { board: "marble", numbers: "yes", size: 9 } }),
     ).toEqual(DEFAULT_SETTINGS);
+    // A table from the first set of colours, since replaced: back to each game's own.
+    expect(parseSettings({ rev: 3, theme: "studio", matchPhone: true })).toMatchObject({ theme: "game", matchPhone: true });
   });
 
   it("keeps valid choices", () => {
-    const saved = { rev: 3, theme: "haldi", matchPhone: true, knightsTour: ktSaved };
+    const saved = { rev: 3, theme: "sunrise", matchPhone: true, knightsTour: ktSaved };
     expect(parseSettings(saved)).toEqual(saved);
   });
 
@@ -119,8 +121,10 @@ describe("start-up script", () => {
       { mode: "neon", knightsTour: { board: "marble" } },
       { rev: 3, theme: "game", matchPhone: false },
       { rev: 3, theme: "game", matchPhone: true },
-      { rev: 3, theme: "asphalt", matchPhone: true, knightsTour: { board: "stone" } },
-      { rev: 3, theme: "blush", matchPhone: "yes" },
+      { rev: 3, theme: "night-drive", matchPhone: true, knightsTour: { board: "stone" } },
+      // A table that's gone (the first set of colours): each game's own.
+      { rev: 3, theme: "haldi", matchPhone: false },
+      { rev: 3, theme: "lamplight", matchPhone: "yes" },
       { rev: 3, theme: "neon", matchPhone: false, mode: "light" },
       { rev: 3, theme: 7, mode: "light" },
       [],

@@ -107,29 +107,32 @@ html[data-tone="light"] {
   --page-line: rgb(241 236 223 / 0.2);
   --track: rgb(0 0 0 / 0.3);
 }
-/* The road, grey and grainy, for Highway Bingo. */
-[data-table="asphalt"] {
-  --page: #2d3236;
+/* A road at dusk, for Highway Bingo: dusky indigo getting darker down the page, a warm
+   streetlight glow at the top and a faint yellow centre line. --page is the top colour,
+   so the phone's address bar matches. */
+[data-table="night-drive"] {
+  --page: #262b4a;
   --page-texture:
-    radial-gradient(rgb(255 255 255 / 0.07) 0.7px, transparent 1.2px) 0 0 / 4px 4px,
-    radial-gradient(rgb(0 0 0 / 0.18) 0.7px, transparent 1.2px) 2px 2px / 4px 4px;
-  --page-deep: #23272a;
-  --on-page: #f2efe8;
-  --on-page-muted: #c8c6c0;
-  --page-line: rgb(242 239 232 / 0.2);
+    radial-gradient(ellipse 80% 340px at 50% 0, rgb(255 150 80 / 0.16), transparent) 0 0 / 100% 680px no-repeat,
+    linear-gradient(rgb(245 196 0 / 0.28) 0 30px, transparent 30px) 50% 0 / 4px 64px repeat-y,
+    linear-gradient(#262b4a, #171a2f) 0 0 / 100% 100% no-repeat;
+  --page-deep: #171a2f;
+  --on-page: #f1ecdf;
+  --on-page-muted: #c4c7d8;
+  --page-line: rgb(241 236 223 / 0.2);
   --track: rgb(0 0 0 / 0.3);
 }
-/* A warm black, like a recording booth, for Ulta. Too dark for a black track, so its
-   tracks are a light veil. */
-[data-table="studio"] {
-  --page: #221d1b;
+/* Velvet curtains under a spotlight, for Ulta. Too dark for a black track, so its tracks
+   are a light veil. */
+[data-table="stage"] {
+  --page: #2a1733;
   --page-texture:
-    radial-gradient(rgb(255 255 255 / 0.04) 0.8px, transparent 1.3px) 0 0 / 5px 5px,
-    radial-gradient(rgb(0 0 0 / 0.12) 0.8px, transparent 1.3px) 2.5px 2.5px / 5px 5px;
-  --page-deep: #191513;
-  --on-page: #f3ebdd;
-  --on-page-muted: #cbbfae;
-  --page-line: rgb(243 235 221 / 0.2);
+    radial-gradient(ellipse 60% 360px at 50% 0, rgb(255 210 160 / 0.14), transparent) 0 0 / 100% 720px no-repeat,
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.2), rgb(255 255 255 / 0.03) 20px, rgb(0 0 0 / 0.2) 40px);
+  --page-deep: #211129;
+  --on-page: #f4ece0;
+  --on-page-muted: #d3c3cf;
+  --page-line: rgb(244 236 224 / 0.2);
   --track: rgb(255 255 255 / 0.1);
 }
 /* Paper and ink, for bright rooms. */
@@ -142,21 +145,27 @@ html[data-tone="light"] {
   --page-line: rgb(34 28 21 / 0.16);
   --track: rgb(34 28 21 / 0.12);
 }
-/* Soft rose paper under Imposter's red cards. */
-[data-table="blush"] {
-  --page: #f4ddd6;
-  --page-texture: radial-gradient(rgb(34 28 21 / 0.06) 0.8px, transparent 1.3px) 0 0 / 5px 5px;
-  --page-deep: #ecd0c7;
+/* Warm cream with a soft red-wine wash from the top, like a lamp over the table, for
+   Imposter. A gradient, no pattern. --page is the top colour, for the address bar. */
+[data-table="lamplight"] {
+  --page: #f3e3da;
+  --page-texture:
+    radial-gradient(ellipse 75% 420px at 50% 0, rgb(180 42 34 / 0.14), transparent) 0 0 / 100% 840px no-repeat,
+    linear-gradient(#f3e3da, #f7efe6) 0 0 / 100% 100% no-repeat;
+  --page-deep: #efe0d4;
   --on-page: #221c15;
   --on-page-muted: #5e4943;
   --page-line: rgb(34 28 21 / 0.16);
   --track: rgb(34 28 21 / 0.12);
 }
-/* Warm turmeric paper, bright and festive, for Patakha. */
-[data-table="haldi"] {
-  --page: #f7e4c6;
-  --page-texture: radial-gradient(rgb(34 28 21 / 0.06) 0.8px, transparent 1.3px) 0 0 / 5px 5px;
-  --page-deep: #efd8b4;
+/* Warm cream with a soft orange glow rising from the bottom of the page, for Patakha.
+   A gradient, no pattern. */
+[data-table="sunrise"] {
+  --page: #f8efe0;
+  --page-texture:
+    radial-gradient(ellipse 90% 380px at 50% 100%, rgb(240 120 40 / 0.26), transparent) 0 100% / 100% 760px no-repeat,
+    linear-gradient(#f8efe0, #f6e6cf) 0 0 / 100% 100% no-repeat;
+  --page-deep: #f3dcc0;
   --on-page: #221c15;
   --on-page-muted: #5c4a2e;
   --page-line: rgb(34 28 21 / 0.16);
