@@ -30,12 +30,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      data-mode="dark"
+      data-table="felt"
+      data-tone="dark"
       suppressHydrationWarning
       className={`${fraunces.variable} ${dmSans.variable} ${dmMono.variable}`}
     >
       <head>
-        {/* Also adds the theme-color meta (felt green or paper) for the phone's address bar. */}
+        {/* Puts the page's table on <html> and adds the theme-color meta for the phone's address bar. */}
         <script dangerouslySetInnerHTML={{ __html: SETTINGS_SCRIPT }} />
         {/* Marks a saved Imposter room so Home keeps space for its Continue card. */}
       </head>

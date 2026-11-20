@@ -27,7 +27,7 @@
   height: auto;
   overflow: visible;
 }
-html[data-mode="light"] .pk-cracker {
+html[data-tone="light"] .pk-cracker {
   --spark: var(--marigold-deep);
   --spark-core: #ffe08a;
 }

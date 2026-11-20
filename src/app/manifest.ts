@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { THEME_COLORS } from "@/settings/settings";
+import { TABLE_COLORS } from "@/settings/settings";
 import { AUTHOR } from "@/ui/site";
 
 /**
@@ -16,8 +16,8 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    background_color: THEME_COLORS.dark,
-    theme_color: THEME_COLORS.dark,
+    background_color: TABLE_COLORS.felt,
+    theme_color: TABLE_COLORS.felt,
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },

@@ -12,9 +12,10 @@ import { CheckIcon, RestartIcon, SpeakerIcon } from "@/ui/icons";
 import { TopBar } from "@/ui/top-bar";
 
 import { backTarget, fromGame } from "./back-target";
-import { DEFAULT_SETTINGS, MODES, type KnightsTourSettings, type Settings } from "./settings";
+import { DEFAULT_SETTINGS, THEMES, type KnightsTourSettings, type Settings } from "./settings";
 import { BackLink } from "./settings-back";
 import { updateSettings, useSettings } from "./store";
+import { tableById } from "./tables";
 
 import "@/games/knights-tour/board-styles.css";
 import "@/games/knights-tour/ui/knights-tour.css";
@@ -51,8 +52,9 @@ const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
  * size isn't on this page, so it never counts as a change and Reset leaves it alone.
  */
 function resettable(s: Settings, game: GameSlug | null) {
-  if (game !== "knights-tour") return { mode: s.mode };
-  return { mode: s.mode, knightsTour: { ...s.knightsTour, size: DEFAULT_SETTINGS.knightsTour.size } };
+  const look = { theme: s.theme, matchPhone: s.matchPhone };
+  if (game !== "knights-tour") return look;
+  return { ...look, knightsTour: { ...s.knightsTour, size: DEFAULT_SETTINGS.knightsTour.size } };
 }
 
 export function SettingsPanel() {
@@ -77,7 +79,8 @@ function SettingsView({ game }: { game: GameSlug | null }) {
   const reset = () =>
     updateSettings((s) => ({
       ...s,
-      mode: DEFAULT_SETTINGS.mode,
+      theme: DEFAULT_SETTINGS.theme,
+      matchPhone: DEFAULT_SETTINGS.matchPhone,
       knightsTour:
         game === "knights-tour" ? { ...DEFAULT_SETTINGS.knightsTour, size: s.knightsTour.size } : s.knightsTour,
     }));
@@ -102,23 +105,35 @@ function SettingsView({ game }: { game: GameSlug | null }) {
           Look
         </h2>
         <Field label="Theme">
-          <div className="tiles">
-            {MODES.map(({ id, label }) => (
+          <div className="tiles is-themes">
+            {THEMES.map(({ id, label }) => (
               <Tile
                 key={id}
                 label={label}
-                selected={settings.mode === id}
-                onSelect={() => updateSettings((s) => ({ ...s, mode: id }))}
+                selected={settings.theme === id}
+                onSelect={() => updateSettings((s) => ({ ...s, theme: id }))}
               >
-                <span className={`theme-art is-${id}`} />
+                {id === "game" ? (
+                  <span className="theme-art is-own" />
+                ) : (
+                  // The tile wears the table's own page colours (its data-table block).
+                  <span className={`theme-art is-${tableById(id).tone}`} data-table={id} />
+                )}
               </Tile>
             ))}
           </div>
         </Field>
         <p className="settings-tip">
-          Felt is the green card table. Daylight is paper and ink. Match my phone follows your phone&apos;s light or
-          dark setting.
+          Each game&apos;s own: every game sits on its own table colour. Pick any other to use it everywhere.
         </p>
+        <div className="switches settings-match">
+          <SwitchRow
+            label="Match my phone"
+            detail="Daylight whenever your phone is in light mode"
+            on={settings.matchPhone}
+            onToggle={() => updateSettings((s) => ({ ...s, matchPhone: !s.matchPhone }))}
+          />
+        </div>
       </section>
 
       {GameSection ? (
@@ -166,7 +181,7 @@ function KnightsTourSection() {
           options={kt}
         />
       </div>
-      <Field label="Board">
+      <Field label="Board" wide>
         <div className="tiles is-two">
           {BOARD_STYLES.map(({ id, label }) => (
             <Tile key={id} label={label} selected={kt.board === id} onSelect={() => setKnightsTour({ board: id })}>
@@ -255,10 +270,21 @@ function UltaNote() {
 }
 
 /** A labelled setting. */
-function Field({ label, group = false, children }: { label: string; group?: boolean; children: ReactNode }) {
+function Field({
+  label,
+  group = false,
+  wide = false,
+  children,
+}: {
+  label: string;
+  group?: boolean;
+  /** Spans the whole game card on big screens. */
+  wide?: boolean;
+  children: ReactNode;
+}) {
   const id = useId();
   return (
-    <div className="field">
+    <div className={wide ? "field is-wide" : "field"}>
       <span className="field-label" id={id}>
         {label}
       </span>

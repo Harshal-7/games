@@ -17,7 +17,7 @@
 }
 
 /* Yellow on daylight's paper is faint (1.3:1), so the main button gets an ink edge there. */
-html[data-mode="light"] [data-game="highway-bingo"] .btn-primary:not(:disabled) {
+html[data-tone="light"] [data-game="highway-bingo"] .btn-primary:not(:disabled) {
   box-shadow:
     inset 0 0 0 2.5px var(--ink),
     0 3px 0 rgb(0 0 0 / 0.35);
