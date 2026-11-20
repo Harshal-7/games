@@ -1,16 +1,19 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { Suspense, useId, type ReactNode } from "react";
 
 import { BOARD_STYLES, PIECE_STYLES } from "@/games/knights-tour/styles";
 import { Board } from "@/games/knights-tour/ui/board";
 import { cue } from "@/games/knights-tour/ui/feedback";
 import { PIECES } from "@/games/knights-tour/ui/knight-piece";
+import type { GameSlug } from "@/games/slugs";
 import { CheckIcon, RestartIcon, SpeakerIcon } from "@/ui/icons";
 import { TopBar } from "@/ui/top-bar";
 
+import { backTarget, fromGame } from "./back-target";
 import { DEFAULT_SETTINGS, MODES, type KnightsTourSettings, type Settings } from "./settings";
-import { BackLink, SettingsBack } from "./settings-back";
+import { BackLink } from "./settings-back";
 import { updateSettings, useSettings } from "./store";
 
 import "@/games/knights-tour/board-styles.css";
@@ -30,45 +33,54 @@ const SWITCHES: { key: Flag; label: string; detail: string }[] = [
   { key: "vibrate", label: "Vibration", detail: "Short buzz on phones that support it" },
 ];
 
-// The remembered board size isn't on this page, so it never counts as a change and
-// Reset leaves it alone.
-const withoutSize = (s: Settings) => ({
-  ...s,
-  knightsTour: { ...s.knightsTour, size: DEFAULT_SETTINGS.knightsTour.size },
-});
+/**
+ * Each game's own part of Settings. It shows only when you open Settings from that game,
+ * so Home and the other games never list it.
+ */
+const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
+  "knights-tour": KnightsTourSection,
+  imposter: ImposterNote,
+};
+
+/**
+ * What Reset puts back: the look, plus the game section on screen. The remembered board
+ * size isn't on this page, so it never counts as a change and Reset leaves it alone.
+ */
+function resettable(s: Settings, game: GameSlug | null) {
+  if (game !== "knights-tour") return { mode: s.mode };
+  return { mode: s.mode, knightsTour: { ...s.knightsTour, size: DEFAULT_SETTINGS.knightsTour.size } };
+}
 
 export function SettingsPanel() {
+  // Which game you came from is in ?from=, which only the browser knows on a first load:
+  // until then the page shows the look and goes back to the games list.
+  return (
+    <Suspense fallback={<SettingsView game={null} />}>
+      <SettingsFromLink />
+    </Suspense>
+  );
+}
+
+function SettingsFromLink() {
+  return <SettingsView game={fromGame(useSearchParams().get("from"))} />;
+}
+
+function SettingsView({ game }: { game: GameSlug | null }) {
   const settings = useSettings();
-  const kt = settings.knightsTour;
   const lookId = useId();
-  const ktId = useId();
-  const setKnightsTour = (patch: Partial<KnightsTourSettings>) =>
-    updateSettings((s) => ({ ...s, knightsTour: { ...s.knightsTour, ...patch } }));
-  const isDefault = JSON.stringify(withoutSize(settings)) === JSON.stringify(DEFAULT_SETTINGS);
+  const GameSection = game ? GAME_SECTIONS[game] : null;
+  const isDefault = JSON.stringify(resettable(settings, game)) === JSON.stringify(resettable(DEFAULT_SETTINGS, game));
   const reset = () =>
     updateSettings((s) => ({
-      ...DEFAULT_SETTINGS,
-      knightsTour: { ...DEFAULT_SETTINGS.knightsTour, size: s.knightsTour.size },
+      ...s,
+      mode: DEFAULT_SETTINGS.mode,
+      knightsTour:
+        game === "knights-tour" ? { ...DEFAULT_SETTINGS.knightsTour, size: s.knightsTour.size } : s.knightsTour,
     }));
-
-  function toggle(key: Flag) {
-    const on = !kt[key];
-    setKnightsTour({ [key]: on });
-    // Let people hear or feel what they just switched on.
-    if (on && key === "sound") cue("move", { sound: true, vibrate: false });
-    if (on && key === "vibrate") cue("move", { sound: false, vibrate: true });
-  }
 
   return (
     <div className="settings">
-      <TopBar
-        back={
-          // The way back depends on ?from=, which only the browser knows on a first load.
-          <Suspense fallback={<BackLink href="/" label="Games" />}>
-            <SettingsBack />
-          </Suspense>
-        }
-      />
+      <TopBar back={<BackLink {...backTarget(game)} />} />
 
       <header className="settings-intro">
         <div className="settings-head">
@@ -105,64 +117,92 @@ export function SettingsPanel() {
         </p>
       </section>
 
-      {/* Knight's Tour choices are brass, like the game. */}
-      <section className="card section settings-kt" data-game="knights-tour" aria-labelledby={ktId}>
-        <h2 className="tape is-game" id={ktId}>
-          Knight&apos;s Tour
-        </h2>
-        <div className="settings-preview" inert aria-hidden="true">
-          <Board
-            size={5}
-            path={PREVIEW_PATH}
-            phase="playing"
-            hint={null}
-            locked
-            moveMs={0}
-            onSquare={() => {}}
-            options={kt}
-          />
+      {GameSection ? (
+        <GameSection />
+      ) : (
+        <p className="settings-note">Open Settings from inside a game to change that game&apos;s options too.</p>
+      )}
+    </div>
+  );
+}
+
+/** Knight's Tour's board, knight and options, in brass like the game. */
+function KnightsTourSection() {
+  const kt = useSettings().knightsTour;
+  const ktId = useId();
+  const setKnightsTour = (patch: Partial<KnightsTourSettings>) =>
+    updateSettings((s) => ({ ...s, knightsTour: { ...s.knightsTour, ...patch } }));
+
+  function toggle(key: Flag) {
+    const on = !kt[key];
+    setKnightsTour({ [key]: on });
+    // Let people hear or feel what they just switched on.
+    if (on && key === "sound") cue("move", { sound: true, vibrate: false });
+    if (on && key === "vibrate") cue("move", { sound: false, vibrate: true });
+  }
+
+  return (
+    <section className="card section settings-game" data-game="knights-tour" aria-labelledby={ktId}>
+      <h2 className="tape is-game" id={ktId}>
+        Knight&apos;s Tour
+      </h2>
+      <div className="settings-preview" inert aria-hidden="true">
+        <Board
+          size={5}
+          path={PREVIEW_PATH}
+          phase="playing"
+          hint={null}
+          locked
+          moveMs={0}
+          onSquare={() => {}}
+          options={kt}
+        />
+      </div>
+      <Field label="Board">
+        <div className="tiles is-two">
+          {BOARD_STYLES.map(({ id, label }) => (
+            <Tile key={id} label={label} selected={kt.board === id} onSelect={() => setKnightsTour({ board: id })}>
+              <span className="board-swatch" data-kt-board={id}>
+                {Array.from({ length: 12 }, (_, i) => (
+                  <span key={i} className={(Math.floor(i / 6) + i) % 2 ? "is-dark" : "is-light"} />
+                ))}
+              </span>
+            </Tile>
+          ))}
         </div>
-        <Field label="Board">
-          <div className="tiles is-two">
-            {BOARD_STYLES.map(({ id, label }) => (
-              <Tile key={id} label={label} selected={kt.board === id} onSelect={() => setKnightsTour({ board: id })}>
-                <span className="board-swatch" data-kt-board={id}>
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <span key={i} className={(Math.floor(i / 6) + i) % 2 ? "is-dark" : "is-light"} />
-                  ))}
+      </Field>
+      <Field label="Knight">
+        <div className="tiles">
+          {PIECE_STYLES.map(({ id, label }) => {
+            const Piece = PIECES[id];
+            return (
+              <Tile key={id} label={label} selected={kt.piece === id} onSelect={() => setKnightsTour({ piece: id })}>
+                <span className="knight-swatch" data-kt-board={kt.board}>
+                  <Piece className="tile-piece" />
                 </span>
               </Tile>
-            ))}
-          </div>
-        </Field>
-        <Field label="Knight">
-          <div className="tiles">
-            {PIECE_STYLES.map(({ id, label }) => {
-              const Piece = PIECES[id];
-              return (
-                <Tile key={id} label={label} selected={kt.piece === id} onSelect={() => setKnightsTour({ piece: id })}>
-                  <span className="knight-swatch" data-kt-board={kt.board}>
-                    <Piece className="tile-piece" />
-                  </span>
-                </Tile>
-              );
-            })}
-          </div>
-        </Field>
-        <Field label="Options" group>
-          <div className="switches">
-            {SWITCHES.map(({ key, label, detail }) => (
-              <SwitchRow key={key} label={label} detail={detail} on={kt[key]} onToggle={() => toggle(key)} />
-            ))}
-          </div>
-        </Field>
-      </section>
+            );
+          })}
+        </div>
+      </Field>
+      <Field label="Options" group>
+        <div className="switches">
+          {SWITCHES.map(({ key, label, detail }) => (
+            <SwitchRow key={key} label={label} detail={detail} on={kt[key]} onToggle={() => toggle(key)} />
+          ))}
+        </div>
+      </Field>
+    </section>
+  );
+}
 
-      <p className="settings-note">
-        <SpeakerIcon width={18} height={18} />
-        <span>Imposter&apos;s sound and vibration are in its setup, under Options.</span>
-      </p>
-    </div>
+/** Imposter keeps its options with the room, in its setup screen. */
+function ImposterNote() {
+  return (
+    <p className="settings-note">
+      <SpeakerIcon width={18} height={18} />
+      <span>Imposter&apos;s sound and vibration are in its setup, under Options.</span>
+    </p>
   );
 }
 
