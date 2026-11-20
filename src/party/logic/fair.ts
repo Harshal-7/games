@@ -1,12 +1,13 @@
 import { weightedIndex, type Rng } from "./random";
 
 /**
- * Fair picks, kept like a shared bill (think Splitwise).
+ * Fair picks, kept like a shared bill (think Splitwise). For anything that picks people
+ * round after round: Imposter's imposters, and who talks first.
  *
- * Every round the imposter seats are split evenly between the players at the table:
+ * Every round the seats being picked are split evenly between the players at the table:
  * with 5 players and 1 imposter, each player "owes" a fifth of a turn. Being picked
  * pays off one whole turn. A player's balance is what they owe minus what they've
- * taken, so someone who hasn't been imposter for a while is owed a turn.
+ * taken, so someone who hasn't been picked for a while is owed a turn.
  *
  * The pick stays random, but a bigger balance means a bigger chance:
  * weight = e^(STRENGTH × balance). A small slice of every pick is plain random, so

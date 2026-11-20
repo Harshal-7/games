@@ -1,9 +1,9 @@
 import { playNotes, vibrate } from "@/ui/sound";
 
 /**
- * Imposter's sounds, all behind the room's Sound switch. iPhones can't vibrate from a
- * web page and only play sound that a tap started, so the tap that starts talking
- * time also wakes the audio up for the ticks and the time's-up chime later.
+ * Party games' sounds, each behind its game's Sound switch. iPhones can't vibrate from
+ * a web page and only play sound that a tap started, so the tap that starts a timer
+ * also wakes the audio up for the ticks and the time's-up chime later.
  */
 export function wakeAudio(): void {
   playNotes([]);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { seeded } from "./random";
+import { seeded } from "@/party/logic/random";
+
 import { newRoom, reduce, type Action, type Room } from "./room";
 import { category } from "./words";
 import { SAVED_ROOM_SCRIPT, savedGame, savedGameLine } from "./saved";

@@ -1,5 +1,8 @@
-import { pickFair, settle, type Ledger } from "./fair";
-import { randomId, randomItem, type Rng } from "./random";
+import { pickFair, settle, type Ledger } from "@/party/logic/fair";
+import { tooFew, updatePlayers, type Player, type PlayerAction } from "@/party/logic/players";
+import { randomItem, type Rng } from "@/party/logic/random";
+import { changeTimer, type Timer, type TimerOp } from "@/party/logic/timer";
+
 import { category, CATEGORY_IDS, isCategoryId, type CategoryId } from "./words";
 
 /**
@@ -9,19 +12,12 @@ import { category, CATEGORY_IDS, isCategoryId, type CategoryId } from "./words";
  * reload in the middle of a round.
  */
 
-export const MIN_PLAYERS = 3;
-export const MAX_PLAYERS = 20;
-export const MAX_NAME = 16;
 /** Talking time: always 3 minutes. Pause and +30 sec on the talk screen adjust it. */
 export const TALK_MS = 180_000;
-/** Quick start: how many numbered players to suggest. */
-export const QUICK_PLAYERS = 5;
 
 /** What the imposter sees on their card besides "you're the imposter". */
 export type Clue = "hint" | "category" | "none";
 export const CLUES: readonly Clue[] = ["hint", "category", "none"];
-
-export type Player = { id: string; name: string };
 
 export type Options = {
   /** Wanted number of imposters; a small table gets fewer (see imposterCount). */
@@ -39,9 +35,6 @@ export type Options = {
  * result → who won, points, next round
  */
 export type Stage = "deal" | "talk" | "vote" | "guess" | "result";
-
-/** Running when `endsAt` is set; paused with `left` ms to go otherwise. */
-export type Timer = { endsAt: number | null; left: number };
 
 export type Round = {
   number: number;
@@ -113,24 +106,10 @@ export function imposterCount(room: Room): number {
   return Math.min(Math.max(1, room.options.imposters), maxImposters(room.players.length));
 }
 
-export function cleanName(name: string): string {
-  return name.replace(/\s+/g, " ").trim().slice(0, MAX_NAME);
-}
-
-/** Why a name can't be used, or null when it's fine. */
-export function nameProblem(players: readonly Player[], name: string, self?: string): string | null {
-  const clean = cleanName(name);
-  if (!clean) return "Type a name first.";
-  const taken = players.find((p) => p.id !== self && p.name.toLowerCase() === clean.toLowerCase());
-  if (taken) return `${taken.name} is already playing.`;
-  if (!self && players.length >= MAX_PLAYERS) return `That's the most players (${MAX_PLAYERS}).`;
-  return null;
-}
-
 /** Why a round can't start yet, or null. */
 export function startProblem(room: Room): string | null {
-  const missing = MIN_PLAYERS - room.players.length;
-  if (missing > 0) return `Add ${missing} more ${missing === 1 ? "player" : "players"} to start.`;
+  const few = tooFew(room.players);
+  if (few) return few;
   if (room.options.categories.length === 0) return "Pick at least one category.";
   return null;
 }
@@ -215,50 +194,8 @@ function without<T>(record: Record<string, T>, id: string): Record<string, T> {
   return Object.fromEntries(Object.entries(record).filter(([key]) => key !== id));
 }
 
-export type TimerOp = "pause" | "resume" | "add";
-
-export function timeLeft(timer: Timer, now: number): number {
-  return Math.max(0, timer.endsAt === null ? timer.left : timer.endsAt - now);
-}
-
-/** The timer ring turns red for the last 30 seconds. */
-export const HURRY_MS = 30_000;
-/** A soft tick each second from 10 down to 1. */
-export const TICK_FROM = 10;
-
-export function timerTone(leftMs: number): "calm" | "hurry" {
-  return leftMs <= HURRY_MS ? "hurry" : "calm";
-}
-
-/** How much of the ring to draw, 0 to 1. +30 sec can push the time left past the total, so it's capped. */
-export function ringFraction(leftMs: number, totalMs: number): number {
-  return totalMs > 0 ? Math.min(1, Math.max(0, leftMs / totalMs)) : 0;
-}
-
-/**
- * Whether the clock should tick now: once as the shown time (whole seconds, rounded
- * up) drops onto each of 10…1. Nothing while paused or when time goes up, and one
- * tick at most when the clock jumps ahead (a background tab waking up).
- */
-export function tickDue(prevLeftMs: number, leftMs: number): boolean {
-  const shown = Math.ceil(leftMs / 1000);
-  return shown < Math.ceil(prevLeftMs / 1000) && shown >= 1 && shown <= TICK_FROM;
-}
-
-function changeTimer(timer: Timer, op: TimerOp, now: number): Timer {
-  const left = timeLeft(timer, now);
-  if (op === "pause") return { endsAt: null, left };
-  if (op === "resume") return left > 0 ? { endsAt: now + left, left } : timer;
-  // +30 seconds. A running timer that already hit zero starts again.
-  const more = left + 30_000;
-  return { endsAt: timer.endsAt === null ? null : now + more, left: more };
-}
-
 export type Action =
-  | { type: "add-player"; id: string; name: string }
-  | { type: "quick-players"; count: number; rng: Rng }
-  | { type: "rename-player"; id: string; name: string }
-  | { type: "remove-player"; id: string }
+  | PlayerAction
   | { type: "options"; patch: Partial<Options> }
   | { type: "start"; rng: Rng }
   | { type: "look" }
@@ -279,27 +216,19 @@ export type Action =
 export function reduce(room: Room, action: Action): Room {
   const round = room.round;
   switch (action.type) {
-    case "add-player": {
-      if (round || nameProblem(room.players, action.name)) return room;
-      return { ...room, players: [...room.players, { id: action.id, name: cleanName(action.name) }] };
-    }
-    case "quick-players": {
-      // No time for names: Player 1, Player 2, … Anyone can be renamed later.
-      if (round || room.players.length > 0) return room;
-      const count = Math.min(MAX_PLAYERS, Math.max(MIN_PLAYERS, Math.round(action.count)));
-      const players = Array.from({ length: count }, (_, i) => ({ id: randomId(action.rng), name: `Player ${i + 1}` }));
-      return { ...room, players };
-    }
+    case "add-player":
+    case "quick-players":
     case "rename-player": {
-      if (nameProblem(room.players, action.name, action.id)) return room;
-      const name = cleanName(action.name);
-      return { ...room, players: room.players.map((p) => (p.id === action.id ? { ...p, name } : p)) };
+      // Names can change any time; who's at the table only between rounds.
+      if (round && action.type !== "rename-player") return room;
+      const players = updatePlayers(room.players, action);
+      return players === room.players ? room : { ...room, players };
     }
     case "remove-player": {
       if (round) return room;
       return {
         ...room,
-        players: room.players.filter((p) => p.id !== action.id),
+        players: updatePlayers(room.players, action),
         scores: without(room.scores, action.id),
         ledger: without(room.ledger, action.id),
         starts: without(room.starts, action.id),

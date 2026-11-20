@@ -22,6 +22,10 @@ pnpm check        # types, lint, tests and a production build
 src/
   app/                    pages (one folder per game) and the shared layout
   ui/                     pieces every game shares: page frame, top bar, buttons, icons
+  party/                  parts the party games share (below)
+    logic/                random and fair picks, the player list, the timer, with tests
+    ui/                   the saved-game store, clock, sounds, hold-to-see card, ring timer,
+                          vote and player list; party.css styles them
   home/                   the home page's saved-game card (Continue / New game / Remove) and styles
   settings/               the /settings page: theme, board and knight styles
   games/
@@ -31,9 +35,34 @@ src/
       ui/                 the board, the play screen, the knight drawings
       styles.ts           the board and knight styles Settings offers
     imposter/
-      logic/              rooms and rounds, fair picks, the word list, with tests
+      logic/              rooms and rounds, the word list, with tests
       ui/                 lobby, pass-the-phone deal, talk, vote and result screens
 ```
+
+### Shared parts for party games
+
+A party game builds on `src/party/` instead of copying another game, so every game picks,
+saves and times things the same way. The parts take plain inputs (ids, names, numbers and
+callbacks), never a game's own types, and Imposter shows each one in use.
+
+| Part | File | What it does |
+| --- | --- | --- |
+| `cryptoRandom`, `randomItem`, `randomId`, `seeded` | `logic/random.ts` | Random picks; `seeded` for tests |
+| `pickFair`, `settle` | `logic/fair.ts` | The fair ledger, for anything that picks people round after round |
+| `updatePlayers`, `nameProblem`, `tooFew` | `logic/players.ts` | The player list's changes and checks: 3 to 20 players, or a game's own limits |
+| `Timer`, `changeTimer`, `timeLeft` | `logic/timer.ts` | A countdown kept as data: a deadline while it runs |
+| `createStore(key, parse, reduce, empty)` | `ui/store.ts` | A game's state in localStorage, so a reload comes back to the same screen |
+| `useClock`, `useHydrated` | `ui/use-clock.ts`, `ui/use-hydrated.ts` | A clock that ticks four times a second; whether the browser has loaded |
+| `wakeAudio`, `buzzOpen`, `tick`, `timeUp` | `ui/sounds.ts` | Party sounds, on top of `src/ui/sound.ts` |
+| `Roster` | `ui/roster.tsx` | The player list on a setup screen: Quick start, add, rename in place, remove |
+| `HoldCard`, `Face` | `ui/hold-card.tsx` | The hold-to-see secret card, and a face-up card's lines |
+| `RingTimer` | `ui/ring-timer.tsx` | The ring timer with Pause and +30 sec |
+| `Vote` | `ui/vote.tsx` | Point on three, tap who got the most fingers |
+| `PlayHead`, `BigName`, `Stamp` | `ui/parts.tsx` | The round chip, a name in big type, a rubber stamp |
+
+`party.css` also holds the play screen these sit in: `.page.is-party`, `.party-play`
+(which sizes the secret card), `.party-stage`, `.party-title`, `.party-help` and
+`.party-foot`. Knight's Tour uses the clock and the store too.
 
 ### Adding a game
 
@@ -41,11 +70,15 @@ src/
    `src/games/slugs.ts`.
 2. Add `src/app/<name>/page.tsx` that wraps the game in `GameShell game="<slug>"`
    (`layout="party"` for games that scroll like a page).
-3. Give it a colour: a `[data-game="<slug>"]` block in `src/app/globals.css`.
+3. Give it a colour: a `[data-game="<slug>"]` block in `src/app/globals.css` (`--game`,
+   `--game-deep`, `--on-game`, `--pick`, `--on-pick`, and `--game-soft` for soft fills).
 4. Add one entry to `src/games/registry.ts`.
 5. If it has options for Settings, add its section to `GAME_SECTIONS` in
    `src/settings/settings-panel.tsx`. Settings shows the look plus the options of the game
    you opened it from, never every game's.
+6. A party game builds on `src/party/` (above): its entry component imports
+   `@/party/ui/party.css` before its own styles, and it saves its state with `createStore`
+   under `games:<slug>:<thing>:v1`.
 
 ## The look
 
@@ -88,7 +121,7 @@ titles, DM Sans for reading and DM Mono for numbers.
 
 - **Rounds.** Everything is one reducer over plain data (`logic/room.ts`), saved in the
   browser, so a reload mid-round comes back to the same screen.
-- **Fair imposter picks** (`logic/fair.ts`) work like a shared bill: each round every
+- **Fair imposter picks** (`src/party/logic/fair.ts`) work like a shared bill: each round every
   player owes an even share of the imposter seats and being picked pays a turn off.
   Picks stay random but lean towards whoever is owed a turn, with a floor so nobody is
   ever ruled out. Who talks first is picked the same way, on its own, so it gives

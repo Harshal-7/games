@@ -1,12 +1,14 @@
 "use client";
 
+import { useHydrated } from "@/party/ui/use-hydrated";
+
 import { Deal } from "./deal";
 import { Lobby } from "./lobby";
-import { useHydrated } from "./parts";
 import { Talk } from "./talk";
 import { useRoom } from "./use-room";
 import { Guess, Result, Vote } from "./verdict";
 
+import "@/party/ui/party.css";
 import "./imposter.css";
 
 /** The whole game: the lobby between rounds, then one screen per stage of a round. */

@@ -22,7 +22,7 @@ export function HoldCard({
 }: {
   name: string;
   opens: number;
-  /** A short buzz on every press (the room's Sound switch). */
+  /** A short buzz on every press (the game's Sound switch). */
   buzz: boolean;
   onOpen: () => void;
   children: ReactNode;
@@ -64,7 +64,7 @@ export function HoldCard({
   return (
     <button
       type="button"
-      className="imp-hold"
+      className="party-hold"
       data-state={held ? "held" : opens > 0 ? "opened" : "sealed"}
       aria-label={label}
       onPointerDown={(e) => {
@@ -88,33 +88,51 @@ export function HoldCard({
       onBlur={hide}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <span className="imp-hold-turn">
-        <span className="imp-back" aria-hidden="true">
-          <span className="imp-back-secret">TOP SECRET</span>
-          <span className="imp-back-for">For {name} only</span>
-          <span className="imp-tape is-under">SEALED · SEALED · SEALED · SEALED</span>
-          <span className="imp-tape">DON&apos;T PEEK · DON&apos;T PEEK · DON&apos;T PEEK</span>
+      <span className="party-hold-turn">
+        <span className="party-back" aria-hidden="true">
+          <span className="party-back-secret">TOP SECRET</span>
+          <span className="party-back-for">For {name} only</span>
+          <span className="party-tape is-under">SEALED · SEALED · SEALED · SEALED</span>
+          <span className="party-tape">DON&apos;T PEEK · DON&apos;T PEEK · DON&apos;T PEEK</span>
           {opens === 0 ? (
-            <span className="imp-back-note">
-              <span className="imp-back-title">Sealed</span>
+            <span className="party-back-note">
+              <span className="party-back-title">Sealed</span>
               Press and hold to open
             </span>
           ) : (
-            <span className="imp-back-note is-opened">
-              <span className="imp-back-stamp">{opens === 1 ? "Opened" : `Opened ${opens} times`}</span>
+            <span className="party-back-note is-opened">
+              <span className="party-back-stamp">{opens === 1 ? "Opened" : `Opened ${opens} times`}</span>
               Hold to see it again
             </span>
           )}
-          <span className="imp-wax">
+          <span className="party-wax">
             {opens === 0 ? <LockIcon strokeWidth={2.4} /> : <EyeOffIcon strokeWidth={2.4} />}
             hold
           </span>
         </span>
         {/* Always there, so letting go has a blank face to turn back from. */}
-        <span className="imp-face is-held" aria-live="assertive" aria-hidden={!held}>
+        <span className="party-face is-held" aria-live="assertive" aria-hidden={!held}>
           {held && children}
         </span>
       </span>
     </button>
+  );
+}
+
+/** The three lines on a face-up card. */
+export type FaceText = { kicker: string; word: string; note: string };
+
+/**
+ * A face-up card's lines; the card around them is styled by its class (.party-face, sized
+ * with .is-wide or .is-small on the table). Every card shares one layout and one look, so
+ * nobody across the table can tell them apart from a glance at the card.
+ */
+export function Face({ kicker, word, note }: FaceText) {
+  return (
+    <>
+      <span className="party-face-kicker">{kicker}</span>
+      <span className="party-face-word">{word}</span>
+      <span className="party-face-note">{note}</span>
+    </>
   );
 }

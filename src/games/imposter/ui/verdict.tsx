@@ -2,53 +2,33 @@
 
 import { useState } from "react";
 
-import { CheckIcon } from "@/ui/icons";
+import { cryptoRandom } from "@/party/logic/random";
+import { Face } from "@/party/ui/hold-card";
+import { PlayHead, Stamp } from "@/party/ui/parts";
+import { Vote as PartyVote } from "@/party/ui/vote";
 
-import { cryptoRandom } from "../logic/random";
 import { startProblem, verdict, type Room, type Round } from "../logic/room";
-import { Face, imposterFace, listNames, namesOf, PlayHead, Stamp, wordFace } from "./parts";
+import { imposterFace, listNames, namesOf, wordFace } from "./parts";
 import { act } from "./use-room";
 
 /** The table points, someone taps the suspect(s). Never shows the word or the imposters. */
 export function Vote({ room, round }: { room: Room; round: Round }) {
-  const [picked, setPicked] = useState<string[]>([]);
   const names = namesOf(room);
   const k = round.imposters.length;
-  const toggle = (id: string) =>
-    setPicked((now) => (now.includes(id) ? now.filter((p) => p !== id) : [...now, id].slice(-k)));
 
   return (
-    <div className="imp-play">
+    <div className="party-play">
       <PlayHead round={round.number} label="Vote" />
-      <div className="imp-stage is-left">
-        <h2 className="imp-title">{k === 1 ? "Who's the imposter?" : `Who are the ${k} imposters?`}</h2>
-        <p className="imp-help">
-          Count to three and everyone points at once. Tap the {k === 1 ? "player" : `${k} players`} with the most
-          fingers on them.
-        </p>
-        <div className="imp-picks" role="group" aria-label="Suspects">
-          {round.seats.map((id) => {
-            const on = picked.includes(id);
-            return (
-              <button key={id} type="button" className="btn imp-pick" aria-pressed={on} onClick={() => toggle(id)}>
-                {on && <CheckIcon width={18} height={18} strokeWidth={3} />}
-                <span>{names[id]}</span>
-              </button>
-            );
-          })}
-        </div>
-        <button
-          type="button"
-          className="btn btn-primary btn-big imp-reveal-go"
-          disabled={picked.length !== k}
-          onClick={() => act({ type: "accuse", ids: picked })}
-        >
-          {picked.length === k ? "Reveal" : k === 1 ? "Pick a player" : `Pick ${k - picked.length} more`}
-        </button>
+      <PartyVote
+        title={k === 1 ? "Who's the imposter?" : `Who are the ${k} imposters?`}
+        people={round.seats.map((id) => ({ id, name: names[id] }))}
+        count={k}
+        onVote={(ids) => act({ type: "accuse", ids })}
+      >
         <button type="button" className="btn imp-keep-talking" onClick={() => act({ type: "talk" })}>
           Keep talking
         </button>
-      </div>
+      </PartyVote>
     </div>
   );
 }
@@ -61,20 +41,20 @@ export function Guess({ room, round }: { room: Room; round: Round }) {
   const one = round.imposters.length === 1;
 
   return (
-    <div className="imp-play">
+    <div className="party-play">
       <PlayHead round={round.number} label="Last chance" />
-      <div className="imp-stage">
+      <div className="party-stage">
         <div className="card imp-case">
           <span className="label">Case file · Round {round.number}</span>
           <span className={who.length > 9 ? "imp-case-name is-long" : "imp-case-name"}>{who}</span>
           <Stamp className="imp-case-stamp">Caught!</Stamp>
         </div>
-        <h2 className="imp-title imp-guess-title">
+        <h2 className="party-title imp-guess-title">
           {who} {one ? "was the imposter" : "were the imposters"}
         </h2>
         {!shown ? (
           <>
-            <p className="imp-help">
+            <p className="party-help">
               One last chance to steal the round: {who}, say your guess for the word out loud. Then show it.
             </p>
             <button type="button" className="btn btn-primary btn-big imp-show-go" onClick={() => setShown(true)}>
@@ -83,7 +63,7 @@ export function Guess({ room, round }: { room: Room; round: Round }) {
           </>
         ) : (
           <>
-            <div className="imp-face is-wide">
+            <div className="party-face is-wide">
               <Face {...wordFace(round)} />
             </div>
             {room.options.clue === "hint" && (
@@ -133,26 +113,26 @@ export function Result({ room, round }: { room: Room; round: Round }) {
   const problem = startProblem(room);
 
   return (
-    <div className="imp-play">
+    <div className="party-play">
       <PlayHead round={round.number} label="Result" />
       <div className="imp-result-head">
         <span className="imp-badge" data-winner={winner}>
           {winner === "crew" ? "Crew" : one ? "Imposter" : "Imposters"}
         </span>
         <h2 className="imp-headline">{headline}</h2>
-        <p className="imp-help">{detail}</p>
+        <p className="party-help">{detail}</p>
       </div>
 
       <div className="imp-reveal" role="group" aria-label="The cards">
         <figure>
-          <div className="imp-face is-small">
+          <div className="party-face is-small">
             <Face {...wordFace(round)} />
           </div>
           <figcaption>The word</figcaption>
         </figure>
         {round.imposters.map((id) => (
           <figure key={id}>
-            <div className="imp-face is-small">
+            <div className="party-face is-small">
               <Face {...imposterFace(round, room.options.clue)} />
               {round.accused.includes(id) && <Stamp className="imp-card-stamp">Caught!</Stamp>}
             </div>
@@ -185,7 +165,7 @@ export function Result({ room, round }: { room: Room; round: Round }) {
                   {gained > 0 && <span className="imp-gain">+{gained}</span>}
                   <span className="imp-total">
                     {score}
-                    <span className="imp-visually-hidden"> points</span>
+                    <span className="party-visually-hidden"> points</span>
                   </span>
                 </span>
               </li>

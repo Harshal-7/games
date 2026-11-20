@@ -1,25 +1,14 @@
 "use client";
 
-import { useId, useState, type FormEvent, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 
+import { MAX_PLAYERS, MIN_PLAYERS } from "@/party/logic/players";
+import { cryptoRandom } from "@/party/logic/random";
+import { Roster } from "@/party/ui/roster";
 import { Confirm } from "@/ui/confirm";
-import { CloseIcon, MinusIcon, PlusIcon, RestartIcon } from "@/ui/icons";
+import { RestartIcon } from "@/ui/icons";
 
-import { cryptoRandom, randomId } from "../logic/random";
-import {
-  cleanName,
-  imposterCount,
-  MAX_NAME,
-  MAX_PLAYERS,
-  maxImposters,
-  MIN_PLAYERS,
-  nameProblem,
-  QUICK_PLAYERS,
-  startProblem,
-  type Clue,
-  type Player,
-  type Room,
-} from "../logic/room";
+import { imposterCount, maxImposters, startProblem, type Clue, type Room } from "../logic/room";
 import { CATEGORIES, CATEGORY_IDS } from "../logic/words";
 import { ChevronDownIcon, DealIcon } from "./marks";
 import { act } from "./use-room";
@@ -101,7 +90,7 @@ export function Lobby({ room }: { room: Room }) {
             }}
           />
         )}
-        <Roster room={room} />
+        <Roster players={room.players} scores={room.played > 0 ? room.scores : undefined} onAction={act} />
       </section>
 
       <Options room={room} />
@@ -143,160 +132,6 @@ export function Lobby({ room }: { room: Room }) {
         </button>
       </div>
     </div>
-  );
-}
-
-function Roster({ room }: { room: Room }) {
-  const [draft, setDraft] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const inputId = useId();
-
-  const add = (e: FormEvent) => {
-    e.preventDefault();
-    const problem = nameProblem(room.players, draft);
-    if (problem) {
-      setError(problem);
-      return;
-    }
-    act({ type: "add-player", id: randomId(cryptoRandom), name: draft });
-    setDraft("");
-    setError(null);
-  };
-
-  return (
-    <>
-      {room.players.length > 0 ? (
-        <ol className="imp-roster">
-          {room.players.map((player, i) => (
-            <li key={player.id} className="imp-seat-pill">
-              <span className="imp-seat" aria-hidden="true">
-                {i + 1}
-              </span>
-              <NameInput key={player.name} player={player} players={room.players} />
-              {room.played > 0 && (
-                <span className="imp-points" title="Points">
-                  {room.scores[player.id] ?? 0}
-                  <span className="imp-visually-hidden"> points</span>
-                </span>
-              )}
-              <button
-                type="button"
-                className="imp-remove"
-                aria-label={`Remove ${player.name}`}
-                title="Remove"
-                onClick={() => act({ type: "remove-player", id: player.id })}
-              >
-                <CloseIcon width={16} height={16} strokeWidth={2.6} />
-              </button>
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <>
-          <QuickStart />
-          <p className="imp-or">or add names, in the order you&apos;re sitting</p>
-        </>
-      )}
-      <form className="imp-add" onSubmit={add}>
-        <label htmlFor={inputId} className="imp-visually-hidden">
-          New player&apos;s name
-        </label>
-        <input
-          id={inputId}
-          className="imp-input"
-          value={draft}
-          maxLength={MAX_NAME}
-          placeholder="Add a player"
-          autoComplete="off"
-          autoCapitalize="words"
-          enterKeyHint="done"
-          aria-invalid={error !== null}
-          aria-describedby={error ? `${inputId}-error` : undefined}
-          onChange={(e) => {
-            setDraft(e.target.value);
-            setError(null);
-          }}
-        />
-        <button type="submit" className="btn" disabled={!draft.trim()}>
-          <PlusIcon width={16} height={16} strokeWidth={2.6} />
-          Add
-        </button>
-      </form>
-      {error && (
-        <p className="imp-error" id={`${inputId}-error`} role="alert">
-          {error}
-        </p>
-      )}
-    </>
-  );
-}
-
-/** No time for names: a number of players, called Player 1, Player 2, … */
-function QuickStart() {
-  const [count, setCount] = useState(QUICK_PLAYERS);
-  return (
-    <div>
-      <p className="imp-quick-title">Quick start</p>
-      <p className="imp-quick-note">Skip the names and play as Player 1, Player 2… Rename anyone later.</p>
-      <div className="imp-quick-row">
-        <div className="imp-stepper" role="group" aria-label="How many players">
-          <button
-            type="button"
-            className="icon-btn"
-            aria-label="One player fewer"
-            disabled={count <= MIN_PLAYERS}
-            onClick={() => setCount((n) => n - 1)}
-          >
-            <MinusIcon width={16} height={16} strokeWidth={2.6} />
-          </button>
-          <output aria-live="polite">{count}</output>
-          <button
-            type="button"
-            className="icon-btn"
-            aria-label="One player more"
-            disabled={count >= MAX_PLAYERS}
-            onClick={() => setCount((n) => n + 1)}
-          >
-            <PlusIcon width={16} height={16} strokeWidth={2.6} />
-          </button>
-        </div>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => act({ type: "quick-players", count, rng: cryptoRandom })}
-        >
-          Add {count} players
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/**
- * A player's name, editable in place and as wide as the name (the hidden copy in
- * data-value sizes the field). A name that's empty or taken goes back to what it was.
- */
-function NameInput({ player, players }: { player: Player; players: Player[] }) {
-  const [value, setValue] = useState(player.name);
-  return (
-    <span className="imp-name" data-value={value}>
-      <input
-        className="imp-name-input"
-        value={value}
-        size={1}
-        maxLength={MAX_NAME}
-        aria-label={`Name of player ${player.name}`}
-        autoComplete="off"
-        enterKeyHint="done"
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-        onBlur={() => {
-          const name = cleanName(value);
-          if (name === player.name || nameProblem(players, value, player.id)) setValue(player.name);
-          else act({ type: "rename-player", id: player.id, name });
-        }}
-      />
-    </span>
   );
 }
 
