@@ -3,6 +3,7 @@
 import { useId, useState, type ReactNode } from "react";
 
 import { cryptoRandom } from "@/party/logic/random";
+import { PickerLink } from "@/games/finger-picker/ui/setup-link";
 import { Roster } from "@/party/ui/roster";
 import { Confirm } from "@/ui/confirm";
 import { RestartIcon } from "@/ui/icons";
@@ -115,6 +116,7 @@ export function Lobby({ room }: { room: Room }) {
             onAction={act}
           />
           {count > 0 && count < 7 && <p className="maf-players-note">Best with 7 to 12 players.</p>}
+          <PickerLink from="mafia" />
         </section>
 
         {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach; on big

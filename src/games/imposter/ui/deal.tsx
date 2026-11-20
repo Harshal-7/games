@@ -49,7 +49,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
   } else if (opens > 0) {
     main = (
       <button type="button" className="btn btn-primary btn-big" onClick={done}>
-        {next ? `Done, pass to ${names[next]}` : "Done, start talking"}
+        {next ? `Done, pass to ${names[next]}` : round.mode === "questions" ? "Done, time to answer" : "Done, start talking"}
       </button>
     );
   }
@@ -83,7 +83,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
             <p className="party-help">Only {name} looks. Everyone else, eyes off the screen.</p>
           </div>
         ) : (
-          <div className="imp-deal-body" key={`card-${id}-${round.word}`}>
+          <div className="imp-deal-body" key={`card-${id}-${round.mode === "words" ? round.word : round.question.id}`}>
             <h2 className="imp-card-kicker">{name}&apos;s card</h2>
             <HoldCard name={name} opens={opens} buzz={sound} onOpen={() => act({ type: "open", id })}>
               <SecretFace round={round} id={id} clue={room.options.clue} />
@@ -103,7 +103,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
       {ask === "redeal" ? (
         <Confirm
           title="Re-deal for everyone?"
-          detail="Use this if someone saw a card that wasn't theirs. Everyone gets a new word and the imposter changes."
+          detail={`Use this if someone saw a card that wasn't theirs. Everyone gets a new ${round.mode === "questions" ? "question" : "word"} and the imposter changes.`}
           yes="Re-deal"
           onNo={() => setAsk(null)}
           onYes={() => {

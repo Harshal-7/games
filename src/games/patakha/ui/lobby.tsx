@@ -4,6 +4,7 @@ import { useId, useState, type ReactNode } from "react";
 
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/party/logic/players";
 import { cryptoRandom } from "@/party/logic/random";
+import { PickerLink } from "@/games/finger-picker/ui/setup-link";
 import { Roster } from "@/party/ui/roster";
 import { Confirm } from "@/ui/confirm";
 import { RestartIcon, SpeakerIcon } from "@/ui/icons";
@@ -113,6 +114,7 @@ export function Lobby({ room }: { room: Room }) {
           )}
           <Roster players={room.players} scores={room.played > 0 ? room.wins : undefined} onAction={act} />
           {count > 1 && <p className="pk-seat-note">The phone goes round in this order. Sit the same way.</p>}
+          <PickerLink from="patakha" />
         </section>
 
         {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach; on big

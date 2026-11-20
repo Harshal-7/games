@@ -3,6 +3,7 @@
 import { useEffect, useEffectEvent } from "react";
 
 import { useHydrated } from "@/party/ui/use-hydrated";
+import { useWakeLock } from "@/party/ui/wake-lock";
 import { useLeaveGuard } from "@/ui/leave-guard";
 
 import type { Room } from "../logic/game";
@@ -15,7 +16,6 @@ import { chooseVoice, preloadClips, say, useUnlocked } from "./narrator";
 import { NightScreen } from "./night";
 import { chime } from "./parts";
 import { act, useRoom } from "./use-room";
-import { useWakeLock } from "./wake-lock";
 
 import "@/party/ui/party.css";
 import "./mafia.css";

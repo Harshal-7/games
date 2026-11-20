@@ -1054,3 +1054,27 @@
 .party-vote-go {
   margin-top: 28px;
 }
+
+/* ---------- The Finger picker link ---------- */
+
+/* The last row of the Players card on a setup: Who starts? (or Make teams) opens the picker. */
+.party-setup-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1.5px dashed var(--line);
+}
+.party-setup-picker-text {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+.party-setup-picker-go {
+  flex: none;
+  padding: 0 14px 0 10px;
+  font-size: 14px;
+  text-decoration: none;
+}

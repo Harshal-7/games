@@ -21,6 +21,7 @@ export function Talk({ room, round }: { room: Room; round: Round }) {
   const names = namesOf(room);
   const imposters = round.imposters.length;
   const starter = names[round.starter];
+  const question = round.mode === "questions" ? round.question.crew : null;
 
   if (check !== null) return <Recheck room={room} round={round} check={check} onChange={setCheck} />;
 
@@ -35,10 +36,22 @@ export function Talk({ room, round }: { room: Room; round: Round }) {
             1st
           </span>
         </div>
-        <p className="party-help imp-talk-help">
-          Then go round the circle. Everyone says one word about the secret word. Too obvious and the imposter
-          catches on; too vague and you look like the imposter.
-        </p>
+        {question === null ? (
+          <p className="party-help imp-talk-help">
+            Then go round the circle. Everyone says one word about the secret word. Too obvious and the imposter
+            catches on; too vague and you look like the imposter.
+          </p>
+        ) : (
+          <>
+            <p className="party-help imp-talk-help">
+              Go round the circle: say your answer and why. The one with the odd question has to talk their way out.
+            </p>
+            <div className="card imp-talk-question">
+              <span className="label">The question</span>
+              <span className="imp-talk-question-text">{question}</span>
+            </div>
+          </>
+        )}
         {round.timer && (
           <RingTimer
             timer={round.timer}
@@ -70,10 +83,14 @@ export function Talk({ room, round }: { room: Room; round: Round }) {
         />
       ) : (
         <div className="party-foot">
-          <button type="button" className="btn" onClick={() => setCheck("pick")}>
-            Forgot your word?
-          </button>
-          <button type="button" className="btn" onClick={() => setLeaving(true)}>
+          {/* Questions mode has the real question on screen; only the imposter would ever
+              look again, and everyone would see who did. */}
+          {question === null && (
+            <button type="button" className="btn" onClick={() => setCheck("pick")}>
+              Forgot your word?
+            </button>
+          )}
+          <button type="button" className={question === null ? "btn" : "btn imp-solo"} onClick={() => setLeaving(true)}>
             End round
           </button>
         </div>

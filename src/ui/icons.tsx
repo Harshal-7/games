@@ -167,3 +167,16 @@ export const ShuffleIcon = (p: P) => (
     <path d="m18 4.5 2.5 2.5L18 9.5M18 14.5l2.5 2.5-2.5 2.5" />
   </Icon>
 );
+
+export const InfoIcon = (p: P) => (
+  <Icon {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 11v5M12 8h.01" />
+  </Icon>
+);
+
+export const ChevronRightIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="m9 6 6 6-6 6" />
+  </Icon>
+);

@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useId, type ReactNode } from "react";
 
+import { setOptions as setPickerOptions, useOptions as usePickerOptions } from "@/games/finger-picker/ui/use-options";
 import { BOARD_STYLES, PIECE_STYLES } from "@/games/knights-tour/styles";
 import { Board } from "@/games/knights-tour/ui/board";
 import { cue } from "@/games/knights-tour/ui/feedback";
@@ -45,6 +46,7 @@ const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
   patakha: PatakhaNote,
   "highway-bingo": HighwayBingoNote,
   ulta: UltaNote,
+  "finger-picker": FingerPickerSection,
 };
 
 /**
@@ -213,6 +215,29 @@ function KnightsTourSection() {
           {SWITCHES.map(({ key, label, detail }) => (
             <SwitchRow key={key} label={label} detail={detail} on={kt[key]} onToggle={() => toggle(key)} />
           ))}
+        </div>
+      </Field>
+    </section>
+  );
+}
+
+/** The Finger picker has no setup screen, so its Sound switch lives here. */
+function FingerPickerSection() {
+  const { sound } = usePickerOptions();
+  const id = useId();
+  return (
+    <section className="card section settings-game" data-game="finger-picker" aria-labelledby={id}>
+      <h2 className="tape is-game" id={id}>
+        Finger picker
+      </h2>
+      <Field label="Options" group>
+        <div className="switches">
+          <SwitchRow
+            label="Sound and vibration"
+            detail="A tick each second of the count, and a chime for the pick"
+            on={sound}
+            onToggle={() => setPickerOptions({ sound: !sound })}
+          />
         </div>
       </Field>
     </section>

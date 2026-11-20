@@ -7,8 +7,8 @@ import { Face } from "@/party/ui/hold-card";
 import { PlayHead, Stamp } from "@/party/ui/parts";
 import { Vote as PartyVote } from "@/party/ui/vote";
 
-import { startProblem, verdict, type Room, type Round } from "../logic/room";
-import { imposterFace, listNames, namesOf, wordFace } from "./parts";
+import { startProblem, verdict, type Room, type Round, type WordRound } from "../logic/room";
+import { imposterFace, listNames, namesOf, QuestionFace, wordFace } from "./parts";
 import { act } from "./use-room";
 
 /** The table points, someone taps the suspect(s). Never shows the word or the imposters. */
@@ -20,7 +20,15 @@ export function Vote({ room, round }: { room: Room; round: Round }) {
     <div className="party-play">
       <PlayHead round={round.number} label="Vote" />
       <PartyVote
-        title={k === 1 ? "Who's the imposter?" : `Who are the ${k} imposters?`}
+        title={
+          round.mode === "questions"
+            ? k === 1
+              ? "Who had the odd question?"
+              : `Which ${k} had the odd question?`
+            : k === 1
+              ? "Who's the imposter?"
+              : `Who are the ${k} imposters?`
+        }
         people={round.seats.map((id) => ({ id, name: names[id] }))}
         count={k}
         onVote={(ids) => act({ type: "accuse", ids })}
@@ -34,7 +42,7 @@ export function Vote({ room, round }: { room: Room; round: Round }) {
 }
 
 /** Every imposter was caught: they get one guess at the word. */
-export function Guess({ room, round }: { room: Room; round: Round }) {
+export function Guess({ room, round }: { room: Room; round: WordRound }) {
   const [shown, setShown] = useState(false);
   const names = namesOf(room);
   const who = listNames(round.imposters.map((id) => names[id]));
@@ -98,9 +106,12 @@ export function Result({ room, round }: { room: Room; round: Round }) {
 
   const headline =
     how === "caught" ? "Crew wins" : how === "guessed" ? `${who} stole it` : one ? `${who} got away` : "The imposters got away";
+  const questions = round.mode === "questions";
   const detail =
     how === "caught"
-      ? `Caught ${who}, and the word stayed safe.`
+      ? questions
+        ? `Caught ${who}, who had a different question.`
+        : `Caught ${who}, and the word stayed safe.`
       : how === "guessed"
         ? `Caught, but ${one ? "guessed" : "they guessed"} the word.`
         : `You voted for ${listNames(wrong)}, who ${wrong.length === 1 ? "wasn't" : "weren't"} the imposter.`;
@@ -123,17 +134,25 @@ export function Result({ room, round }: { room: Room; round: Round }) {
         <p className="party-help">{detail}</p>
       </div>
 
-      <div className="imp-reveal" role="group" aria-label="The cards">
+      <div className="imp-reveal" role="group" aria-label={questions ? "The two questions" : "The cards"}>
         <figure>
           <div className="party-face is-small">
-            <Face {...wordFace(round)} />
+            {round.mode === "words" ? (
+              <Face {...wordFace(round)} />
+            ) : (
+              <QuestionFace kicker="The question" question={round.question.crew} />
+            )}
           </div>
-          <figcaption>The word</figcaption>
+          <figcaption>{questions ? "Everyone else" : "The word"}</figcaption>
         </figure>
         {round.imposters.map((id) => (
           <figure key={id}>
             <div className="party-face is-small">
-              <Face {...imposterFace(round, room.options.clue)} />
+              {round.mode === "words" ? (
+                <Face {...imposterFace(round, room.options.clue)} />
+              ) : (
+                <QuestionFace kicker="The question" question={round.question.odd} />
+              )}
               {round.accused.includes(id) && <Stamp className="imp-card-stamp">Caught!</Stamp>}
             </div>
             <figcaption>{names[id]}&apos;s card</figcaption>

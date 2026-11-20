@@ -3,7 +3,18 @@ import { describe, expect, it } from "vitest";
 import { seeded } from "@/party/logic/random";
 import { timeLeft } from "@/party/logic/timer";
 
-import { drawWord, maxImposters, newRoom, parseRoom, reduce, startProblem, type Action, type Room } from "./room";
+import { ANSWER_KINDS, pack, PACK_IDS, PACKS, type PackId } from "./questions";
+import {
+  drawQuestion,
+  drawWord,
+  maxImposters,
+  newRoom,
+  parseRoom,
+  reduce,
+  startProblem,
+  type Action,
+  type Room,
+} from "./room";
 import { CATEGORIES, category } from "./words";
 
 const rng = seeded(11);
@@ -128,6 +139,7 @@ describe("a round", () => {
     const first = room.round!;
     room = run(room, { type: "look" }, { type: "open", id: first.seats[0] }, { type: "redeal", rng });
     const round = room.round!;
+    if (round.mode !== "words" || first.mode !== "words") throw new Error("expected a Words round");
     expect(round.word).not.toBe(first.word);
     expect(Object.values(round.opens).every((n) => n === 0)).toBe(true);
     expect(round.turn).toBe(0);
@@ -209,5 +221,171 @@ describe("saving", () => {
     const old = { ...room, options: { ...room.options, categories: ["food", "slang", "jobs"] } };
     expect(parseRoom(JSON.stringify(old))?.options.categories).toEqual(["food"]);
     expect(parseRoom(JSON.stringify({ ...room, round: { ...room.round, category: "slang" } }))?.round).toBeNull();
+  });
+});
+
+describe("question pairs", () => {
+  const all = PACKS.flatMap((p) => p.pairs);
+
+  it("has 80+ pairs, every question once, in packs of 10 or more", () => {
+    expect(all.length).toBeGreaterThanOrEqual(80);
+    const questions = all.flatMap(([, a, b]) => [a, b].map((q) => q.toLowerCase()));
+    expect(new Set(questions).size).toBe(questions.length);
+    for (const p of PACKS) expect(p.pairs.length).toBeGreaterThanOrEqual(10);
+    expect(new Set(PACKS.map((p) => p.id)).size).toBe(PACKS.length);
+  });
+
+  it("uses every answer kind, and keeps questions short enough for the card", () => {
+    expect(new Set(all.map(([kind]) => kind))).toEqual(new Set(ANSWER_KINDS));
+    for (const [kind, a, b] of all) {
+      for (const q of [a, b]) {
+        expect(q.length).toBeLessThanOrEqual(56);
+        expect(q).toBe(q.trim());
+        // Out of 10 reads "Rate your cooking"; the rest are questions.
+        if (kind === "ten") expect(q).toMatch(/^Rate /);
+        else expect(q).toMatch(/\?$/);
+        if (kind === "point") expect(q).toMatch(/^Who/);
+      }
+    }
+  });
+
+  it("doesn't repeat a pair until its pack runs out, then starts it over", () => {
+    const size = pack("food").pairs.length;
+    let asked: string[] = [];
+    const seen = new Set<string>();
+    for (let i = 0; i < size; i++) {
+      const drawn = drawQuestion(["food"], asked, null, rng);
+      expect(seen.has(drawn.question.id)).toBe(false);
+      seen.add(drawn.question.id);
+      asked = drawn.asked;
+    }
+    const again = drawQuestion(["food"], asked, null, rng);
+    expect(again.asked).toEqual([again.question.id]);
+  });
+
+  it("switches pack every round when there's a choice, and either question can be the crew's", () => {
+    let last = null as PackId | null;
+    let asked: string[] = [];
+    let crewFirst = 0;
+    for (let i = 0; i < 60; i++) {
+      const { question, asked: next } = drawQuestion(["daily", "films", "travel"], asked, last, rng);
+      expect(question.pack).not.toBe(last);
+      const entry = pack(question.pack).pairs.find(([, a]) => a === question.id)!;
+      expect(new Set([question.crew, question.odd])).toEqual(new Set([entry[1], entry[2]]));
+      expect(question.kind).toBe(entry[0]);
+      if (question.crew === entry[1]) crewFirst++;
+      last = question.pack;
+      asked = next;
+    }
+    expect(crewFirst).toBeGreaterThan(10);
+    expect(crewFirst).toBeLessThan(50);
+  });
+});
+
+describe("a Questions round", () => {
+  const names = ["Riya", "Aman", "Kabir", "Zoya", "Dev"];
+  const start = (patch: Partial<Room["options"]> = {}) =>
+    run(roomWith(names, { mode: "questions", ...patch }), { type: "start", rng });
+
+  it("deals one pair: the crew's question and the imposter's odd one", () => {
+    const round = start().round!;
+    expect(round.mode).toBe("questions");
+    if (round.mode !== "questions") return;
+    expect(round.question.crew).not.toBe(round.question.odd);
+    expect(round.imposters).toHaveLength(1);
+  });
+
+  it("answers, reveals, then talks: the timer starts with the talking", () => {
+    let room = dealAll(start(), 1000);
+    expect(room.round?.stage).toBe("answer");
+    expect(room.round?.timer).toBeNull();
+    // The ledgers are booked once everyone has a card, as in Words mode.
+    expect(Object.values(room.ledger).reduce((n, t) => n + t.taken, 0)).toBe(1);
+    expect(reduce(room, { type: "start-talk", now: 0 })).toBe(room);
+    room = reduce(room, { type: "show-question" });
+    expect(room.round?.stage).toBe("reveal");
+    room = reduce(room, { type: "start-talk", now: 5000 });
+    expect(room.round?.stage).toBe("talk");
+    expect(room.round?.timer).toEqual({ endsAt: 5000 + 180_000, left: 180_000 });
+  });
+
+  it("doesn't reopen cards while talking, since the real question is on screen", () => {
+    const room = run(dealAll(start()), { type: "show-question" }, { type: "start-talk", now: 0 });
+    expect(reduce(room, { type: "open", id: room.round!.seats[0] })).toBe(room);
+  });
+
+  it("has no guess: catching the imposter ends the round for the crew", () => {
+    let room = run(dealAll(start()), { type: "show-question" }, { type: "start-talk", now: 0 }, { type: "vote" });
+    const [imposter] = room.round!.imposters;
+    room = reduce(room, { type: "accuse", ids: [imposter] });
+    expect(room.round?.stage).toBe("result");
+    expect(reduce(room, { type: "guess", correct: true })).toBe(room);
+    for (const id of room.round!.seats) expect(room.scores[id] ?? 0).toBe(id === imposter ? 0 : 1);
+  });
+
+  it("gives an imposter who gets away 2", () => {
+    let room = run(dealAll(start()), { type: "show-question" }, { type: "start-talk", now: 0 }, { type: "vote" });
+    const innocent = room.round!.seats.find((id) => !room.round!.imposters.includes(id))!;
+    room = reduce(room, { type: "accuse", ids: [innocent] });
+    expect(room.scores).toEqual({ [room.round!.imposters[0]]: 2 });
+  });
+
+  it("re-deals a fresh pair in Questions mode, and the burned pair stays asked", () => {
+    let room = start();
+    const first = room.round!;
+    room = run(room, { type: "look" }, { type: "open", id: first.seats[0] }, { type: "redeal", rng });
+    const round = room.round!;
+    if (round.mode !== "questions" || first.mode !== "questions") throw new Error("expected a Questions round");
+    expect(round.question.id).not.toBe(first.question.id);
+    expect(room.asked).toEqual([first.question.id, round.question.id]);
+  });
+
+  it("asks no pair twice in a room until its pack runs out", () => {
+    let room = roomWith(names, { mode: "questions", packs: ["school"] });
+    const ids: string[] = [];
+    for (let i = 0; i < pack("school").pairs.length; i++) {
+      room = run(room, { type: "lobby" }, { type: "start", rng });
+      const round = room.round!;
+      if (round.mode === "questions") ids.push(round.question.id);
+    }
+    expect(new Set(ids).size).toBe(pack("school").pairs.length);
+  });
+
+  it("needs at least one pack", () => {
+    const room = roomWith(names, { mode: "questions", packs: [] });
+    expect(startProblem(room)).toBe("Pick at least one pack.");
+    // Words mode doesn't care about packs.
+    expect(startProblem(reduce(room, { type: "options", patch: { mode: "words" } }))).toBeNull();
+  });
+});
+
+describe("loading older saves", () => {
+  it("loads a room saved before Questions mode as Words, with every pack on", () => {
+    const room = dealAll(run(roomWith(["Riya", "Aman", "Kabir"]), { type: "start", rng }));
+    const saved = JSON.parse(JSON.stringify(room));
+    delete saved.options.mode;
+    delete saved.options.packs;
+    delete saved.asked;
+    delete saved.lastPack;
+    delete saved.round.mode;
+    const loaded = parseRoom(JSON.stringify(saved));
+    expect(loaded).toEqual(room);
+    expect(loaded?.options.mode).toBe("words");
+    expect(loaded?.options.packs).toEqual(PACK_IDS);
+  });
+
+  it("round-trips a Questions round and drops a broken one", () => {
+    const room = run(roomWith(["Riya", "Aman", "Kabir"], { mode: "questions" }), { type: "start", rng });
+    expect(parseRoom(JSON.stringify(room))).toEqual(room);
+    const answered = dealAll(room);
+    expect(parseRoom(JSON.stringify(answered))).toEqual(answered);
+    const round = answered.round!;
+    const broken = (patch: object) => parseRoom(JSON.stringify({ ...answered, round: { ...round, ...patch } }))?.round;
+    expect(broken({ stage: "guess" })).toBeNull();
+    expect(broken({ question: { id: "x", pack: "nope", kind: "number", crew: "a", odd: "b" } })).toBeNull();
+    expect(broken({ question: undefined })).toBeNull();
+    // A Words round can't be in a Questions stage.
+    const words = dealAll(run(roomWith(["Riya", "Aman", "Kabir"]), { type: "start", rng }));
+    expect(parseRoom(JSON.stringify({ ...words, round: { ...words.round, stage: "reveal" } }))?.round).toBeNull();
   });
 });

@@ -2,16 +2,26 @@
 
 import { useId, useState, type ReactNode } from "react";
 
+import { PickerLink } from "@/games/finger-picker/ui/setup-link";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/party/logic/players";
 import { cryptoRandom } from "@/party/logic/random";
 import { Roster } from "@/party/ui/roster";
 import { Confirm } from "@/ui/confirm";
 import { RestartIcon } from "@/ui/icons";
 
-import { imposterCount, maxImposters, startProblem, type Clue, type Room } from "../logic/room";
+import { PACK_IDS, PACKS } from "../logic/questions";
+import { imposterCount, maxImposters, startProblem, type Clue, type Mode, type Room } from "../logic/room";
 import { CATEGORIES, CATEGORY_IDS } from "../logic/words";
 import { ChevronDownIcon, DealIcon } from "./marks";
 import { act } from "./use-room";
+
+const MODE_LABELS: Record<Mode, { label: string; note: string }> = {
+  words: { label: "Words", note: "Everyone gets the secret word except the imposter." },
+  questions: {
+    label: "Questions",
+    note: "Everyone gets a question. The imposter's is a different one, and nobody's told.",
+  },
+};
 
 const CLUE_LABELS: Record<Clue, { label: string; note: string }> = {
   hint: { label: "Hint", note: "The imposter sees a one-word hint." },
@@ -59,6 +69,11 @@ export function Lobby({ room }: { room: Room }) {
             <li>Go round the circle: one word each about the secret word. Not too obvious.</li>
             <li>Vote for who&apos;s faking it. A caught imposter gets one guess at the word to steal the round.</li>
           </ol>
+          <p>
+            Questions mode: everyone gets the same question except the imposter, who gets a different one without
+            knowing it. Everyone answers at once, then the real question is shown and the table works out whose
+            answer doesn&apos;t fit. There&apos;s no guess at the end.
+          </p>
           <p>
             Points: catching the imposter gives everyone else 1. An imposter who gets away gets 2, or 1 for guessing
             the word after being caught.
@@ -115,6 +130,7 @@ export function Lobby({ room }: { room: Room }) {
             />
           )}
           <Roster players={room.players} scores={room.played > 0 ? room.scores : undefined} onAction={act} />
+          <PickerLink from="imposter" />
         </section>
 
         {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach; on big
@@ -144,7 +160,7 @@ function Options({ room }: { room: Room }) {
   const { options, players } = room;
   const max = maxImposters(players.length);
   const imposters = imposterCount(room);
-  const allOn = options.categories.length === CATEGORY_IDS.length;
+  const questions = options.mode === "questions";
   const set = (patch: Partial<Room["options"]>) => act({ type: "options", patch });
 
   return (
@@ -154,6 +170,14 @@ function Options({ room }: { room: Room }) {
       </h2>
 
       <div className="party-setup-fields">
+        <Choice label="Mode" note={MODE_LABELS[options.mode].note}>
+          {(Object.keys(MODE_LABELS) as Mode[]).map((mode) => (
+            <SegButton key={mode} on={options.mode === mode} onClick={() => set({ mode })}>
+              {MODE_LABELS[mode].label}
+            </SegButton>
+          ))}
+        </Choice>
+
         <Choice
           label="Imposters"
           narrow
@@ -166,57 +190,34 @@ function Options({ room }: { room: Room }) {
           ))}
         </Choice>
 
-        <Choice label="Imposter gets" note={CLUE_LABELS[options.clue].note}>
-          {(Object.keys(CLUE_LABELS) as Clue[]).map((clue) => (
-            <SegButton key={clue} on={options.clue === clue} onClick={() => set({ clue })}>
-              {CLUE_LABELS[clue].label}
-            </SegButton>
-          ))}
-        </Choice>
+        {/* In Questions mode the imposter isn't told, so there's nothing for them to get. */}
+        {!questions && (
+          <Choice label="Imposter gets" note={CLUE_LABELS[options.clue].note}>
+            {(Object.keys(CLUE_LABELS) as Clue[]).map((clue) => (
+              <SegButton key={clue} on={options.clue === clue} onClick={() => set({ clue })}>
+                {CLUE_LABELS[clue].label}
+              </SegButton>
+            ))}
+          </Choice>
+        )}
 
-        <div className="imp-field party-setup-wide">
-          <div className="imp-field-head">
-            <span className="field-label" id="imp-categories">
-              Categories
-              <span className="imp-cat-count">
-                {options.categories.length} of {CATEGORY_IDS.length}
-              </span>
-            </span>
-            <button
-              type="button"
-              className="btn imp-small"
-              onClick={() => set({ categories: allOn ? [] : [...CATEGORY_IDS] })}
-            >
-              {allOn ? "Clear" : "Pick all"}
-            </button>
-          </div>
-          <div className="imp-chips" role="group" aria-labelledby="imp-categories">
-            {CATEGORIES.map(({ id, label, emoji, words }) => {
-              const on = options.categories.includes(id);
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  className="imp-chip"
-                  aria-pressed={on}
-                  title={`${words.length} words`}
-                  onClick={() =>
-                    set({
-                      categories: on
-                        ? options.categories.filter((c) => c !== id)
-                        : CATEGORY_IDS.filter((c) => c === id || options.categories.includes(c)),
-                    })
-                  }
-                >
-                  <span className="imp-chip-emoji" aria-hidden="true">
-                    {emoji}
-                  </span>
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {questions ? (
+          <Chips
+            label="Packs"
+            all={PACK_IDS}
+            picked={options.packs}
+            items={PACKS.map(({ id, label, emoji, pairs }) => ({ id, label, emoji, title: `${pairs.length} pairs` }))}
+            onChange={(packs) => set({ packs })}
+          />
+        ) : (
+          <Chips
+            label="Categories"
+            all={CATEGORY_IDS}
+            picked={options.categories}
+            items={CATEGORIES.map(({ id, label, emoji, words }) => ({ id, label, emoji, title: `${words.length} words` }))}
+            onChange={(categories) => set({ categories })}
+          />
+        )}
 
         <div className="switches party-setup-switches party-setup-wide">
           <span className="field-label party-setup-switches-label">Sound</span>
@@ -244,6 +245,61 @@ function Options({ room }: { room: Room }) {
         </div>
       </div>
     </section>
+  );
+}
+
+/** A wide row of chips to switch on and off, with Pick all / Clear. Keeps the list's order. */
+function Chips<Id extends string>({
+  label,
+  all,
+  picked,
+  items,
+  onChange,
+}: {
+  label: string;
+  all: readonly Id[];
+  picked: readonly Id[];
+  items: { id: Id; label: string; emoji: string; title: string }[];
+  onChange: (picked: Id[]) => void;
+}) {
+  const id = useId();
+  const allOn = picked.length === all.length;
+  return (
+    <div className="imp-field party-setup-wide">
+      <div className="imp-field-head">
+        <span className="field-label" id={id}>
+          {label}
+          <span className="imp-cat-count">
+            {picked.length} of {all.length}
+          </span>
+        </span>
+        <button type="button" className="btn imp-small" onClick={() => onChange(allOn ? [] : [...all])}>
+          {allOn ? "Clear" : "Pick all"}
+        </button>
+      </div>
+      <div className="imp-chips" role="group" aria-labelledby={id}>
+        {items.map((item) => {
+          const on = picked.includes(item.id);
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className="imp-chip"
+              aria-pressed={on}
+              title={item.title}
+              onClick={() =>
+                onChange(on ? picked.filter((p) => p !== item.id) : all.filter((p) => p === item.id || picked.includes(p)))
+              }
+            >
+              <span className="imp-chip-emoji" aria-hidden="true">
+                {item.emoji}
+              </span>
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

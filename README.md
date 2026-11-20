@@ -6,11 +6,12 @@ lives in its own folder and has its own page, and the home page lists them all.
 | Game | Page | What it is |
 | --- | --- | --- |
 | Knight's Tour | `/knights-tour` | Move a chess knight to every square exactly once, on 5×5 to 8×8 boards. |
-| Imposter | `/imposter` | Party game for one phone: everyone gets the secret word except the imposter. |
+| Imposter | `/imposter` | Party game for one phone: everyone gets the secret word (or, in Questions mode, the same question) except the imposter. |
 | Mafia | `/mafia` | Party game for one phone, 5 to 15 players: the phone narrates the night, so nobody sits out. |
 | Patakha | `/patakha` | Party game for one phone: say an answer and pass it on before the hidden fuse runs out. |
 | Highway Bingo | `/highway-bingo` | Bingo cards of Indian road sights, on everyone's own phone with a shared code, or on one phone. |
 | Ulta | `/ulta` | Party game for one phone: sing a line, a teammate copies it backwards, and the team guesses the song. |
+| Finger picker | `/finger-picker` | A tool for any game: fingers on the screen, and the phone picks one, makes teams or puts everyone in order. |
 
 ## Run it
 
@@ -40,7 +41,7 @@ src/
       ui/                 the board, the play screen, the knight drawings
       styles.ts           the board and knight styles Settings offers
     imposter/
-      logic/              rooms and rounds, the word list, with tests
+      logic/              rooms and rounds, the word list, the question pairs, with tests
       ui/                 lobby, pass-the-phone deal, talk, vote and result screens
     mafia/
       logic/              roles, the timed night, votes, the narrator's script, with tests
@@ -54,6 +55,9 @@ src/
     ulta/
       logic/              reversing and evening out recordings, the song list, the turns, with tests
       ui/                 setup and teams, the mic button, the turn screens; recordings kept in memory
+    finger-picker/
+      logic/              the fingers and the countdown, fair picks, teams and order, with tests
+      ui/                 the touch area, its drawing, and the link the party setups show
 ```
 
 ### Shared parts for party games
@@ -198,6 +202,37 @@ plays with none.
   (`pnpm build && pnpm start -p 3999`), visit once, stop the server and reload. Running
   `pnpm dev -p 3999` once afterwards removes that worker.
 
+## Finger picker notes
+
+- **A tool, not a game.** It has its own page and slug like a game (so the offline worker
+  saves it and Settings knows it), sits on Felt in the site's ink and cream, and shows on
+  Home as a small tile under "Tools" (`TOOLS` in `src/games/registry.ts`), not a game card.
+- **Setups link to it.** The Players card of Imposter, Mafia and Patakha ends with "Who
+  starts?", Ulta's with "Make teams" (`PickerLink` in `ui/setup-link.tsx`). The link carries
+  `?from=<game>`, so the picker's back link says "‹ Imposter" and returns to that setup;
+  `&mode=teams` opens it on Teams.
+- **Fingers** (`logic/fingers.ts`) are Pointer Events by `pointerId`, on a touch area with
+  `touch-action: none` and no selecting or callouts. Once nobody has joined or left for 1.5
+  seconds, a 3-second countdown runs; any finger joining or leaving starts it over. Time
+  comes in with each event from `Date.now()`. A cancelled pointer (a call, a system
+  gesture) leaves like a lifted finger, and switching apps drops every finger.
+- **The result stays.** Once it picks, the screen freezes: the pick, the teams or the order
+  stay up with every disc where it was, after fingers lift and through an app switch,
+  until Go again clears it. Turning the phone starts clean, since the discs would be in
+  the wrong places.
+- **Fair** (`logic/pick.ts`): Pick one is one uniform `cryptoRandom` pick, Teams (2 to 4)
+  shuffles and deals in turn so sizes differ by one at most, and Order is a shuffle. Tests
+  check the picks over many runs.
+- **Colours.** Each finger wears one of the games' colours, then cream and the soft tints
+  (`--finger-0` to `--finger-9` in its `[data-game]` block); the first four are also the
+  team colours, and every team gets a letter too.
+- **Touch limit.** Phones stop counting touches at a limit (`navigator.maxTouchPoints`,
+  5 on iPhones), and the picker says so once it's reached.
+- **Options** (mode and teams) are saved as `games:finger-picker:options:v1`. Its Sound
+  switch is in Settings, since it has no setup screen: a tick (and a buzz on Android) each
+  second of the count, and a chime for the pick. iPhones only play sound after a tap, and
+  a finger lifting counts as one.
+
 ## Knight's Tour notes
 
 - **Solver.** Hint, the dead-end warning and Watch it solve all use one search
@@ -236,6 +271,15 @@ plays with none.
 - **Words** (`logic/words.ts`): 10 categories, 30+ each, every word with a one-word hint
   for the imposter. No word repeats in a room until its category runs out, and the
   category changes every round.
+- **Questions mode** (Odd Question Out). Options has a Mode choice: Words or Questions.
+  A Questions round deals a pair from `logic/questions.ts` (8 packs, 88 pairs): the crew
+  get one question and the imposters the other, with identical cards, and nobody is told.
+  Both questions take the same kind of answer (a number, 1 to 5, pointing at someone, or
+  out of 10), and either can be the crew's. The round runs deal, answer (everyone at
+  once), reveal (the crew's question, for everyone), talk, vote and result, with no
+  guess; scoring is the same as Words mode. Cards can't be reopened while talking, since
+  the real question is on screen. Pairs don't repeat in a room until their pack runs out.
+  Rooms saved before the mode existed load as Words mode.
 
 ## Mafia notes
 

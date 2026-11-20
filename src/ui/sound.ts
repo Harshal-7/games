@@ -95,5 +95,9 @@ export function soundBlocked(): boolean {
 export function soundLikeMedia(on: boolean): void {
   if (typeof navigator === "undefined") return;
   const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
-  if (session) session.type = on ? "playback" : "auto";
+  try {
+    if (session) session.type = on ? "playback" : "auto";
+  } catch {
+    // Not every browser lets a page choose; sound still plays with the phone's sound on.
+  }
 }

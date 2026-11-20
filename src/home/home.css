@@ -370,6 +370,64 @@
   font-size: 14px;
 }
 
+/* ---------- Tools ---------- */
+
+/* Tools for any game (the Finger picker): small straight tiles under their own label,
+   after the games. */
+.home-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 30px;
+}
+.home-tools-title {
+  margin: 0;
+}
+.tool-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tool-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px 12px 12px;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+.tool-card:hover {
+  transform: translateY(-2px);
+}
+.tool-mark {
+  flex: none;
+  width: 56px;
+  height: 56px;
+}
+.tool-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tool-name {
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.tool-blurb {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+.tool-arrow {
+  flex: none;
+  margin-left: auto;
+}
+
 /* ---------- Footer ---------- */
 
 .site-footer {
@@ -544,5 +602,34 @@
   }
   .game-soon p {
     font-size: 14.5px;
+  }
+}
+
+/* Big screens, as the WebPickHome board: the tool tile takes one of the two columns. */
+@media (min-width: 760px) {
+  .tool-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+@media (min-width: 860px) {
+  .home-tools {
+    gap: 12px;
+    padding-top: 36px;
+  }
+  .tool-card {
+    gap: 16px;
+    padding: 14px 18px 14px 14px;
+  }
+  .tool-mark {
+    width: 64px;
+    height: 64px;
+  }
+  .tool-name {
+    font-size: 21px;
+  }
+  .tool-blurb {
+    font-size: 15px;
+    line-height: 1.4;
   }
 }

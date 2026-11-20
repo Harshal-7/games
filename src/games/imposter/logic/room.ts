@@ -3,6 +3,7 @@ import { tooFew, updatePlayers, type Player, type PlayerAction } from "@/party/l
 import { randomItem, type Rng } from "@/party/logic/random";
 import { changeTimer, type Timer, type TimerOp } from "@/party/logic/timer";
 
+import { isAnswerKind, isPackId, pack, PACK_IDS, type AnswerKind, type PackId } from "./questions";
 import { category, CATEGORY_IDS, isCategoryId, type CategoryId } from "./words";
 
 /**
@@ -19,29 +20,47 @@ export const TALK_MS = 180_000;
 export type Clue = "hint" | "category" | "none";
 export const CLUES: readonly Clue[] = ["hint", "category", "none"];
 
+/** Words: everyone but the imposter gets the secret word. Questions: everyone gets a
+    question, and the imposter's is a different one (Odd Question Out). */
+export type Mode = "words" | "questions";
+export const MODES: readonly Mode[] = ["words", "questions"];
+
 export type Options = {
+  mode: Mode;
   /** Wanted number of imposters; a small table gets fewer (see imposterCount). */
   imposters: number;
+  /** Words mode only: what the imposter's card says. */
   clue: Clue;
   categories: CategoryId[];
+  /** Questions mode's packs, like the categories in Words mode. */
+  packs: PackId[];
   sound: boolean;
 };
 
 /**
  * deal   → the phone goes round, everyone opens their own card once
- * talk   → one word each, starting with `starter`
+ * answer → Questions mode: everyone answers their question at once
+ * reveal → Questions mode: the crew's question, shown to everyone
+ * talk   → one word each (or everyone's answer), starting with `starter`
  * vote   → the table points at a suspect
- * guess  → every imposter was caught: one last guess at the word
+ * guess  → Words mode, every imposter was caught: one last guess at the word
  * result → who won, points, next round
  */
-export type Stage = "deal" | "talk" | "vote" | "guess" | "result";
+export type Stage = "deal" | "answer" | "reveal" | "talk" | "vote" | "guess" | "result";
 
-export type Round = {
+/** A round's question pair: the crew's question and the imposters' odd one. */
+export type Question = {
+  /** The pair's id (its first question in the list), for the asked list. */
+  id: string;
+  pack: PackId;
+  kind: AnswerKind;
+  crew: string;
+  odd: string;
+};
+
+type RoundBase = {
   number: number;
   stage: Stage;
-  word: string;
-  hint: string;
-  category: CategoryId;
   /** Who's playing this round, in seating order. */
   seats: string[];
   imposters: string[];
@@ -59,6 +78,10 @@ export type Round = {
   points: Record<string, number>;
 };
 
+export type WordRound = RoundBase & { mode: "words"; word: string; hint: string; category: CategoryId };
+export type QuestionRound = RoundBase & { mode: "questions"; question: Question };
+export type Round = WordRound | QuestionRound;
+
 export type Room = {
   version: 1;
   players: Player[];
@@ -71,14 +94,19 @@ export type Room = {
   /** Words already dealt in this room, so nothing repeats until a category runs out. */
   used: string[];
   lastCategory: CategoryId | null;
+  /** Question pairs already asked (by id), so none repeats until its pack runs out. */
+  asked: string[];
+  lastPack: PackId | null;
   round: Round | null;
 };
 
 export const DEFAULT_OPTIONS: Options = {
+  mode: "words",
   imposters: 1,
   // The classic game: the imposter knows the topic, not the word. Hint is the easy mode.
   clue: "category",
   categories: [...CATEGORY_IDS],
+  packs: [...PACK_IDS],
   sound: true,
 };
 
@@ -93,6 +121,8 @@ export function newRoom(players: Player[] = [], options: Options = DEFAULT_OPTIO
     played: 0,
     used: [],
     lastCategory: null,
+    asked: [],
+    lastPack: null,
     round: null,
   };
 }
@@ -110,7 +140,8 @@ export function imposterCount(room: Room): number {
 export function startProblem(room: Room): string | null {
   const few = tooFew(room.players);
   if (few) return few;
-  if (room.options.categories.length === 0) return "Pick at least one category.";
+  if (room.options.mode === "words" && room.options.categories.length === 0) return "Pick at least one category.";
+  if (room.options.mode === "questions" && room.options.packs.length === 0) return "Pick at least one pack.";
   return null;
 }
 
@@ -140,16 +171,39 @@ export function drawWord(
   return { category: picked, word, hint, used: [...kept, word] };
 }
 
-/** Deals a new round (or re-deals the current one): word, imposters, who starts. */
+/**
+ * Next question pair, like drawWord: a pack other than last round's (when there's a
+ * choice), then a pair nobody has been asked yet in this room. A pack that has run out
+ * starts over. A coin flip says which of the two questions is the crew's.
+ */
+export function drawQuestion(
+  packs: readonly PackId[],
+  asked: readonly string[],
+  last: PackId | null,
+  rng: Rng,
+): { question: Question; asked: string[] } {
+  const choices = packs.length > 1 ? packs.filter((id) => id !== last) : packs;
+  const picked = randomItem(choices, rng);
+  const pairs = pack(picked).pairs;
+  const seen = new Set(asked);
+  let fresh = pairs.filter(([, a]) => !seen.has(a));
+  let kept = [...asked];
+  if (fresh.length === 0) {
+    const inPack = new Set(pairs.map(([, a]) => a));
+    kept = kept.filter((id) => !inPack.has(id));
+    fresh = [...pairs];
+  }
+  const [kind, a, b] = randomItem(fresh, rng);
+  const [crew, odd] = rng() < 0.5 ? [a, b] : [b, a];
+  return { question: { id: a, pack: picked, kind, crew, odd }, asked: [...kept, a] };
+}
+
+/** Deals a new round (or re-deals the current one): word or question, imposters, who starts. */
 function deal(room: Room, rng: Rng): Room {
   const seats = room.players.map((p) => p.id);
-  const drawn = drawWord(room.options.categories, room.used, room.lastCategory, rng);
-  const round: Round = {
+  const base: RoundBase = {
     number: room.played + 1,
     stage: "deal",
-    word: drawn.word,
-    hint: drawn.hint,
-    category: drawn.category,
     seats,
     imposters: pickFair(seats, room.ledger, imposterCount(room), rng),
     // Drawn on its own, so who starts says nothing about who the imposter is.
@@ -163,6 +217,13 @@ function deal(room: Room, rng: Rng): Room {
     guessed: null,
     points: {},
   };
+  if (room.options.mode === "questions") {
+    const drawn = drawQuestion(room.options.packs, room.asked, room.lastPack, rng);
+    const round: Round = { ...base, mode: "questions", question: drawn.question };
+    return { ...room, asked: drawn.asked, lastPack: drawn.question.pack, round };
+  }
+  const drawn = drawWord(room.options.categories, room.used, room.lastCategory, rng);
+  const round: Round = { ...base, mode: "words", word: drawn.word, hint: drawn.hint, category: drawn.category };
   return { ...room, used: drawn.used, lastCategory: drawn.category, round };
 }
 
@@ -202,6 +263,8 @@ export type Action =
   | { type: "back" }
   | { type: "open"; id: string }
   | { type: "done"; now: number }
+  | { type: "show-question" }
+  | { type: "start-talk"; now: number }
   | { type: "redeal"; rng: Rng }
   | { type: "timer"; op: TimerOp; now: number }
   | { type: "vote" }
@@ -249,7 +312,7 @@ export function reduce(room: Room, action: Action): Room {
 
   if (!round) return room;
   const current = round.seats[round.turn];
-  const set = (patch: Partial<Round>): Room => ({ ...room, round: { ...round, ...patch } });
+  const set = (patch: Partial<RoundBase>): Room => ({ ...room, round: { ...round, ...patch } });
 
   switch (action.type) {
     case "look":
@@ -260,7 +323,9 @@ export function reduce(room: Room, action: Action): Room {
     case "open": {
       const opens = { ...round.opens, [action.id]: (round.opens[action.id] ?? 0) + 1 };
       if (round.stage === "deal" && round.looking && action.id === current) return set({ opens });
-      if (round.stage === "talk" && round.seats.includes(action.id)) {
+      // Looking again while talking is Words mode only: in Questions mode the real question
+      // is on screen, so only the imposter would ever need their card.
+      if (round.stage === "talk" && round.mode === "words" && round.seats.includes(action.id)) {
         return set({ opens, rechecks: [...round.rechecks, action.id] });
       }
       return room;
@@ -268,23 +333,31 @@ export function reduce(room: Room, action: Action): Room {
     case "done": {
       if (round.stage !== "deal" || !round.looking || round.opens[current] === 0) return room;
       if (round.turn + 1 < round.seats.length) return set({ turn: round.turn + 1, looking: false });
-      // Everyone has their card: the round counts from here.
-      return {
+      // Everyone has their card: the round counts from here. Questions mode answers first;
+      // its talking time starts after the reveal.
+      const counted = {
         ...room,
         ledger: settle(round.seats, room.ledger, round.imposters),
         starts: settle(round.seats, room.starts, [round.starter]),
-        round: {
-          ...round,
-          stage: "talk",
-          looking: false,
-          timer: { endsAt: action.now + TALK_MS, left: TALK_MS },
-        },
       };
+      const next: Partial<RoundBase> =
+        round.mode === "questions"
+          ? { stage: "answer", looking: false }
+          : { stage: "talk", looking: false, timer: { endsAt: action.now + TALK_MS, left: TALK_MS } };
+      return { ...counted, round: { ...round, ...next } };
     }
+    case "show-question":
+      return round.stage === "answer" ? set({ stage: "reveal" }) : room;
+    case "start-talk":
+      return round.stage === "reveal"
+        ? set({ stage: "talk", timer: { endsAt: action.now + TALK_MS, left: TALK_MS } })
+        : room;
     case "redeal":
-      // Someone saw a card that wasn't theirs: new word and new imposters for everyone.
-      // The burned word stays used; the fair-pick ledgers don't change.
-      return round.stage === "deal" ? deal({ ...room, round: null }, action.rng) : room;
+      // Someone saw a card that wasn't theirs: new word (or question) and new imposters for
+      // everyone, in the round's own mode. The burned one stays used; the ledgers don't change.
+      return round.stage === "deal"
+        ? deal({ ...room, options: { ...room.options, mode: round.mode }, round: null }, action.rng)
+        : room;
     case "timer":
       return round.stage === "talk" && round.timer ? set({ timer: changeTimer(round.timer, action.op, action.now) }) : room;
     case "vote":
@@ -296,12 +369,15 @@ export function reduce(room: Room, action: Action): Room {
       if (round.stage !== "vote" || ids.length !== round.imposters.length) return room;
       if (!ids.every((id) => round.seats.includes(id))) return room;
       const next = { ...round, accused: ids };
-      return round.imposters.every((id) => ids.includes(id))
+      // Words mode gives caught imposters a guess at the word; Questions mode has no guess.
+      return round.mode === "words" && round.imposters.every((id) => ids.includes(id))
         ? { ...room, round: { ...next, stage: "guess" } }
         : finish(room, next);
     }
     case "guess":
-      return round.stage === "guess" ? finish(room, { ...round, guessed: action.correct }) : room;
+      return round.stage === "guess" && round.mode === "words"
+        ? finish(room, { ...round, guessed: action.correct })
+        : room;
   }
   return room;
 }
@@ -315,22 +391,42 @@ const isStrings = (v: unknown): v is string[] => Array.isArray(v) && v.every(isS
 const isNumbers = (v: unknown): v is Record<string, number> => isObject(v) && Object.values(v).every(isNumber);
 const isLedger = (v: unknown): v is Ledger =>
   isObject(v) && Object.values(v).every((t) => isObject(t) && isNumber(t.owed) && isNumber(t.taken));
-const STAGES: readonly Stage[] = ["deal", "talk", "vote", "guess", "result"];
+/** The stages each mode goes through. */
+const MODE_STAGES: Record<Mode, readonly Stage[]> = {
+  words: ["deal", "talk", "vote", "guess", "result"],
+  questions: ["deal", "answer", "reveal", "talk", "vote", "result"],
+};
 
 function parseOptions(v: unknown): Options {
   if (!isObject(v)) return DEFAULT_OPTIONS;
   const categories = Array.isArray(v.categories) ? v.categories.filter(isCategoryId) : DEFAULT_OPTIONS.categories;
+  // Saves from before Questions mode have no mode or packs: Words, with every pack on.
+  const packs = Array.isArray(v.packs) ? v.packs.filter(isPackId) : DEFAULT_OPTIONS.packs;
   return {
+    mode: MODES.includes(v.mode as Mode) ? (v.mode as Mode) : DEFAULT_OPTIONS.mode,
     imposters: isNumber(v.imposters) ? Math.min(3, Math.max(1, Math.round(v.imposters))) : DEFAULT_OPTIONS.imposters,
     clue: CLUES.includes(v.clue as Clue) ? (v.clue as Clue) : DEFAULT_OPTIONS.clue,
     categories,
+    packs,
     sound: typeof v.sound === "boolean" ? v.sound : DEFAULT_OPTIONS.sound,
   };
 }
 
+function parseQuestion(v: unknown): Question | null {
+  if (!isObject(v) || !isString(v.id) || !isPackId(v.pack) || !isAnswerKind(v.kind)) return null;
+  if (!isString(v.crew) || !isString(v.odd) || v.crew === "" || v.odd === "") return null;
+  return { id: v.id, pack: v.pack, kind: v.kind, crew: v.crew, odd: v.odd };
+}
+
 function parseRound(v: unknown, players: readonly Player[]): Round | null {
-  if (!isObject(v) || !STAGES.includes(v.stage as Stage) || !isCategoryId(v.category)) return null;
-  if (!isString(v.word) || !isString(v.hint) || !isString(v.starter) || !isNumber(v.number)) return null;
+  if (!isObject(v)) return null;
+  // Rounds saved before Questions mode have no mode: they're Words rounds.
+  const mode: Mode = v.mode === "questions" ? "questions" : "words";
+  if (!MODE_STAGES[mode].includes(v.stage as Stage)) return null;
+  const question = mode === "questions" ? parseQuestion(v.question) : null;
+  if (mode === "questions" && !question) return null;
+  if (mode === "words" && (!isCategoryId(v.category) || !isString(v.word) || !isString(v.hint))) return null;
+  if (!isString(v.starter) || !isNumber(v.number)) return null;
   if (!isStrings(v.seats) || !isStrings(v.imposters) || !isStrings(v.rechecks) || !isStrings(v.accused)) return null;
   if (!isNumber(v.turn) || typeof v.looking !== "boolean" || !isNumbers(v.opens) || !isNumbers(v.points)) return null;
   // A player removed mid-round can't happen in the app; drop the round if it did.
@@ -338,7 +434,24 @@ function parseRound(v: unknown, players: readonly Player[]): Round | null {
   if (v.turn < 0 || v.turn >= v.seats.length) return null;
   const timer = isObject(v.timer) && isNumber(v.timer.left) ? (v.timer as Timer) : null;
   const guessed = typeof v.guessed === "boolean" ? v.guessed : null;
-  return { ...(v as unknown as Round), timer, guessed };
+  const base: RoundBase = {
+    number: v.number,
+    stage: v.stage as Stage,
+    seats: v.seats,
+    imposters: v.imposters,
+    starter: v.starter,
+    turn: v.turn,
+    looking: v.looking,
+    opens: v.opens,
+    rechecks: v.rechecks,
+    timer,
+    accused: v.accused,
+    guessed,
+    points: v.points,
+  };
+  return question
+    ? { ...base, mode: "questions", question }
+    : { ...base, mode: "words", word: v.word as string, hint: v.hint as string, category: v.category as CategoryId };
 }
 
 /** A saved room, or null if there's nothing usable (then the game starts fresh). */
@@ -363,6 +476,8 @@ export function parseRoom(raw: string | null): Room | null {
     played: isNumber(v.played) ? v.played : 0,
     used: isStrings(v.used) ? v.used : [],
     lastCategory: isCategoryId(v.lastCategory) ? v.lastCategory : null,
+    asked: isStrings(v.asked) ? v.asked : [],
+    lastPack: isPackId(v.lastPack) ? v.lastPack : null,
     round: parseRound(v.round, players),
   };
 }

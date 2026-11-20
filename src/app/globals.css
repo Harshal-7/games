@@ -252,6 +252,37 @@ html[data-tone="light"] {
   --pick: var(--teal);
   --on-pick: var(--on-red);
 }
+/* The Finger picker is a site-wide tool: the site's cream and ink. Its fingers wear the
+   games' own colours (the first four are also the team colours), then cream and the soft
+   tints, each with the text colour that reads on it. */
+[data-game="finger-picker"] {
+  --game: var(--card);
+  --game-deep: var(--inset);
+  --game-soft: var(--inset);
+  --on-game: var(--ink);
+  --pick: var(--ink);
+  --on-pick: var(--card);
+  --finger-0: var(--red);
+  --on-finger-0: var(--on-red);
+  --finger-1: var(--night);
+  --on-finger-1: var(--on-night);
+  --finger-2: var(--marigold);
+  --on-finger-2: var(--ink);
+  --finger-3: var(--teal);
+  --on-finger-3: var(--on-red);
+  --finger-4: var(--milestone);
+  --on-finger-4: var(--ink);
+  --finger-5: var(--brass);
+  --on-finger-5: var(--ink);
+  --finger-6: var(--card);
+  --on-finger-6: var(--ink);
+  --finger-7: var(--red-soft);
+  --on-finger-7: var(--ink);
+  --finger-8: var(--night-soft);
+  --on-finger-8: var(--ink);
+  --finger-9: var(--teal-soft);
+  --on-finger-9: var(--ink);
+}
 
 @theme inline {
   --font-sans: var(--body);
@@ -361,6 +392,37 @@ body {
     min-height: 0;
     padding: 4px 0 40px;
   }
+}
+
+/* ---------- The Finger picker's drawing ---------- */
+
+/* Three finger discs, one picked: on Home's Tools tile and the setups' picker links. */
+.fp-mark-plate {
+  fill: var(--inset);
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+.fp-mark-disc {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+.fp-mark-disc.is-small {
+  stroke-width: 1.6;
+}
+.fp-mark-disc.is-red {
+  fill: var(--red);
+}
+.fp-mark-disc.is-night {
+  fill: var(--night);
+}
+.fp-mark-disc.is-marigold {
+  fill: var(--marigold);
+}
+.fp-mark-picked {
+  fill: none;
+  stroke: var(--ink);
+  stroke-dasharray: 3 3;
+  stroke-width: 1.6;
 }
 
 /* ---------- Type ---------- */

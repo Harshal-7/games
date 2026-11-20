@@ -5,6 +5,7 @@ import { useLeaveGuard } from "@/ui/leave-guard";
 
 import { Deal } from "./deal";
 import { Lobby } from "./lobby";
+import { Answer, Reveal } from "./questions";
 import { Talk } from "./talk";
 import { act, useRoom } from "./use-room";
 import { Guess, Result, Vote } from "./verdict";
@@ -33,12 +34,16 @@ export function Imposter() {
   switch (round.stage) {
     case "deal":
       return <Deal key={key} room={room} round={round} />;
+    case "answer":
+      return round.mode === "questions" ? <Answer key={key} room={room} round={round} /> : null;
+    case "reveal":
+      return round.mode === "questions" ? <Reveal key={key} room={room} round={round} /> : null;
     case "talk":
       return <Talk key={key} room={room} round={round} />;
     case "vote":
       return <Vote key={key} room={room} round={round} />;
     case "guess":
-      return <Guess key={key} room={room} round={round} />;
+      return round.mode === "words" ? <Guess key={key} room={room} round={round} /> : null;
     case "result":
       return <Result key={key} room={room} round={round} />;
   }
