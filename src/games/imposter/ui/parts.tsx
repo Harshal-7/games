@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 import type { Clue, Room, Round } from "../logic/room";
 import { category } from "../logic/words";
@@ -14,17 +14,6 @@ export function namesOf(room: Room): Record<string, string> {
 export function listNames(names: readonly string[]): string {
   if (names.length <= 1) return names.join("");
   return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
-}
-
-const noop = () => () => {};
-
-/** False on the server and during hydration, true after: the room is only known in the browser. */
-export function useHydrated(): boolean {
-  return useSyncExternalStore(
-    noop,
-    () => true,
-    () => false,
-  );
 }
 
 /** The three lines on a face-up card. */

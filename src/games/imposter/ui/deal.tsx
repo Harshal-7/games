@@ -3,13 +3,13 @@
 import { useState } from "react";
 
 import { cryptoRandom } from "@/party/logic/random";
+import { wakeAudio } from "@/party/ui/sounds";
 import { Confirm } from "@/ui/confirm";
 import { CheckIcon, EyeOffIcon, ShuffleIcon } from "@/ui/icons";
 
 import type { Room, Round } from "../logic/room";
 import { HoldCard } from "./hold-card";
 import { BigName, namesOf, PlayHead, SecretFace } from "./parts";
-import { wakeAudio } from "./sounds";
 import { act } from "./use-room";
 
 type Ask = "redeal" | "leave" | null;

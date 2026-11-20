@@ -2,6 +2,7 @@
 
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 
+import { useClock } from "@/party/ui/use-clock";
 import { updateSettings, useSettings } from "@/settings/store";
 import { Confirm } from "@/ui/confirm";
 import { count, formatDuration } from "@/ui/format";
@@ -15,7 +16,6 @@ import { Board } from "./board";
 import { cue } from "./feedback";
 import { ResultCard } from "./result-card";
 import { recordBest, useBestTimes } from "./use-best-times";
-import { useNow } from "./use-clock";
 
 import "../board-styles.css";
 import "./knights-tour.css";
@@ -50,7 +50,7 @@ export function KnightsTour() {
   const backTo = useMemo(() => (phase === "stuck" ? lastFinishable(path, size) : null), [phase, path, size]);
 
   // Clock.
-  const now = useNow(game.startedAt !== null && game.finishedAt === null);
+  const now = useClock(game.startedAt !== null && game.finishedAt === null);
   const time = elapsed(game, now);
 
   // Best times (this browser only). Runs finished by Watch it solve don't count.

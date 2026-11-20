@@ -2,9 +2,8 @@
 
 import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 
+import { buzzOpen } from "@/party/ui/sounds";
 import { EyeOffIcon, LockIcon } from "@/ui/icons";
-
-import { buzzOpen } from "./sounds";
 
 /**
  * A secret card you have to hold to read: TOP SECRET on the back, the same for

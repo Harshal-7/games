@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 
 import { savedGame, savedGameLine } from "@/games/imposter/logic/saved";
-import { useHydrated } from "@/games/imposter/ui/parts";
 import { act, useRoom } from "@/games/imposter/ui/use-room";
+import { useHydrated } from "@/party/ui/use-hydrated";
 import { Confirm } from "@/ui/confirm";
 import { ArrowRightIcon, CloseIcon, PlusIcon } from "@/ui/icons";
 

@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import { ringFraction, tickDue, timeLeft, timerTone } from "@/party/logic/timer";
+import { tick, timeUp, wakeAudio } from "@/party/ui/sounds";
+import { useClock } from "@/party/ui/use-clock";
 import { Confirm } from "@/ui/confirm";
 import { formatDuration } from "@/ui/format";
 import { EyeOffIcon, PauseIcon, PlayIcon, PlusIcon } from "@/ui/icons";
@@ -10,9 +12,7 @@ import { EyeOffIcon, PauseIcon, PlayIcon, PlusIcon } from "@/ui/icons";
 import { TALK_MS, type Room, type Round } from "../logic/room";
 import { HoldCard } from "./hold-card";
 import { BigName, listNames, namesOf, PlayHead, SecretFace } from "./parts";
-import { tick, timeUp, wakeAudio } from "./sounds";
 import { act } from "./use-room";
-import { useClock } from "./use-clock";
 
 type Check = null | "pick" | { id: string };
 

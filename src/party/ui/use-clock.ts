@@ -22,7 +22,12 @@ function subscribe(onChange: () => void): () => void {
   };
 }
 
-/** The current time in ms, refreshed while the component is on screen. */
-export function useClock(): number {
-  return useSyncExternalStore(subscribe, () => (now ||= Date.now()), () => 0);
+const stopped = () => () => {};
+
+/**
+ * The current time in ms, refreshed while the component is on screen and `running`.
+ * A stopped clock redraws nothing, so read times that matter (a finish) from the game.
+ */
+export function useClock(running = true): number {
+  return useSyncExternalStore(running ? subscribe : stopped, () => (now ||= Date.now()), () => 0);
 }

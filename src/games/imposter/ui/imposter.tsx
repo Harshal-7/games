@@ -1,8 +1,9 @@
 "use client";
 
+import { useHydrated } from "@/party/ui/use-hydrated";
+
 import { Deal } from "./deal";
 import { Lobby } from "./lobby";
-import { useHydrated } from "./parts";
 import { Talk } from "./talk";
 import { useRoom } from "./use-room";
 import { Guess, Result, Vote } from "./verdict";
