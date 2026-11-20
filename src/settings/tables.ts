@@ -33,6 +33,7 @@ export const GAME_TABLES: Record<GameSlug, TableId> = {
   patakha: "sunrise",
   "highway-bingo": "night-drive",
   ulta: "stage",
+  rangoli: "sunrise",
   "finger-picker": "felt",
 };
 

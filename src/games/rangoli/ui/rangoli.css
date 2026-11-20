@@ -1,0 +1,828 @@
+/* Rangoli in one line. Colours come from the shared tokens in globals.css: the game's
+   pink is --game, and a line's powder colour is --powder-<tone> (rg-t<tone> below). */
+
+.rg-t0 {
+  --tone: var(--powder-0);
+}
+.rg-t1 {
+  --tone: var(--powder-1);
+}
+.rg-t2 {
+  --tone: var(--powder-2);
+}
+.rg-t3 {
+  --tone: var(--powder-3);
+}
+.rg-t4 {
+  --tone: var(--powder-4);
+}
+.rg-t5 {
+  --tone: var(--powder-5);
+}
+
+/* ---------- The drawing screen ---------- */
+
+/* Phones and small windows: one column (title, status, floor, buttons, best time).
+   Big screens (at the end): the floor on the left, the rest beside it, no scrolling. */
+.rg {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "intro" "status" "floor" "actions" "best";
+}
+.rg-intro {
+  display: flex;
+  grid-area: intro;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+.rg-intro-text {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.rg-place {
+  color: var(--muted);
+}
+.btn.rg-patterns {
+  flex: none;
+  padding: 0 14px;
+}
+.rg-status {
+  grid-area: status;
+  margin-top: 14px;
+}
+.rg-floor-area {
+  grid-area: floor;
+  margin-top: 14px;
+}
+.rg-actions {
+  grid-area: actions;
+  margin-top: 16px;
+}
+.rg-best {
+  grid-area: best;
+  margin-top: 14px;
+}
+
+/* A tablet or a narrow laptop window: keep the floor small enough that it and its
+   buttons fit. Phones use the whole width and scroll. */
+@media (min-width: 600px) {
+  .rg-status,
+  .rg-floor-area,
+  .rg-actions {
+    max-width: max(300px, calc(100svh - 450px));
+  }
+}
+
+/* ---------- Status card ---------- */
+
+.rg-status {
+  display: grid;
+  gap: 8px;
+  padding: 10px 14px 12px;
+}
+.rg-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 28px;
+}
+.rg-status-text {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.rg-status-text svg {
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: -2px;
+}
+/* "Line 7 of 16": the line in Fraunces italic. */
+.rg-status-num {
+  font-family: var(--display);
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+.rg-time {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--num);
+  font-size: 19px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.rg-time svg {
+  color: var(--muted);
+}
+.rg-progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--inset);
+}
+.rg-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--game);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ink) 25%, transparent);
+  transition: width 0.25s ease;
+}
+
+/* ---------- The floor ---------- */
+
+/* The cream card the pattern is drawn on, square. */
+.rg-floor {
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  padding: 2.5%;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+/* Why the glowing dots: under the floor, so the floor never moves under a finger. */
+.rg-note {
+  margin: 10px 2px 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.rg-floor-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.rg-floor-svg[data-drawing] {
+  cursor: crosshair;
+}
+
+/* Lines still to draw: dotted chalk. */
+.rg-guide {
+  fill: none;
+  stroke: var(--ink-muted);
+  stroke-dasharray: 0.01 2.1;
+  stroke-linecap: round;
+  stroke-width: 0.8;
+}
+/* Drawn lines, in their powder colour. */
+.rg-line {
+  fill: none;
+  stroke: var(--tone);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.3;
+  transition: stroke-width 0.4s ease;
+}
+/* A line Watch it solve just drew draws itself in. */
+.rg-line.is-new {
+  stroke-dasharray: 1;
+  animation: rg-draw 0.22s ease-out both;
+}
+@keyframes rg-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+/* The shapes between the lines fill in once the last line is drawn. */
+.rg-face {
+  fill: var(--tone);
+  fill-opacity: 0;
+  transition: fill-opacity 0.7s ease 0.1s;
+}
+.rg-floor[data-phase="done"] .rg-face {
+  fill-opacity: 0.24;
+}
+.rg-floor[data-phase="done"] .rg-line {
+  stroke-width: 2.7;
+}
+.rg-dots circle {
+  fill: var(--ink);
+}
+.rg-floor[data-phase="done"] .rg-dots circle {
+  fill: var(--card);
+  stroke: var(--ink);
+  stroke-width: 0.7;
+}
+/* Where the pen is: carry on from here. */
+.rg-pen {
+  fill: var(--game);
+  stroke: var(--ink);
+  stroke-width: 0.9;
+}
+/* Hint: the next line, dashed, and a ring on the dot it leads to. */
+.rg-hint path {
+  fill: none;
+  stroke: var(--game);
+  stroke-dasharray: 2.6 2.4;
+  stroke-linecap: round;
+  stroke-width: 1.5;
+  animation: rg-march 1s linear infinite;
+}
+.rg-hint circle {
+  fill: none;
+  stroke: var(--game);
+  stroke-width: 1.1;
+}
+@keyframes rg-march {
+  to {
+    stroke-dashoffset: -5;
+  }
+}
+/* The dots that can start the pattern. */
+.rg-glow {
+  fill: var(--game-soft);
+  stroke: var(--game);
+  stroke-width: 1.1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rg-glow 1.4s ease-in-out infinite alternate;
+}
+@keyframes rg-glow {
+  to {
+    transform: scale(1.25);
+  }
+}
+
+/* ---------- Under the floor ---------- */
+
+.rg-controls {
+  display: grid;
+  gap: 12px;
+}
+/* Undo and Hint share the row; Restart is a round button at the end. */
+.rg-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 56px;
+  gap: 10px;
+}
+.rg-tools .btn {
+  padding: 0 14px;
+}
+.rg-tools .rg-restart {
+  padding: 0;
+}
+.rg-restart-label {
+  display: none;
+}
+/* The hint says "go back": Undo turns pink and pings. */
+.rg-tools .btn.is-nudged {
+  position: relative;
+  background: var(--game);
+  color: var(--on-game);
+}
+.rg-tools .btn.is-nudged:hover:not(:disabled) {
+  background: var(--game-deep);
+}
+.rg-tools .btn.is-nudged::after {
+  content: "";
+  position: absolute;
+  inset: -2.5px;
+  border-radius: inherit;
+  animation: rg-nudge 1.1s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes rg-nudge {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--game) 75%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 9px color-mix(in oklab, var(--game) 0%, transparent);
+  }
+}
+.btn.rg-solve {
+  gap: 10px;
+}
+
+/* ---------- Result cards (take the buttons' place) ---------- */
+
+.rg-result {
+  display: grid;
+  gap: 14px;
+  padding: 14px 16px 16px;
+  animation: rg-rise 0.3s cubic-bezier(0.3, 1.2, 0.5, 1) both;
+}
+.rg-result.is-stuck {
+  gap: 12px;
+}
+.rg-result-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rg-result-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--game);
+  color: var(--on-game);
+  box-shadow: 0 0 0 2.5px var(--ink);
+}
+.rg-result h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.rg-result p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+.rg-result-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+.rg-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 9px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--game-deep);
+  border-radius: 999px;
+  background: var(--game-soft);
+  color: var(--game-deep);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.rg-tag.is-best {
+  border-color: var(--ink);
+  background: var(--game);
+  color: var(--on-game);
+}
+.rg-result-actions {
+  display: flex;
+  gap: 10px;
+}
+.rg-result-actions > .btn {
+  flex: 1 1 0;
+  min-height: 52px;
+  padding: 0 14px;
+}
+/* Stuck: Undo is the way out, full width; going further back or starting over below. */
+.btn.rg-result-main {
+  width: 100%;
+  font-size: 19px;
+}
+.rg-result-more {
+  display: flex;
+  gap: 10px;
+}
+.rg-result-more > .btn {
+  flex: 1 1 auto;
+  padding: 0 14px;
+}
+.rg-result-more > .btn + .btn {
+  flex: 0 1 auto;
+  padding: 0 16px;
+}
+@keyframes rg-rise {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+
+/* ---------- Best time ---------- */
+
+.rg-best {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.rg-best-time {
+  color: var(--fg);
+  font-family: var(--num);
+  font-variant-numeric: tabular-nums;
+}
+.rg-medal {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 3px dotted var(--on-game);
+  border-radius: 50%;
+  background: var(--game);
+}
+
+/* ---------- The pattern list ---------- */
+
+.rg-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "intro" "bar" "items" "carry";
+}
+.rg-list-intro {
+  grid-area: intro;
+}
+.rg-list-bar {
+  grid-area: bar;
+  margin-top: 14px;
+}
+.seg.rg-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  box-sizing: border-box;
+}
+.seg.rg-tabs button {
+  min-width: 0;
+  padding: 0;
+  font-size: 14.5px;
+}
+.rg-count {
+  margin: 16px 0 10px;
+}
+.rg-tiles,
+.rg-sizes {
+  grid-area: items;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rg-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.rg-tiles > li {
+  display: flex;
+  min-width: 0;
+}
+/* A tile is the pattern drawn small, its name, and a chip: its best time once drawn. */
+.rg-tile {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 7px 7px 10px;
+  border-radius: 14px;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.rg-tile.is-drawing {
+  border: 2.5px solid var(--game);
+}
+.rg-tile:hover {
+  transform: translateY(-2px);
+}
+.rg-tile:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}
+.rg-tile-name {
+  padding: 0 3px;
+  font-family: var(--display);
+  font-size: 15.5px;
+  font-weight: 700;
+  line-height: 1.12;
+}
+.rg-tile-count {
+  padding: 0 3px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.rg-chip {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  height: 22px;
+  margin: 0 3px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.rg-chip.is-drawn {
+  padding-left: 6px;
+  background: var(--game-soft);
+  color: var(--game-deep);
+}
+.rg-chip.is-drawing {
+  background: var(--game);
+  color: var(--on-game);
+}
+.rg-chip-num {
+  font-family: var(--num);
+  font-weight: 500;
+}
+
+/* A pattern drawn small: muted lines while it's still to draw, its colours once drawn. */
+.rg-mini {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.rg-mini-line {
+  fill: none;
+  stroke: var(--ink-muted);
+  stroke-linecap: round;
+  stroke-width: 2.2;
+  opacity: 0.6;
+}
+.rg-mini.is-coloured .rg-mini-line {
+  stroke: var(--tone);
+  stroke-width: 3.4;
+  opacity: 1;
+}
+.rg-mini .rg-face {
+  fill-opacity: 0.24;
+  transition: none;
+}
+.rg-mini-dot {
+  fill: var(--ink);
+}
+.rg-mini.is-coloured .rg-mini-dot {
+  fill: var(--card);
+  stroke: var(--ink);
+  stroke-width: 0.9;
+}
+
+/* Endless: a row for each size, with a sample and New. */
+.rg-sizes {
+  display: grid;
+  gap: 12px;
+}
+.rg-size {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px 12px 12px;
+}
+.rg-size-mini {
+  flex: none;
+  width: 88px;
+}
+.rg-size-text {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 3px;
+  min-width: 0;
+}
+.rg-size-text h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.rg-size-text p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.35;
+}
+.rg-size-text .rg-size-stats {
+  margin-top: 2px;
+  color: var(--fg);
+  font-weight: 600;
+}
+.btn.rg-size-new {
+  flex: none;
+  gap: 6px;
+  padding: 0 14px;
+}
+
+.rg-carry {
+  grid-area: carry;
+  margin-top: 18px;
+}
+.rg-carry .btn {
+  gap: 10px;
+}
+.rg-carry-count {
+  font-family: var(--num);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* ---------- Big screens ---------- */
+
+@media (min-width: 860px) and (min-height: 480px) {
+  /* As the WebRangoli board: the floor on the left, as big as the window allows (up to
+     600px, from the shared frame in globals.css); the title, the progress card with the
+     best time in it, and the buttons on the right, from the top. */
+  .rg {
+    grid-template-columns: var(--frame-board) minmax(0, 1fr);
+    grid-template-rows: repeat(3, auto) 1fr;
+    grid-template-areas:
+      "floor intro"
+      "floor status"
+      "floor actions"
+      "floor .";
+    align-items: start;
+    column-gap: var(--frame-gap);
+    min-height: var(--frame-board);
+  }
+  .rg-status,
+  .rg-floor-area,
+  .rg-actions {
+    max-width: none;
+  }
+  .rg-floor-area {
+    margin-top: 0;
+  }
+  .rg .game-title,
+  .rg-list .game-title {
+    font-size: 52px;
+    line-height: 1;
+  }
+  .rg-status,
+  .rg-actions {
+    margin-top: 20px;
+  }
+  .rg-status {
+    gap: 12px;
+    padding: 18px 20px 50px;
+  }
+  .rg-status-text {
+    font-size: 16px;
+  }
+  .rg-status-num {
+    font-size: 26px;
+  }
+  .rg-time {
+    font-size: 24px;
+  }
+  .rg-progress {
+    height: 10px;
+  }
+  .rg-best {
+    --fg: var(--ink);
+    --muted: var(--ink-muted);
+    z-index: 1;
+    grid-area: status;
+    align-self: end;
+    margin: 0 0 18px;
+    padding: 0 20px;
+  }
+  .rg-tools {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .rg-tools .btn {
+    min-height: 48px;
+  }
+  .rg-tools .rg-restart {
+    padding: 0 14px;
+  }
+  .rg-restart-label {
+    display: inline;
+  }
+  .btn.rg-solve {
+    min-height: 58px;
+    font-size: 22px;
+  }
+
+  /* The list: title with Carry on beside it, the packs under it, tiles five across. */
+  .rg-list {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+    grid-template-areas:
+      "intro carry"
+      "bar bar"
+      "items items";
+    align-items: end;
+    column-gap: 40px;
+  }
+  .rg-list .game-blurb {
+    margin-top: 10px;
+    font-size: 16.5px;
+    line-height: 1.5;
+  }
+  .rg-carry {
+    margin-top: 0;
+  }
+  .rg-carry .btn {
+    min-height: 58px;
+    font-size: 22px;
+  }
+  .rg-list-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
+    margin-top: 22px;
+  }
+  .seg.rg-tabs {
+    flex: 0 1 520px;
+  }
+  .seg.rg-tabs button {
+    height: 46px;
+    font-size: 15px;
+  }
+  .rg-count {
+    margin: 0;
+  }
+  .rg-tiles,
+  .rg-sizes {
+    align-self: start;
+    margin-top: 22px;
+  }
+  .rg-tiles {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .rg-tile-name {
+    font-size: 18px;
+  }
+  .rg-sizes {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Big but short windows: the side column tightens up. */
+@media (min-width: 860px) and (min-height: 480px) and (max-height: 600px) {
+  .rg .game-title,
+  .rg-list .game-title {
+    font-size: 30px;
+  }
+  .rg-status {
+    margin-top: 10px;
+    padding: 7px 14px 34px;
+    gap: 6px;
+  }
+  .rg-actions {
+    margin-top: 12px;
+  }
+  .rg-controls {
+    gap: 10px;
+  }
+  .rg-tools .btn {
+    min-height: 40px;
+  }
+  .btn.rg-solve {
+    min-height: 46px;
+    font-size: 19px;
+  }
+  .rg-best {
+    margin: 0 0 8px;
+    padding: 0 14px;
+  }
+  .rg-result {
+    gap: 10px;
+    padding: 12px 14px 14px;
+  }
+  .rg-result-actions > .btn,
+  .btn.rg-result-main {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rg-line,
+  .rg-face,
+  .rg-progress span,
+  .rg-tile {
+    transition: none;
+  }
+  .rg-line.is-new,
+  .rg-hint path,
+  .rg-glow,
+  .rg-result,
+  .rg-tools .btn.is-nudged::after {
+    animation: none;
+  }
+  .rg-line.is-new {
+    stroke-dasharray: none;
+  }
+}
