@@ -158,8 +158,7 @@ export function KnightsTour() {
             path={path}
             phase={phase}
             hint={game.hint}
-            closed={phase === "won" && closed}
-            locked={solving}
+              locked={solving}
             moveMs={solving ? Math.round(stepMs * 0.8) : 180}
             onSquare={play}
           />

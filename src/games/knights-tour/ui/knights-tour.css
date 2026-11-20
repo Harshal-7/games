@@ -105,21 +105,17 @@ html[data-mode="dark"] [data-skin="classic"] {
   height: 100%;
   pointer-events: none;
 }
-/* The route is only a faint dotted hint; the numbered squares carry the order.
-   A solid line got confusing once the path crossed itself. Units are squares. */
-.kt-trail polyline,
+/* Only the last two jumps are drawn, dotted: the newest a little stronger. Units
+   are squares. */
 .kt-trail line {
-  fill: none;
   stroke: var(--accent);
   stroke-width: 0.035;
   stroke-linecap: round;
-  stroke-dasharray: 0 0.14;
-  opacity: 0.35;
-  transition: opacity 0.3s ease;
+  stroke-dasharray: 0 0.12;
+  opacity: 0.3;
 }
-.kt-board[data-phase="won"] .kt-trail polyline,
-.kt-trail .kt-closing {
-  opacity: 0.55;
+.kt-trail line.is-latest {
+  opacity: 0.65;
 }
 
 .kt-cell {
@@ -165,10 +161,17 @@ html[data-mode="dark"] [data-skin="classic"] {
   line-height: 1;
   animation: kt-node-in 0.25s ease-out both;
 }
-.kt-node.is-first {
-  border-color: transparent;
-  background: var(--accent);
-  color: var(--accent-fg);
+/* A finished tour: the numbers ripple in the order they were visited. */
+.kt-board[data-phase="won"] .kt-node {
+  animation: kt-wave 0.5s ease-in-out both;
+  animation-delay: calc(var(--i) * 24ms);
+}
+@keyframes kt-wave {
+  50% {
+    transform: scale(1.18);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
 }
 
 /* Squares the knight can jump to. */

@@ -11,7 +11,6 @@ type BoardProps = {
   path: readonly number[];
   phase: Phase;
   hint: number | null;
-  closed: boolean;
   /** Squares can't be pressed (Watch it solve is playing). */
   locked: boolean;
   /** How long the knight takes to slide to the next square. */
@@ -20,7 +19,7 @@ type BoardProps = {
   skin?: SkinId;
 };
 
-export function Board({ size, path, phase, hint, closed, locked, moveMs, onSquare, skin = "classic" }: BoardProps) {
+export function Board({ size, path, phase, hint, locked, moveMs, onSquare, skin = "classic" }: BoardProps) {
   const n = size * size;
   const { Piece } = SKINS[skin];
   const knight = path.length > 0 ? path[path.length - 1] : null;
@@ -68,9 +67,9 @@ export function Board({ size, path, phase, hint, closed, locked, moveMs, onSquar
     return name;
   }
 
+  // Only the last two jumps get a line: a full trail turns into a tangle.
   const centre = (sq: number) => [(sq % size) + 0.5, Math.floor(sq / size) + 0.5] as const;
-  const [endX, endY] = knight !== null ? centre(knight) : [0, 0];
-  const [startX, startY] = path.length > 0 ? centre(path[0]) : [0, 0];
+  const jumps = path.slice(-3).map(centre);
   const style = { "--n": size, "--move": `${moveMs}ms` } as CSSProperties;
 
   return (
@@ -100,8 +99,11 @@ export function Board({ size, path, phase, hint, closed, locked, moveMs, onSquar
       </div>
 
       <svg className="kt-trail" viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
-        {path.length > 1 && <polyline points={path.map((sq) => centre(sq).join(",")).join(" ")} />}
-        {closed && <line className="kt-closing" x1={endX} y1={endY} x2={startX} y2={startY} />}
+        {jumps.slice(1).map(([x2, y2], i) => {
+          const [x1, y1] = jumps[i];
+          const latest = i === jumps.length - 2;
+          return <line key={`${path.length}-${i}`} className={latest ? "is-latest" : undefined} x1={x1} y1={y1} x2={x2} y2={y2} />;
+        })}
       </svg>
 
       <div className="kt-cells" onKeyDown={onKeyDown}>
@@ -130,7 +132,9 @@ export function Board({ size, path, phase, hint, closed, locked, moveMs, onSquar
               onClick={() => pressable && onSquare(sq)}
             >
               {move && sq !== knight ? (
-                <span className={move === 1 ? "kt-node is-first" : "kt-node"}>{move}</span>
+                <span className="kt-node" style={{ "--i": move } as CSSProperties}>
+                  {move}
+                </span>
               ) : null}
               {legal.has(sq) && phase === "playing" ? <span className="kt-dot" /> : null}
             </button>
