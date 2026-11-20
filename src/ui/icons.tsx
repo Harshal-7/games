@@ -62,6 +62,12 @@ export const ChevronLeftIcon = (p: P) => (
   </Icon>
 );
 
+export const ArrowRightIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M5 12h14M13 6l6 6-6 6" />
+  </Icon>
+);
+
 export const ArrowUpRightIcon = (p: P) => (
   <Icon {...p}>
     <path d="M7 17 17 7M8 7h9v9" />

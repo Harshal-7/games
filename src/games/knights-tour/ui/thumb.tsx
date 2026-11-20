@@ -1,43 +1,33 @@
-import { analyse } from "../logic/solver";
 import { KNIGHT_PATH } from "./knight-piece";
 
-import "./knights-tour.css";
+import "../board-styles.css";
 
-const SIZE = 5;
-const SHOWN = 9;
+// Three by three squares of the board style you picked, inside its frame.
+const SQUARES = Array.from({ length: 9 }, (_, i) => ({
+  x: 17 + (i % 3) * 19.33,
+  y: 31 + Math.floor(i / 3) * 20.67,
+  dark: (Math.floor(i / 3) + (i % 3)) % 2 === 1,
+}));
 
-/** Card picture for the games list: a 5×5 board with the start of a real tour. */
+/** Card picture for the games list: a playing card with a corner of the board, the knight and a brass dot. */
 export function KnightsTourThumb() {
-  const result = analyse([0], SIZE);
-  const tour = result.status === "solvable" ? [0, ...result.completion].slice(0, SHOWN) : [0];
-  const centre = (sq: number) => [(sq % SIZE) + 0.5, Math.floor(sq / SIZE) + 0.5] as const;
-  const knight = centre(tour[tour.length - 1]);
-
   return (
-    <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="kt-thumb" aria-hidden="true">
-      {Array.from({ length: SIZE * SIZE }, (_, sq) => (
-        <rect
-          key={sq}
-          x={sq % SIZE}
-          y={Math.floor(sq / SIZE)}
-          width="1"
-          height="1"
-          className={(Math.floor(sq / SIZE) + (sq % SIZE)) % 2 ? "kt-thumb-dark" : "kt-thumb-light"}
-        />
+    <svg viewBox="0 0 92 124" width="92" height="124" className="game-thumb" aria-hidden="true">
+      <rect x="0.5" y="0.5" width="91" height="123" rx="10" style={{ fill: "var(--inset)", stroke: "var(--card-line)" }} />
+      <text x="9" y="18" className="game-thumb-corner">
+        K
+      </text>
+      <text x="83" y="114" textAnchor="end" className="game-thumb-corner">
+        K
+      </text>
+      <rect x="13" y="27" width="66" height="70" rx="4" style={{ fill: "var(--board-frame)" }} />
+      {SQUARES.map(({ x, y, dark }) => (
+        <rect key={`${x}-${y}`} x={x} y={y} width="19.4" height="20.7" style={{ fill: dark ? "var(--sq-dark)" : "var(--sq-light)" }} />
       ))}
-      <polyline
-        points={tour.map((sq) => centre(sq).join(",")).join(" ")}
-        className="kt-thumb-trail"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {tour.slice(0, -1).map((sq) => (
-        <circle key={sq} cx={centre(sq)[0]} cy={centre(sq)[1]} r="0.09" className="kt-thumb-dot" />
-      ))}
-      <g transform={`translate(${knight[0] - 0.42} ${knight[1] - 0.44}) scale(0.0084)`}>
-        <path d={KNIGHT_PATH} fillRule="evenodd" className="kt-thumb-knight" />
+      <g transform="translate(31 46) scale(0.36)">
+        <path d={KNIGHT_PATH} fillRule="evenodd" style={{ fill: "var(--ink)" }} />
       </g>
+      <circle cx="65.3" cy="41.3" r="3.6" style={{ fill: "var(--brass)", stroke: "var(--ink)", strokeWidth: 1.4 }} />
     </svg>
   );
 }

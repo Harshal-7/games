@@ -13,6 +13,7 @@ import { DEFAULT_SETTINGS, MODES, type KnightsTourSettings, type Settings } from
 import { BackLink, SettingsBack } from "./settings-back";
 import { updateSettings, useSettings } from "./store";
 
+import "@/games/knights-tour/board-styles.css";
 import "@/games/knights-tour/ui/knights-tour.css";
 import "./settings.css";
 

@@ -22,7 +22,8 @@ pnpm check        # types, lint, tests and a production build
 src/
   app/                    pages (one folder per game) and the shared layout
   ui/                     pieces every game shares: page frame, top bar, buttons, icons
-  settings/               the /settings page: theme, colour, board and knight styles
+  home/                   the home page's saved-game card (Continue / New game) and styles
+  settings/               the /settings page: theme, board and knight styles
   games/
     registry.ts           the list of games on the home page
     knights-tour/

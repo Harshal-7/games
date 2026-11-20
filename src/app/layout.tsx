@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Mono, DM_Sans, Fraunces } from "next/font/google";
 
+import { SAVED_ROOM_SCRIPT } from "@/games/imposter/logic/saved";
 import { SETTINGS_SCRIPT } from "@/settings/settings";
 import { SettingsSync } from "@/settings/settings-sync";
 import { AUTHOR } from "@/ui/site";
@@ -34,6 +35,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         {/* Also adds the theme-color meta (felt green or paper) for the phone's address bar. */}
         <script dangerouslySetInnerHTML={{ __html: SETTINGS_SCRIPT }} />
+        {/* Marks a saved Imposter room so Home keeps space for its Continue card. */}
+        <script dangerouslySetInnerHTML={{ __html: SAVED_ROOM_SCRIPT }} />
       </head>
       <body>
         {children}
