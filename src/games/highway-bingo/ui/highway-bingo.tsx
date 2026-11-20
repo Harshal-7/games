@@ -22,8 +22,8 @@ export function HighwayBingo() {
     ask: underway(room),
     detail:
       game?.mode === "own"
-        ? `This game ends on this phone. Your marks stay: join ${game.code} as seat ${game.seats[0]} to pick up where you left off.`
-        : "This game ends here, and its card is put away.",
+        ? `Your marks are kept. Join ${game.code} as seat ${game.seats[0]} to carry on.`
+        : "This card goes away.",
     end: () => act({ type: "end" }),
   });
   useWakeLock(hydrated && game !== null && room.options.awake);

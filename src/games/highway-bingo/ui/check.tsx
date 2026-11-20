@@ -29,10 +29,7 @@ export function CheckCard({
       <header className="hb-form-head">
         <h1 className="game-title hb-screen-title">Check a card</h1>
       </header>
-      <p className="game-blurb hb-form-blurb">
-        Same squares in the same places as their Bingo! screen? Then it&apos;s the real card. Whether the sights were
-        really spotted is up to the car.
-      </p>
+      <p className="game-blurb hb-form-blurb">Same squares as their screen? Then it&apos;s their real card.</p>
 
       <div className="hb-check-head">
         <span className="hb-code-chip is-still">

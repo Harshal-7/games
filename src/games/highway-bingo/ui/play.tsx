@@ -87,7 +87,7 @@ export function Play({ room, game }: { room: Room; game: Game }) {
             ))}
           </div>
         ) : (
-          <p className="hb-play-title">One card for the whole car</p>
+          <p className="hb-play-title">One card, whole car</p>
         )}
       </header>
 
@@ -134,8 +134,8 @@ export function Play({ room, game }: { room: Room; game: Game }) {
             title="End this game?"
             detail={
               game.mode === "own"
-                ? `Your marks stay on this phone: join ${game.code} as seat ${game.seats[0]} to pick up where you left off.`
-                : "Back to the start, for a new card."
+                ? `Your marks are kept. Join ${game.code} as seat ${game.seats[0]} to carry on.`
+                : "This card goes away."
             }
             yes="End game"
             no="Keep playing"
@@ -165,17 +165,15 @@ function Win({ game, seat, full }: { game: Game; seat: number; full: boolean }) 
             <b className="hb-win-code">
               {game.code} · Seat {seat}
             </b>
-            <span>Show this screen. Anyone can check it with Check a card.</span>
+            <span>Show this to check.</span>
           </>
         ) : game.mode === "sides" ? (
           <>
             <b>{seatName(game, seat)} {full ? "filled the card" : "got a line"}.</b>
-            <span>{full ? "Every square spotted." : "First full line wins."}</span>
           </>
         ) : (
           <>
             <b>{full ? "The car spotted everything." : "The car got a line."}</b>
-            <span>{full ? "Every square on the card." : "Play on for the whole card?"}</span>
           </>
         )}
       </p>
@@ -186,8 +184,8 @@ function Win({ game, seat, full }: { game: Game; seat: number; full: boolean }) 
 function Status({ progress, full }: { progress: Progress; full: boolean }) {
   const { marked, toGo, left } = progress;
   let text: string;
-  if (full) text = `Playing on: ${marked} spotted · ${left} more for a full card`;
-  else if (marked === 0) text = "Spot something on the card? Tap it.";
+  if (full) text = `${left} more for a full card`;
+  else if (marked === 0) text = "Spot it, tap it.";
   else text = `${marked} spotted · ${toGo} more for a line`;
   return (
     <p className="hb-status" aria-live="polite">

@@ -8,10 +8,9 @@ import { MAX_SEAT, MIN_SEAT } from "../logic/card";
 import { readCode } from "../logic/code";
 
 const PROBLEMS = {
-  empty: "Type the code from the phone that started the game.",
-  shape: "A code is a word and two numbers, like CHAI-42.",
-  unknown:
-    "This phone doesn't know that word. Check the spelling. If it's right, the other phone has a newer version of the game: open it here once with signal to update.",
+  empty: "Type the code first.",
+  shape: "A word and two numbers, like CHAI-42.",
+  unknown: "Unknown word. Check the spelling, or open the game once with signal to update it.",
 } as const;
 
 /** Join a game, or check someone's card: a code and a seat number. */
@@ -49,11 +48,6 @@ export function CodeForm({
           Cancel
         </button>
       </header>
-      <p className="game-blurb hb-form-blurb">
-        {join
-          ? "Type the code on the phone that started the game, and your seat number."
-          : "Open anyone's card from the code, to check a Bingo!"}
-      </p>
 
       <section className="card section hb-form-card">
         <label className="field-label" htmlFor={codeId}>
@@ -76,17 +70,12 @@ export function CodeForm({
           aria-describedby={`${codeId}-note`}
         />
         <p className={problem ? "hb-field-note is-problem" : "hb-field-note"} id={`${codeId}-note`} aria-live="polite">
-          {problem ??
-            (read.ok
-              ? `${read.code.size}×${read.code.size} card${read.code.size === 5 ? " with a free middle" : ""}`
-              : "A word and two numbers, like CHAI-42.")}
+          {problem ?? (read.ok ? `${read.code.size}×${read.code.size} card` : " ")}
         </p>
 
         <SeatStepper value={seat} onChange={setSeat} label={join ? "Your seat" : "Their seat"} />
         <p className="hb-field-note">
-          {join
-            ? "Seat 1 is the phone that started. Everyone else takes 2, 3, 4… Two phones on the same seat get the same card."
-            : "The seat is on their Bingo! screen, next to the code."}
+          {join ? "Everyone picks a different number." : "It's on their Bingo! screen."}
         </p>
       </section>
 

@@ -468,27 +468,11 @@ html[data-mode="light"] [data-game="highway-bingo"] .btn-primary:not(:disabled) 
   color: var(--ink-muted);
   font-size: 15px;
 }
-.hb-steps {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding-left: 24px;
+.hb-share-how {
+  margin: 0 4px;
   color: var(--fg);
   font-size: 16px;
   line-height: 1.45;
-  list-style: decimal;
-}
-.hb-steps li::marker {
-  color: var(--muted);
-  font-family: var(--num);
-}
-.hb-share .hb-note {
-  margin: 0;
-}
-.hb-share-offline {
-  margin: -6px 4px 0;
-  color: var(--muted);
-  font-size: 14px;
 }
 
 /* ---------- Playing ---------- */

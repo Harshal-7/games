@@ -4,8 +4,7 @@ import { useId, useState, type ReactNode } from "react";
 
 import { cryptoRandom } from "@/party/logic/random";
 
-import { MIX } from "../logic/card";
-import { currentEdition, SIZES } from "../logic/code";
+import { SIZES } from "../logic/code";
 import type { Options, Room } from "../logic/room";
 import { CheckCard } from "./check";
 import { CodeForm } from "./code-form";
@@ -37,8 +36,6 @@ export function Lobby({ room }: { room: Room }) {
     );
   }
 
-  const sights = currentEdition("highway").sights.length;
-
   return (
     <div className="hb-lobby">
       <header className="hb-intro">
@@ -46,27 +43,21 @@ export function Lobby({ room }: { room: Room }) {
           <Milestone className="hb-title-stone" />
           <div className="hb-title-plate">
             <h1 className="hb-title-name">Highway Bingo</h1>
-            <span className="hb-title-meta">2+ players · own phones or one</span>
+            <span className="hb-title-meta">2+ players · road trips</span>
           </div>
         </div>
-        <p className="game-blurb hb-blurb">
-          Bingo cards of things you see on Indian roads: a Horn OK Please truck, nimbu-mirchi, a cow on the divider.
-          Spot one, tap it. The first full line wins.
-        </p>
+        <p className="game-blurb hb-blurb">Spot it out the window, tap it. First full line wins.</p>
         <p className="hb-note">
           <WheelIcon width={20} height={20} />
-          <span>Driver? Call it out, someone else taps.</span>
+          <span>Driver? Just call it out.</span>
         </p>
       </header>
 
       <section className="card section hb-own" aria-labelledby="hb-own-title">
         <h2 className="tape" id="hb-own-title">
-          Everyone on their own phone
+          Own phones
         </h2>
-        <p className="hb-section-text">
-          One phone starts and gets a code. Everyone else taps Join and types it with their seat number, and each seat
-          gets its own card. Nothing is sent anywhere, so it works with no signal.
-        </p>
+        <p className="hb-section-text">One code, a card each. No signal needed.</p>
         <div className="hb-own-actions">
           <button
             type="button"
@@ -103,7 +94,7 @@ export function Lobby({ room }: { room: Room }) {
             </span>
             <span className="hb-choice-text">
               <b>Left against right</b>
-              <span>Two cards. Each side only counts what&apos;s out of its own windows.</span>
+              <span>A card for each side of the car.</span>
             </span>
           </button>
           <button
@@ -116,13 +107,13 @@ export function Lobby({ room }: { room: Room }) {
             </span>
             <span className="hb-choice-text">
               <b>One card together</b>
-              <span>The whole car plays one card. Good with kids.</span>
+              <span>The whole car shares one card.</span>
             </span>
           </button>
         </div>
       </section>
 
-      <OptionsCard options={room.options} sights={sights} />
+      <OptionsCard options={room.options} />
 
       <details className="hb-rules">
         <summary className="btn">
@@ -131,17 +122,16 @@ export function Lobby({ room }: { room: Room }) {
         </summary>
         <div className="card hb-rules-body">
           <ol>
-            <li>Everyone gets a card of road sights: some easy, some not so easy, a few rare. Every card has the same mix.</li>
-            <li>Spot one out of the window? Tap it to stamp it. Tapped by mistake? Tap again to take it off.</li>
-            <li>The first full line wins: a row, a column or a diagonal. On 5×5 the middle square is free.</li>
             <li>
-              Shout &ldquo;Bingo!&rdquo; and show your screen. It shows your code and seat, so anyone can open the same
-              card with Check a card. Or play on to a full card.
+              One phone taps Start and shows a code. Everyone else taps Join and types it with a seat number: 2, 3, 4…
             </li>
+            <li>Spot something on your card? Tap it. Tap again to undo.</li>
+            <li>First full line wins: across, down or diagonal. On 5×5 the middle is free.</li>
+            <li>Shout &ldquo;Bingo!&rdquo; and show your screen. Anyone can check it with Check a card.</li>
           </ol>
           <p>
-            Fair play: you have to see it yourself, and one truck counts once. Anyone can type any seat, so it runs on
-            trust, and two phones on the same seat get the same card.
+            Every card has the same mix of easy and rare sights. You have to see it yourself, and one truck counts once.
+            Works with no signal once the game has been opened.
           </p>
         </div>
       </details>
@@ -149,23 +139,15 @@ export function Lobby({ room }: { room: Room }) {
   );
 }
 
-function OptionsCard({ options, sights }: { options: Options; sights: number }) {
+function OptionsCard({ options }: { options: Options }) {
   const set = (patch: Partial<Options>) => act({ type: "options", patch });
-  const mix = MIX[options.size];
   return (
     <section className="card section hb-options" aria-labelledby="hb-options-title">
       <h2 className="tape is-game" id="hb-options-title">
         Options
       </h2>
 
-      <Choice
-        label="Card"
-        note={
-          options.size === 5
-            ? `5×5 with a free middle: ${mix.easy} easy, ${mix.medium} medium and ${mix.rare} rare sights from ${sights}.`
-            : `4×4 for short drives: ${mix.easy} easy, ${mix.medium} medium and ${mix.rare} rare sights from ${sights}.`
-        }
-      >
+      <Choice label="Card">
         {SIZES.map((size) => (
           <button
             key={size}
@@ -179,18 +161,17 @@ function OptionsCard({ options, sights }: { options: Options; sights: number }) 
           </button>
         ))}
       </Choice>
-      <p className="hb-field-note">Joining takes the size from the code.</p>
 
       <div className="switches hb-switches">
         <Switch
           label="Sound and buzz"
-          detail="A stamp when you mark a square, a fanfare for a bingo, with a buzz on Android."
+          detail="A stamp on each tap, a fanfare for bingo."
           on={options.sound}
           onChange={(sound) => set({ sound })}
         />
         <Switch
           label="Keep the screen on"
-          detail="While a card is open, so it's ready when something goes past. Uses more battery."
+          detail="While a card is open. Uses more battery."
           on={options.awake}
           onChange={(awake) => set({ awake })}
         />
@@ -199,7 +180,7 @@ function OptionsCard({ options, sights }: { options: Options; sights: number }) 
   );
 }
 
-function Choice({ label, note, children }: { label: string; note: string; children: ReactNode }) {
+function Choice({ label, children }: { label: string; children: ReactNode }) {
   const id = useId();
   return (
     <div className="hb-field">
@@ -209,7 +190,6 @@ function Choice({ label, note, children }: { label: string; note: string; childr
       <div className="seg hb-seg" role="radiogroup" aria-labelledby={id}>
         {children}
       </div>
-      <p className="hb-field-note">{note}</p>
     </div>
   );
 }
