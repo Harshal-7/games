@@ -10,6 +10,7 @@ export const GAME_NAMES = {
   patakha: "Patakha",
   "highway-bingo": "Highway Bingo",
   ulta: "Ulta",
+  rangoli: "Rangoli in one line",
   "finger-picker": "Finger picker",
 } as const;
 
