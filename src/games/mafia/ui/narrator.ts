@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 
-import { audioContext } from "@/ui/sound";
+import { audioContext, soundLikeMedia } from "@/ui/sound";
 
 import { CLIP_DIR, clipFile, FIXED_LINES } from "../logic/lines";
 
@@ -115,8 +115,6 @@ export function useUnlocked(): boolean {
   );
 }
 
-type AudioSessionNavigator = Navigator & { audioSession?: { type: string } };
-
 /**
  * Call from a tap, before anything is said. Wakes the page's sound, asks iPhones to play it
  * as playback so the silent switch doesn't mute the narrator (Safari 17 and later), and
@@ -127,14 +125,9 @@ export function unlock(): void {
   if (unlocked) return;
   // Wakes Web Audio from the tap: the recorded lines and the night sound play through it.
   audioContext();
+  soundLikeMedia(true);
   const s = synth();
   if (s) {
-    try {
-      const session = (navigator as AudioSessionNavigator).audioSession;
-      if (session) session.type = "playback";
-    } catch {
-      // Not every browser lets a page choose; the narrator still works with sound on.
-    }
     const silent = new SpeechSynthesisUtterance("");
     silent.volume = 0;
     s.speak(silent);
