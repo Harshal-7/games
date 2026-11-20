@@ -41,10 +41,25 @@
 /* Before the room loads: the head script marked a saved room, so keep its space. */
 html[data-room] .saved-slot:empty {
   display: block;
-  min-height: 127px;
+  min-height: 148px;
 }
-.saved-title {
-  margin: 0 0 8px;
+.saved-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  margin-bottom: 8px;
+}
+.saved-head .label {
+  margin: 0;
+}
+.btn.saved-remove {
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 14px;
+  box-shadow: 2px 2px 0 var(--ink);
 }
 .saved-row {
   display: flex;
@@ -381,7 +396,9 @@ html[data-room] .saved-slot:empty {
   .page.is-home {
     max-width: 920px;
   }
-  .saved-row {
+  .saved-head,
+  .saved-row,
+  .saved-slot .confirm {
     max-width: 560px;
   }
   .game-list {
