@@ -1,0 +1,151 @@
+/* Ulta in design 4: cream cards on the felt, peacock teal for the game's own parts. Built
+   on the shared tokens and parts in globals.css and the party parts in party.css;
+   everything here is prefixed ul- so it can't touch other games. Text on teal is cream;
+   teal text on cream uses --game-deep. */
+
+/* ---------- The mic button: held, never tapped ---------- */
+
+.ul-mic {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+.ul-mic-btn {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  width: 148px;
+  height: 148px;
+  padding: 0;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--game);
+  color: var(--on-game);
+  font-family: var(--display);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.1;
+  box-shadow: 4px 4px 0 var(--ink);
+  cursor: pointer;
+  /* A long press mustn't select text, open a menu or scroll the page. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    background-color 0.15s ease;
+}
+.ul-mic-btn:disabled {
+  border-style: dashed;
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.ul-mic-btn[aria-pressed="true"] {
+  background: var(--game-deep);
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.ul-mic[data-phase="live"] .ul-mic-btn {
+  outline: 4px solid var(--red);
+  outline-offset: 5px;
+}
+.ul-mic-label {
+  max-width: 120px;
+  text-align: center;
+}
+.ul-mic-meter {
+  width: min(240px, 100%);
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--track);
+}
+.card .ul-mic-meter {
+  background: var(--inset);
+}
+.ul-mic-meter span {
+  display: block;
+  height: 100%;
+  background: var(--red);
+  transition: width 0.25s linear;
+}
+.ul-mic-time {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--num);
+  font-size: 13px;
+}
+
+/* A mic problem, and how to fix it: the site's red on cream. */
+.ul-problem {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 2px solid var(--red-deep);
+  border-radius: var(--radius-sm);
+  background: var(--inset);
+  color: var(--ink);
+}
+.ul-problem strong {
+  color: var(--red-deep);
+}
+.ul-problem p {
+  margin: 4px 0 0;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+.ul-note {
+  margin: 12px 0 0;
+  color: var(--red-deep);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ---------- The tech check ---------- */
+
+.ul-check {
+  display: grid;
+  gap: 32px;
+  padding-bottom: 24px;
+}
+.ul-check-card {
+  display: grid;
+  gap: 10px;
+}
+.ul-check-card > .btn {
+  justify-self: start;
+}
+.ul-check .seg {
+  flex: none;
+}
+.ul-check-line {
+  margin: 0;
+}
+.ul-check-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+.ul-log {
+  max-height: 260px;
+  margin: 0;
+  overflow: auto;
+  font-family: var(--num);
+  font-size: 11.5px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ul-mic-btn,
+  .ul-mic-meter span {
+    transition: none;
+  }
+}

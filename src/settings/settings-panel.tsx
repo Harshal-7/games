@@ -42,6 +42,7 @@ const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
   imposter: ImposterNote,
   mafia: MafiaNote,
   patakha: PatakhaNote,
+  ulta: UltaNote,
 };
 
 /**
@@ -228,6 +229,16 @@ function PatakhaNote() {
     <p className="settings-note">
       <SpeakerIcon width={18} height={18} />
       <span>Patakha&apos;s sound, lives and fuse length are in its setup, under Options.</span>
+    </p>
+  );
+}
+
+/** Ulta keeps its options with the room, in its setup screen. */
+function UltaNote() {
+  return (
+    <p className="settings-note">
+      <SpeakerIcon width={18} height={18} />
+      <span>Ulta&apos;s sound and target score are in its setup, under Options.</span>
     </p>
   );
 }
