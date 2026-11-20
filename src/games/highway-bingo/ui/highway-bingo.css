@@ -68,40 +68,8 @@ html[data-mode="light"] [data-game="highway-bingo"] .btn-primary:not(:disabled) 
 
 /* ---------- Lobby ---------- */
 
-/* Phones: one column. Wide screens: two. */
-.hb-lobby {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-@media (min-width: 860px) {
-  .hb-lobby {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: auto auto 1fr;
-    grid-template-areas:
-      "intro intro"
-      "own options"
-      "one rules";
-    gap: 32px;
-    align-items: start;
-  }
-  .hb-intro {
-    grid-area: intro;
-  }
-  .hb-own {
-    grid-area: own;
-  }
-  .hb-one {
-    grid-area: one;
-  }
-  .hb-options {
-    grid-area: options;
-  }
-  .hb-rules {
-    grid-area: rules;
-  }
-}
+/* The layout is the shared one in party.css (.party-setup); these are Highway Bingo's
+   parts. */
 
 /* The yellow title card: dotted like a road sign's paint, the milestone, a cream plate. */
 .hb-title-card {
@@ -190,6 +158,29 @@ html[data-mode="light"] [data-game="highway-bingo"] .btn-primary:not(:disabled) 
 .hb-note svg {
   flex: none;
 }
+/* The title card is bigger on big screens (party.css): the plate keeps its own width, the
+   name a little smaller than the other games' so "Highway Bingo" fits, and the milestone
+   grows beside it. */
+@media (min-width: 860px) {
+  .hb-title-card {
+    justify-content: center;
+    padding: 0 18px 0 12px;
+  }
+  .hb-title-stone {
+    width: 80px;
+    margin-top: -30px;
+  }
+  .hb-title-plate {
+    flex: none;
+  }
+  .party-setup .hb-title-plate {
+    padding: 10px 26px 12px;
+  }
+  .party-setup .hb-title-name {
+    font-size: 38px;
+  }
+}
+
 
 .hb-section-text {
   margin: 0 0 16px;
@@ -302,49 +293,17 @@ html[data-mode="light"] [data-game="highway-bingo"] .btn-primary:not(:disabled) 
 .hb-switches {
   margin-top: 14px;
 }
+/* The fields sit in the shared box (party.css) but keep their own gap on phones; in two
+   columns the shared gaps take over. */
+.hb-fields {
+  gap: 0;
+}
+@container party-options (min-width: 500px) {
+  .hb-switches {
+    margin-top: 0;
+  }
+}
 
-/* How to play */
-.hb-rules > summary {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  min-height: 48px;
-  padding: 0 18px 0 20px;
-  list-style: none;
-}
-.hb-rules > summary::-webkit-details-marker {
-  display: none;
-}
-.hb-rules-chevron {
-  transition: rotate 0.2s ease;
-}
-.hb-rules[open] .hb-rules-chevron {
-  rotate: 180deg;
-}
-.hb-rules-body {
-  margin-top: 14px;
-  padding: 16px 18px 18px;
-}
-.hb-rules-body ol {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding-left: 22px;
-  font-size: 15px;
-  line-height: 1.45;
-  list-style: decimal;
-}
-.hb-rules-body li::marker {
-  color: var(--muted);
-  font-family: var(--num);
-  font-size: 13px;
-}
-.hb-rules-body p {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.45;
-}
 
 /* ---------- Join, Check a card, the code ---------- */
 

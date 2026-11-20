@@ -37,90 +37,28 @@ export function Lobby({ room }: { room: Room }) {
   }
 
   return (
-    <div className="hb-lobby">
-      <header className="hb-intro">
-        <div className="hb-title-card">
+    <div className="party-setup">
+      <header className="party-setup-intro">
+        <div className="hb-title-card party-setup-title">
           <Milestone className="hb-title-stone" />
-          <div className="hb-title-plate">
-            <h1 className="hb-title-name">Highway Bingo</h1>
-            <span className="hb-title-meta">2+ players · road trips</span>
+          <div className="hb-title-plate party-setup-plate">
+            <h1 className="hb-title-name party-setup-name">Highway Bingo</h1>
+            <span className="hb-title-meta party-setup-meta">2+ players · road trips</span>
           </div>
         </div>
-        <p className="game-blurb hb-blurb">Spot it out the window, tap it. First full line wins.</p>
-        <p className="hb-note">
+        <p className="game-blurb hb-blurb party-setup-blurb">Spot it out the window, tap it. First full line wins.</p>
+        <p className="hb-note party-setup-note">
           <WheelIcon width={20} height={20} />
           <span>Driver? Just call it out.</span>
         </p>
       </header>
 
-      <section className="card section hb-own" aria-labelledby="hb-own-title">
-        <h2 className="tape" id="hb-own-title">
-          Own phones
-        </h2>
-        <p className="hb-section-text">One code, a card each. No signal needed.</p>
-        <div className="hb-own-actions">
-          <button
-            type="button"
-            className="btn btn-primary btn-big"
-            onClick={() => act({ type: "start", mode: "own", rng: cryptoRandom })}
-          >
-            Start a game
-          </button>
-          <div className="hb-own-more">
-            <button type="button" className="btn" onClick={() => setScreen("join")}>
-              <JoinIcon width={18} height={18} />
-              Join with a code
-            </button>
-            <button type="button" className="btn" onClick={() => setScreen("check")}>
-              <CheckCardIcon width={18} height={18} />
-              Check a card
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="card section hb-one" aria-labelledby="hb-one-title">
-        <h2 className="tape" id="hb-one-title">
-          One phone
-        </h2>
-        <div className="hb-one-choices">
-          <button
-            type="button"
-            className="hb-choice"
-            onClick={() => act({ type: "start", mode: "sides", rng: cryptoRandom })}
-          >
-            <span className="hb-choice-art" aria-hidden="true">
-              ◀▶
-            </span>
-            <span className="hb-choice-text">
-              <b>Left against right</b>
-              <span>A card for each side of the car.</span>
-            </span>
-          </button>
-          <button
-            type="button"
-            className="hb-choice"
-            onClick={() => act({ type: "start", mode: "together", rng: cryptoRandom })}
-          >
-            <span className="hb-choice-art" aria-hidden="true">
-              🚗
-            </span>
-            <span className="hb-choice-text">
-              <b>One card together</b>
-              <span>The whole car shares one card.</span>
-            </span>
-          </button>
-        </div>
-      </section>
-
-      <OptionsCard options={room.options} />
-
-      <details className="hb-rules">
+      <details className="party-setup-rules">
         <summary className="btn">
           How to play
-          <ChevronDownIcon className="hb-rules-chevron" />
+          <ChevronDownIcon className="party-setup-rules-chevron" />
         </summary>
-        <div className="card hb-rules-body">
+        <div className="card party-setup-rules-body">
           <ol>
             <li>
               One phone taps Start and shows a code. Everyone else taps Join and types it with a seat number: 2, 3, 4…
@@ -135,6 +73,73 @@ export function Lobby({ room }: { room: Room }) {
           </p>
         </div>
       </details>
+
+      {/* The ways to start, on the left; "Start a game" is this screen's main button. */}
+      <div className="party-setup-side">
+        <section className="card section hb-own" aria-labelledby="hb-own-title">
+          <h2 className="tape" id="hb-own-title">
+            Own phones
+          </h2>
+          <p className="hb-section-text">One code, a card each. No signal needed.</p>
+          <div className="hb-own-actions">
+            <button
+              type="button"
+              className="btn btn-primary btn-big"
+              onClick={() => act({ type: "start", mode: "own", rng: cryptoRandom })}
+            >
+              Start a game
+            </button>
+            <div className="hb-own-more">
+              <button type="button" className="btn" onClick={() => setScreen("join")}>
+                <JoinIcon width={18} height={18} />
+                Join with a code
+              </button>
+              <button type="button" className="btn" onClick={() => setScreen("check")}>
+                <CheckCardIcon width={18} height={18} />
+                Check a card
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="card section hb-one" aria-labelledby="hb-one-title">
+          <h2 className="tape" id="hb-one-title">
+            One phone
+          </h2>
+          <div className="hb-one-choices">
+            <button
+              type="button"
+              className="hb-choice"
+              onClick={() => act({ type: "start", mode: "sides", rng: cryptoRandom })}
+            >
+              <span className="hb-choice-art" aria-hidden="true">
+                ◀▶
+              </span>
+              <span className="hb-choice-text">
+                <b>Left against right</b>
+                <span>A card for each side of the car.</span>
+              </span>
+            </button>
+            <button
+              type="button"
+              className="hb-choice"
+              onClick={() => act({ type: "start", mode: "together", rng: cryptoRandom })}
+            >
+              <span className="hb-choice-art" aria-hidden="true">
+                🚗
+              </span>
+              <span className="hb-choice-text">
+                <b>One card together</b>
+                <span>The whole car shares one card.</span>
+              </span>
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <div className="party-setup-main">
+        <OptionsCard options={room.options} />
+      </div>
     </div>
   );
 }
@@ -142,39 +147,42 @@ export function Lobby({ room }: { room: Room }) {
 function OptionsCard({ options }: { options: Options }) {
   const set = (patch: Partial<Options>) => act({ type: "options", patch });
   return (
-    <section className="card section hb-options" aria-labelledby="hb-options-title">
+    <section className="card section party-setup-options" aria-labelledby="hb-options-title">
       <h2 className="tape is-game" id="hb-options-title">
         Options
       </h2>
 
-      <Choice label="Card">
-        {SIZES.map((size) => (
-          <button
-            key={size}
-            type="button"
-            role="radio"
-            aria-checked={options.size === size}
-            onClick={() => set({ size })}
-          >
-            {size}×{size}
-            <span className="hb-seg-note">{size === 5 ? "Free middle" : "Short drive"}</span>
-          </button>
-        ))}
-      </Choice>
+      <div className="party-setup-fields hb-fields">
+        <Choice label="Card">
+          {SIZES.map((size) => (
+            <button
+              key={size}
+              type="button"
+              role="radio"
+              aria-checked={options.size === size}
+              onClick={() => set({ size })}
+            >
+              {size}×{size}
+              <span className="hb-seg-note">{size === 5 ? "Free middle" : "Short drive"}</span>
+            </button>
+          ))}
+        </Choice>
 
-      <div className="switches hb-switches">
-        <Switch
-          label="Sound and buzz"
-          detail="A stamp on each tap, a fanfare for bingo."
-          on={options.sound}
-          onChange={(sound) => set({ sound })}
-        />
-        <Switch
-          label="Keep the screen on"
-          detail="While a card is open. Uses more battery."
-          on={options.awake}
-          onChange={(awake) => set({ awake })}
-        />
+        <div className="switches hb-switches">
+          <span className="field-label party-setup-switches-label">Sound and screen</span>
+          <Switch
+            label="Sound and buzz"
+            detail="A stamp on each tap, a fanfare for bingo."
+            on={options.sound}
+            onChange={(sound) => set({ sound })}
+          />
+          <Switch
+            label="Keep the screen on"
+            detail="While a card is open. Uses more battery."
+            on={options.awake}
+            onChange={(awake) => set({ awake })}
+          />
+        </div>
       </div>
     </section>
   );
