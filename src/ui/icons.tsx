@@ -101,3 +101,49 @@ export const CheckIcon = (p: P) => (
     <path d="m5 12.5 4.5 4.5L19 7.5" />
   </Icon>
 );
+
+export const LockIcon = (p: P) => (
+  <Icon {...p}>
+    <rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5" />
+    <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+  </Icon>
+);
+
+export const EyeOffIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M10.6 5.6A9.7 9.7 0 0 1 12 5.5c5.5 0 9 6.5 9 6.5a16 16 0 0 1-2.7 3.4M6.6 6.6C4.2 8.2 3 12 3 12s3.5 6.5 9 6.5a8.9 8.9 0 0 0 4.6-1.2" />
+    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2M3.5 3.5l17 17" />
+  </Icon>
+);
+
+export const PauseIcon = (p: P) => (
+  <Icon {...p}>
+    <rect x="6.5" y="5.5" width="3.6" height="13" rx="1.2" fill="currentColor" stroke="none" />
+    <rect x="13.9" y="5.5" width="3.6" height="13" rx="1.2" fill="currentColor" stroke="none" />
+  </Icon>
+);
+
+export const PlusIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Icon>
+);
+
+export const MinusIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M5 12h14" />
+  </Icon>
+);
+
+export const CloseIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="m6.5 6.5 11 11M17.5 6.5l-11 11" />
+  </Icon>
+);
+
+export const ShuffleIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M3.5 7h3.2c2 0 3.2 1 4.3 2.6l2 3c1.1 1.6 2.3 2.4 4.3 2.4h3.2M3.5 17h3.2c1.5 0 2.5-.5 3.4-1.5M14 8.5c.9-1 1.9-1.5 3.3-1.5h3.2" />
+    <path d="m18 4.5 2.5 2.5L18 9.5M18 14.5l2.5 2.5-2.5 2.5" />
+  </Icon>
+);
