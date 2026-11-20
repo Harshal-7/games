@@ -90,6 +90,8 @@ mostly sound: it lets iPhones play through the silent switch, and pauses music i
    (`layout="party"` for games that scroll like a page).
 3. Give it a colour: a `[data-game="<slug>"]` block in `src/app/globals.css` (`--game`,
    `--game-deep`, `--on-game`, `--pick`, `--on-pick`, and `--game-soft` for soft fills).
+   Give it a table too: its line in `GAME_TABLES` (`src/settings/tables.ts`); the type
+   check asks for one. Its colour must keep 4.5:1 for text on that table.
 4. Add one entry to `src/games/registry.ts`.
 5. If it has options for Settings, add its section to `GAME_SECTIONS` in
    `src/settings/settings-panel.tsx`. Settings shows the look plus the options of the game
@@ -107,9 +109,25 @@ mostly sound: it lets iPhones play through the silent switch, and pauses music i
 Design 4, "Game Night + Sticker": green felt, cream cards, a wooden board, Fraunces
 titles, DM Sans for reading and DM Mono for numbers.
 
-- **Felt and daylight.** Felt is the default and lives on `:root` in `globals.css`;
-  `html[data-mode="light"]` repaints the same colour names as daylight (paper and ink).
-  Settings offers Felt, Daylight and Match my phone.
+- **Tables.** The page is a table colour, and each game sits on its own: Felt (Knight's
+  Tour, Home and Settings), Midnight (Mafia), Asphalt (Highway Bingo), Studio (Ulta),
+  Blush (Imposter) and Haldi (Patakha), plus Daylight, paper and ink. Only the page
+  changes; cards, buttons and the game's colour stay the same.
+  - `src/settings/tables.ts` lists the tables and every game's own (`GAME_TABLES`).
+    Each table is a `[data-table="<id>"]` block in `globals.css` (page colour and
+    texture, `--page-deep` for trays, text, muted text, lines, timer tracks). A test
+    checks the two match and that the text passes 4.5:1 on the page and the trays.
+  - Felt also lives on `:root`, so the server's paint is already right. Light tables
+    set `html[data-tone="light"]`, which gives them daylight's cards and shadows;
+    game CSS that needs a light-page tweak uses that too.
+  - The settings script in `<head>` works out the table before the first paint, from
+    the saved theme, the game in the path and the phone's light or dark setting, and
+    sets `data-table`, `data-tone`, `color-scheme` and the `theme-color` meta.
+    `SettingsSync` (root layout) applies it again when the path changes, in a layout
+    effect, so moving between games never shows a frame of the old colour. Next keeps
+    visited pages hidden in the page, so never pick colours with `:has()` on `html`.
+  - Settings offers Each game's own (the default), any one table for every page, and
+    Match my phone: Daylight whenever the phone is in light mode.
 - **Page or card.** Components use `--fg`, `--muted`, `--line`, `--ring` and `--bg`:
   they mean the page at the top level and ink on cream inside a `.card`, so one part
   reads right in both places.
