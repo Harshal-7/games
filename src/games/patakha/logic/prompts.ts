@@ -190,6 +190,11 @@ export function pack(id: PackId): Pack {
   return PACKS.find((p) => p.id === id)!;
 }
 
+/** The pack a prompt comes from (prompts are unique across packs). */
+export function packOf(prompt: string): Pack | null {
+  return PACKS.find((p) => p.prompts.includes(prompt)) ?? null;
+}
+
 /**
  * Next prompt: one nobody has played yet in this room, from the packs picked. When the
  * packs run out they start over (last round's prompt still waits a turn), so with a few

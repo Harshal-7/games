@@ -126,6 +126,29 @@ export function starter(game: Game): string {
 /** Whether `ms` (now minus an earlier time) is still inside a guard. A clock that jumped back locks nobody out. */
 const within = (ms: number, guard: number) => ms >= 0 && ms < guard;
 
+/** Whether a tap on Pass now counts: the fuse is burning, hasn't run out, and the last pass wasn't a moment ago. */
+export function canPass(game: Game, now: number): boolean {
+  const timer = game.fuse?.timer;
+  if (game.stage !== "burning" || !timer || timer.endsAt === null || timeLeft(timer, now) === 0) return false;
+  return game.passedAt === null || !within(now - game.passedAt, PASS_GUARD_MS);
+}
+
+/** Whether the last bang was more than a moment ago, so a tap now wasn't meant for Pass. */
+export function settled(game: Game, now: number): boolean {
+  return game.bangAt === null || !within(now - game.bangAt, LIGHT_GUARD_MS);
+}
+
+/** Whether Light it works now: between rounds, nobody has won yet, and the bang wasn't a moment ago. */
+export function canLight(game: Game, now: number): boolean {
+  if (game.stage === "burning" || winner(game)) return false;
+  return game.stage === "ready" || (game.bangAt !== null && settled(game, now));
+}
+
+/** Whether the bang about to go off ends the game: the holder's last life, with one other player left. */
+export function lastBang(game: Game): boolean {
+  return (game.lives[game.holder] ?? 0) <= 1 && alive(game).length === 2;
+}
+
 /** A new game with everyone at full lives. Who holds the phone first is a fair pick. */
 function newGame(room: Room, rng: Rng): Room {
   const seats = room.players.map((p) => p.id);
@@ -223,10 +246,7 @@ export function reduce(room: Room, action: Action): Room {
 
   switch (action.type) {
     case "light": {
-      if (game.stage === "burning" || winner(game) || room.options.packs.length === 0) return room;
-      if (game.stage === "bang" && (game.bangAt === null || within(action.now - game.bangAt, LIGHT_GUARD_MS))) {
-        return room;
-      }
+      if (!canLight(game, action.now) || room.options.packs.length === 0) return room;
       const drawn = drawPrompt(room.options.packs, room.used, action.rng);
       return {
         ...room,
@@ -244,8 +264,7 @@ export function reduce(room: Room, action: Action): Room {
       };
     }
     case "pass":
-      if (!running || timeLeft(fuse.timer, action.now) === 0) return room;
-      if (game.passedAt !== null && within(action.now - game.passedAt, PASS_GUARD_MS)) return room;
+      if (!canPass(game, action.now)) return room;
       return set({ holder: nextPlayer(game, game.holder), passes: game.passes + 1, passedAt: action.now });
     case "pause":
       return running ? set({ fuse: { ...fuse, timer: changeTimer(fuse.timer, "pause", action.now) } }) : room;
