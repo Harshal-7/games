@@ -1,0 +1,710 @@
+/* Ulta in design 4: cream cards on the felt, peacock teal for the game's own parts. Built
+   on the shared tokens and parts in globals.css (.btn, .btn-primary, .seg, .card, .tape,
+   .switch, .confirm) and the party parts in party.css (play screens, the player list,
+   the secret card, the ring timer); everything here is prefixed ul- so it can't touch
+   other games. Text on teal is cream; teal text on cream is --game-deep. */
+
+/* Nothing until the saved room has loaded. */
+.ul-loading {
+  min-height: 60vh;
+}
+
+/* Smaller outlined pills: Reset, Shuffle, End game. */
+.btn.ul-small {
+  gap: 6px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+/* ---------- The Ulta drawing ---------- */
+
+.ul-mark-wave,
+.ul-mark-stand,
+.ul-mark-grille {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ul-mark-wave {
+  stroke: var(--card);
+  stroke-width: 5;
+}
+.ul-mark-mic {
+  fill: var(--card);
+  stroke: var(--ink);
+  stroke-width: 4;
+}
+.ul-mark-grille {
+  stroke: var(--game);
+  stroke-width: 4;
+  stroke-dasharray: 0.1 7;
+}
+.ul-mark-stand {
+  stroke: var(--ink);
+  stroke-width: 5;
+}
+
+/* ---------- Setup: title card, players, teams, options ---------- */
+
+/* Phones: one column. A column of flex items, not a grid, so the sticky start tray can
+   travel the whole page (a grid item can't leave its own grid area). */
+.ul-lobby {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+@media (min-width: 860px) {
+  .ul-lobby {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-areas:
+      "intro intro"
+      "players options"
+      "teams options"
+      "start rules";
+    gap: 28px 32px;
+    align-items: start;
+  }
+  .ul-intro {
+    grid-area: intro;
+  }
+  .ul-players {
+    grid-area: players;
+  }
+  .ul-teams {
+    grid-area: teams;
+  }
+  .ul-options {
+    grid-area: options;
+  }
+  .ul-rules {
+    grid-area: rules;
+  }
+  .ul-start {
+    grid-area: start;
+  }
+}
+
+/* The teal title card: a dotted wrapper, the drawing, and a cream name plate. */
+.ul-title-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 380px;
+  height: 92px;
+  margin: 10px 4px 0;
+  padding: 0 16px 0 12px;
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  background:
+    radial-gradient(rgb(255 255 255 / 0.22) 1.2px, transparent 1.7px) 0 0 / 11px 11px,
+    var(--game);
+  box-shadow:
+    inset 0 0 0 6px var(--game),
+    inset 0 0 0 7.5px var(--ink),
+    var(--shadow);
+  rotate: -0.8deg;
+}
+.ul-title-mark {
+  flex: none;
+  width: 92px;
+  height: auto;
+  overflow: visible;
+}
+.ul-title-plate {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 8px 14px 9px;
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow:
+    0 0 0 2px var(--game),
+    0 0 0 3.5px var(--ink);
+}
+.ul-title-name {
+  margin: 0;
+  color: var(--game-deep);
+  font-family: var(--display);
+  font-size: 36px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+.ul-title-meta {
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ul-blurb {
+  max-width: 46ch;
+  margin: 12px 4px 0;
+}
+.ul-privacy {
+  display: flex;
+  gap: 8px;
+  max-width: 46ch;
+  margin: 12px 4px 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+.ul-privacy svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.ul-corner {
+  position: absolute;
+  top: -22px;
+  right: 14px;
+}
+.ul-players > .confirm {
+  margin: 4px 0 16px;
+}
+.ul-note-line {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+/* Teams: Seedha in soft teal, Ulta in solid teal. Tap a name to move it across. */
+.ul-team-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.ul-team-name {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.ul-team[data-team="a"] .ul-team-name {
+  color: var(--game-deep);
+}
+.ul-team-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ul-team-list li {
+  max-width: 100%;
+}
+.ul-team-pill {
+  max-width: 100%;
+  min-height: 40px;
+  padding: 0 14px;
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--game-soft);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+.ul-team[data-team="b"] .ul-team-pill {
+  background: var(--game);
+  color: var(--on-game);
+}
+.ul-team-pill:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+/* Options */
+.ul-field .seg {
+  display: grid;
+  width: min(100%, 210px);
+}
+.ul-field .seg button {
+  min-width: 0;
+  padding: 0 4px;
+}
+.ul-field-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.ul-field + .ul-switches {
+  margin-top: 22px;
+  padding-top: 5px;
+  border-top: 1.5px dashed var(--line);
+}
+.ul-try {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1.5px dashed var(--line);
+}
+.ul-try .field-label {
+  margin: 0;
+}
+.ul-try-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px 12px;
+}
+.ul-try .ul-field-note {
+  margin: 0;
+  font-size: 13.5px;
+}
+
+/* How to play: an outlined row; open, the rules in a reading card under it. */
+.ul-rules > summary {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px 0 20px;
+  list-style: none;
+}
+.ul-rules > summary::-webkit-details-marker {
+  display: none;
+}
+.ul-rules-chevron {
+  transition: rotate 0.2s ease;
+}
+.ul-rules[open] .ul-rules-chevron {
+  rotate: 180deg;
+}
+.ul-rules-body {
+  margin-top: 14px;
+  padding: 16px 18px 18px;
+}
+.ul-rules-body ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 22px;
+  font-size: 15px;
+  line-height: 1.45;
+  list-style: decimal;
+}
+.ul-rules-body li::marker {
+  color: var(--muted);
+  font-family: var(--num);
+  font-size: 13px;
+}
+.ul-rules-body p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* Start: stuck to the bottom on phones, on a solid tray (a see-through fade would show a
+   band over the felt's texture). The page's bottom padding goes under it. */
+.ul-start {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  gap: 10px;
+  margin: 0 -20px -48px;
+  padding: 12px 20px 20px;
+  border-top: 1px solid var(--edge);
+  background: var(--page-deep);
+  box-shadow: 0 -12px 22px -14px rgb(0 0 0 / 0.55);
+}
+.ul-start-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+@media (min-width: 640px) {
+  .ul-start {
+    border: 1px solid var(--edge);
+    border-bottom: 0;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+}
+@media (min-width: 860px) {
+  .ul-start {
+    position: static;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+  }
+}
+
+/* ---------- The mic button: held, never tapped ---------- */
+
+.ul-mic {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+.ul-mic-btn {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  width: 148px;
+  height: 148px;
+  padding: 0;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--game);
+  color: var(--on-game);
+  font-family: var(--display);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.1;
+  box-shadow: 4px 4px 0 var(--ink);
+  cursor: pointer;
+  /* A long press mustn't select text, open a menu or scroll the page. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    background-color 0.15s ease;
+}
+.ul-mic-btn:disabled {
+  border-style: dashed;
+  border-color: var(--muted);
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.ul-mic-btn[aria-pressed="true"] {
+  background: var(--game-deep);
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+/* Recording: a red ring round the button, the site's colour for "on air". */
+.ul-mic[data-phase="live"] .ul-mic-btn {
+  outline: 4px solid var(--red);
+  outline-offset: 5px;
+}
+.ul-mic-label {
+  max-width: 120px;
+  text-align: center;
+}
+/* Quiet: an outlined pill for a second try, once there's a take. */
+.ul-mic.is-quiet .ul-mic-btn {
+  display: inline-flex;
+  gap: 8px;
+  width: auto;
+  height: 48px;
+  padding: 0 20px;
+  border-width: 2.5px;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  font-style: normal;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.ul-mic.is-quiet .ul-mic-btn[aria-pressed="true"] {
+  background: var(--game-soft);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.ul-mic.is-quiet .ul-mic-label {
+  max-width: none;
+}
+.ul-mic.is-quiet[data-phase="idle"] .ul-mic-meter,
+.ul-mic.is-quiet[data-phase="idle"] .ul-mic-time {
+  display: none;
+}
+.ul-mic-meter {
+  width: min(240px, 100%);
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--track);
+}
+.card .ul-mic-meter {
+  background: var(--inset);
+}
+.ul-mic-meter span {
+  display: block;
+  height: 100%;
+  background: var(--red);
+  transition: width 0.25s linear;
+}
+.ul-mic-time {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--num);
+  font-size: 13px;
+}
+
+/* A mic problem, and how to fix it: the site's red on cream. */
+.ul-problem {
+  max-width: 360px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 2px solid var(--red-deep);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--ink);
+  text-align: left;
+}
+.ul-problem strong {
+  color: var(--red-deep);
+}
+.ul-problem p {
+  margin: 4px 0 0;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+/* What a take was: a short line, and a problem with it on a cream slip so it reads on the felt. */
+.ul-take-line {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.ul-take-note {
+  max-width: 34ch;
+  margin: 14px 0 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--red-deep);
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* ---------- Play screens ---------- */
+
+.ul-kicker {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--num);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.ul-card-slot {
+  margin-top: 16px;
+}
+.ul-mic-slot {
+  margin-top: 22px;
+}
+
+/* The buttons at the bottom of a screen: the main one, then quieter ones. */
+.ul-actions {
+  display: grid;
+  gap: 12px;
+}
+.ul-pair {
+  display: flex;
+  gap: 10px;
+}
+.ul-pair > .btn {
+  flex: 1 1 0;
+  min-height: 52px;
+  padding: 0 12px;
+  white-space: normal;
+}
+
+/* The copier's listens: a wide outlined pill with how many are left. */
+.btn.ul-listen {
+  margin-top: 20px;
+  min-height: 52px;
+  padding: 0 8px 0 18px;
+  font-size: 16px;
+}
+.ul-listen-count {
+  margin-left: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--game-soft);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 13px;
+  font-weight: 500;
+}
+.btn.ul-again,
+.btn.ul-both {
+  margin-top: 16px;
+}
+
+/* The reveal */
+.party-stamp.ul-stamp {
+  padding: 4px 14px;
+  border-color: var(--game-deep);
+  background: var(--card);
+  color: var(--game-deep);
+}
+.party-stamp.ul-stamp.is-miss {
+  border-color: var(--ink-muted);
+  color: var(--ink-muted);
+}
+.ul-song {
+  display: grid;
+  gap: 4px;
+  width: min(100%, 320px);
+  margin-top: 22px;
+  padding: 16px 18px;
+  box-sizing: border-box;
+}
+.ul-song-kicker {
+  color: var(--muted);
+  font-family: var(--num);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.ul-song-title {
+  color: var(--game-deep);
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.ul-song-from {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+.ul-song-own {
+  margin: 22px 0 0;
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+/* The winner */
+.ul-badge {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--game-deep);
+  font-family: var(--num);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ul-headline {
+  margin: 14px 0 0;
+  font-family: var(--display);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+/* Both teams' points: a cream strip, the team whose turn it is outlined in teal. */
+.ul-scores {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 6px;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.ul-score {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 40px;
+  padding: 0 6px 0 14px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+}
+.ul-score[data-turn="true"] {
+  border-color: var(--game-deep);
+  background: var(--game-soft);
+}
+.ul-score-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ul-score-num {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--game);
+  color: var(--on-game);
+  font-family: var(--num);
+  font-size: 16px;
+  font-weight: 500;
+}
+/* +1 where a point just went: a little tag on the score, so the name keeps its room. */
+.ul-gain {
+  position: absolute;
+  top: -14px;
+  right: -4px;
+  padding: 2px 7px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--game-deep);
+  font-family: var(--num);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.1;
+  rotate: 6deg;
+}
+.ul-score-to {
+  flex: none;
+  padding: 0 10px 0 2px;
+  color: var(--ink-muted);
+  font-family: var(--num);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* No pressing animations for people who asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .ul-mic-btn,
+  .ul-mic-meter span,
+  .ul-team-pill,
+  .ul-rules-chevron {
+    transition: none;
+  }
+}

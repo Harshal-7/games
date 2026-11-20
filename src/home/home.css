@@ -78,6 +78,9 @@
 [data-game="highway-bingo"] .game-card h2 {
   color: var(--milestone-ink);
 }
+[data-game="ulta"] .game-card h2 {
+  color: var(--teal-deep);
+}
 .game-card p {
   margin: 6px 0 0;
   color: var(--muted);
@@ -117,6 +120,10 @@
 [data-game="highway-bingo"] .game-chip {
   background: var(--milestone-soft);
   color: var(--milestone-ink);
+}
+[data-game="ulta"] .game-chip {
+  background: var(--teal-soft);
+  color: var(--teal-deep);
 }
 .game-chip.is-best {
   padding-left: 5px;
@@ -270,6 +277,51 @@
   font-family: var(--display);
   font-size: 21px;
   font-weight: 800;
+}
+
+/* Ulta: a cream mic with a turn-back arrow on a dotted peacock teal card. */
+.game-thumb-ulta {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 124px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  background:
+    radial-gradient(rgb(255 255 255 / 0.22) 1.2px, transparent 1.7px) 0 0 / 10px 10px,
+    var(--teal);
+  box-shadow:
+    inset 0 0 0 5px var(--teal),
+    inset 0 0 0 6.5px var(--ink);
+}
+.game-thumb-mic {
+  width: 66px;
+  overflow: visible;
+}
+.ul-thumb-body {
+  fill: var(--card);
+  stroke: var(--ink);
+  stroke-width: 4.5;
+}
+.ul-thumb-grille {
+  fill: none;
+  stroke: var(--teal);
+  stroke-dasharray: 0.1 7;
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+.ul-thumb-stand {
+  fill: none;
+  stroke: var(--ink);
+  stroke-linecap: round;
+  stroke-width: 5.5;
+}
+.ul-thumb-turn {
+  fill: none;
+  stroke: var(--card);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 5;
 }
 
 /* The next game's empty spot. */
