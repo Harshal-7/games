@@ -1,0 +1,906 @@
+/* Imposter. Uses the shared colour tokens from globals.css; everything here is
+   prefixed imp- so it can't touch the other games. */
+
+:root {
+  --imp-bad: #c8372d;
+}
+html[data-mode="dark"] {
+  --imp-bad: #ff7b6e;
+}
+
+/* ---------- Page frame: scrolls like a normal page ---------- */
+
+.page.is-party {
+  max-width: 640px;
+}
+@media (min-width: 860px) {
+  .page.is-party {
+    max-width: var(--frame-width, 1040px);
+  }
+}
+
+.imp-loading {
+  min-height: 60vh;
+}
+
+.imp-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Lobby ---------- */
+
+.imp-lobby {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "intro" "players" "options" "rules" "start";
+  gap: 16px;
+}
+.imp-intro {
+  grid-area: intro;
+  padding-bottom: 4px;
+}
+.imp-players {
+  grid-area: players;
+}
+.imp-options {
+  grid-area: options;
+}
+.imp-rules {
+  grid-area: rules;
+}
+.imp-start {
+  grid-area: start;
+}
+@media (min-width: 860px) {
+  .imp-lobby {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+      "intro intro"
+      "players options"
+      "start options"
+      "rules options";
+    column-gap: 32px;
+    row-gap: 20px;
+    align-items: start;
+  }
+}
+
+.imp-panel {
+  padding: 20px 22px 22px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+}
+.imp-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 28px;
+}
+.imp-panel-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.imp-count {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--fg);
+  font-size: 12px;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.imp-small {
+  height: 34px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+/* Players */
+.imp-quick {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px 16px 16px;
+  border: 1px dashed color-mix(in oklab, var(--accent) 50%, var(--line));
+  border-radius: 14px;
+  background: var(--bg);
+}
+.imp-quick-title {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+}
+.imp-quick-note {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+.imp-quick-row {
+  display: flex;
+  gap: 8px;
+}
+.imp-quick-row .btn-primary {
+  flex: 1;
+}
+.imp-stepper {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.imp-stepper button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+}
+.imp-stepper button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.imp-stepper output {
+  min-width: 24px;
+  font-size: 16px;
+  font-weight: 650;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.imp-or {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  text-align: center;
+}
+.imp-roster {
+  margin: 14px 0 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  list-style: none;
+}
+.imp-player {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px 5px 12px;
+}
+.imp-player + .imp-player {
+  border-top: 1px solid var(--line);
+}
+.imp-seat {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.imp-name-input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 550;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.imp-name-input:hover {
+  border-color: var(--line);
+}
+.imp-name-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--surface);
+}
+.imp-points {
+  min-width: 18px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 650;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.imp-remove {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.imp-remove:hover {
+  background: var(--surface-2);
+  color: var(--fg);
+}
+.imp-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.imp-input {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 16px; /* 16px stops iPhones zooming in on focus */
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.imp-input::placeholder {
+  color: var(--muted);
+}
+.imp-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.imp-input[aria-invalid="true"] {
+  border-color: var(--imp-bad);
+}
+.imp-error {
+  margin: 8px 0 0;
+  color: var(--imp-bad);
+  font-size: 14px;
+  font-weight: 550;
+}
+
+/* Round options */
+.imp-field {
+  margin-top: 18px;
+}
+.imp-field-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+.imp-field-head .field-label {
+  margin: 0;
+}
+.imp-field-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+.imp-options .seg button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.imp-options .seg button:disabled:hover {
+  color: var(--muted);
+}
+.imp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.imp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+.imp-chip:hover {
+  color: var(--fg);
+}
+.imp-chip[aria-pressed="true"] {
+  border-color: color-mix(in oklab, var(--accent) 60%, var(--line));
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+.imp-chip span {
+  filter: grayscale(1);
+  opacity: 0.6;
+  transition: filter 0.15s ease, opacity 0.15s ease;
+}
+.imp-chip[aria-pressed="true"] span {
+  filter: none;
+  opacity: 1;
+}
+.imp-switches {
+  margin-top: 20px;
+}
+
+/* How to play */
+.imp-rules summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+.imp-rules summary::-webkit-details-marker {
+  display: none;
+}
+.imp-rules summary::after {
+  content: "+";
+  color: var(--muted);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+}
+.imp-rules[open] summary::after {
+  content: "–";
+}
+.imp-rules ol {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+  font-size: 14.5px;
+}
+.imp-rules p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Start: stuck to the bottom on phones so it's always in reach. */
+.imp-start {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  gap: 8px;
+  margin-bottom: -16px;
+  padding: 20px 0 16px;
+  background: linear-gradient(to bottom, transparent, var(--bg) 20px);
+}
+.imp-start-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+@media (min-width: 860px) {
+  .imp-start {
+    position: static;
+    margin: 0;
+    padding: 0;
+    background: none;
+  }
+}
+
+.imp-big {
+  width: 100%;
+  height: 52px;
+  border-radius: 14px;
+  font-size: 16.5px;
+}
+
+/* ---------- Playing a round ---------- */
+
+.imp-play {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+@media (min-height: 640px) {
+  .imp-play {
+    min-height: calc(100dvh - 64px - 64px);
+    align-content: center;
+  }
+}
+
+.imp-play-head {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* Who has seen their card */
+.imp-turns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.imp-turns li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 550;
+}
+.imp-turns li[data-state="done"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.imp-turns li[data-state="now"] {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.imp-screen {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 28px 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: center;
+  animation: imp-rise 0.3s cubic-bezier(0.3, 1.2, 0.5, 1) both;
+}
+.imp-kicker {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  font-weight: 550;
+}
+.imp-name {
+  margin: -6px 0 0;
+  font-size: clamp(34px, 10vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+.imp-title {
+  margin: 0;
+  font-size: clamp(24px, 6.5vw, 30px);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.imp-help {
+  max-width: 36ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  text-wrap: pretty;
+}
+.imp-screen .imp-big {
+  margin-top: 4px;
+}
+
+.imp-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 8px;
+}
+.imp-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.imp-row-fill {
+  width: 100%;
+}
+.imp-row-fill > .btn {
+  flex: 1;
+  height: 48px;
+}
+
+.imp-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.imp-result[data-winner="imposters"] .imp-badge {
+  background: color-mix(in oklab, var(--imp-bad) 14%, transparent);
+  color: var(--imp-bad);
+}
+
+.imp-confirm {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: left;
+  animation: imp-rise 0.25s ease both;
+}
+.imp-confirm strong {
+  font-size: 15.5px;
+}
+.imp-confirm p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.imp-confirm .imp-row {
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+/* ---------- The secret card ---------- */
+
+/* Held, both cards look the same: one colour, one layout. Only the words differ. */
+.imp-hold {
+  display: grid;
+  place-items: center;
+  width: min(100%, 290px, max(220px, calc((100dvh - 360px) * 0.75)));
+  aspect-ratio: 3 / 4;
+  padding: 24px 20px;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+  transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+.imp-hold[data-state="sealed"] {
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+  background:
+    repeating-linear-gradient(135deg, var(--accent-soft) 0 10px, transparent 10px 20px),
+    var(--bg);
+}
+.imp-hold[data-state="opened"] {
+  border-style: dashed;
+  background: var(--surface-2);
+}
+.imp-hold[data-state="held"] {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-fg);
+  transform: scale(0.985);
+}
+.imp-cover,
+.imp-face {
+  display: grid;
+  justify-items: center;
+  pointer-events: none;
+}
+.imp-cover {
+  gap: 4px;
+}
+.imp-seal {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  box-shadow: 0 0 0 7px var(--accent-soft);
+}
+.imp-seal.is-broken {
+  background: var(--surface);
+  color: var(--muted);
+  box-shadow: 0 0 0 7px color-mix(in oklab, var(--fg) 6%, transparent);
+}
+.imp-cover-title {
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.imp-cover-note {
+  color: var(--muted);
+  font-size: 14px;
+}
+.imp-face {
+  gap: 10px;
+}
+.imp-face-kicker {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+.imp-face-word {
+  font-size: clamp(28px, 9vw, 40px);
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.imp-face-note {
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+/* ---------- Talking ---------- */
+
+.imp-timer {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 16px 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--bg);
+  box-sizing: border-box;
+}
+.imp-timer-time {
+  font-family: var(--font-mono);
+  font-size: 46px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.imp-timer[data-state="paused"] .imp-timer-time {
+  color: var(--muted);
+}
+.imp-timer[data-state="done"] .imp-timer-time {
+  color: var(--accent);
+  font-family: var(--font-sans);
+  font-size: 32px;
+  font-weight: 700;
+  animation: imp-pulse 0.9s ease 3;
+}
+.imp-timer-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.imp-timer-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left;
+  transition: transform 0.25s linear;
+}
+
+.imp-log {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ---------- Voting and results ---------- */
+
+.imp-suspects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+.imp-suspect {
+  height: 52px;
+  padding: 0 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.imp-suspect:hover {
+  border-color: color-mix(in oklab, var(--fg) 22%, var(--line));
+}
+.imp-suspect:active {
+  transform: scale(0.97);
+}
+.imp-suspect[aria-pressed="true"] {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.imp-answer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--line);
+}
+.imp-answer > div {
+  padding: 10px 14px;
+  background: var(--bg);
+  text-align: left;
+}
+.imp-answer > div:first-child {
+  grid-column: 1 / -1;
+}
+.imp-answer dt {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.imp-answer dd {
+  margin: 2px 0 0;
+  font-size: 15.5px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.imp-answer dd.imp-answer-category {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+.imp-answer dd.imp-answer-word {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.imp-scores {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  list-style: none;
+  text-align: left;
+}
+.imp-scores li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+}
+.imp-scores li + li {
+  border-top: 1px solid var(--line);
+}
+.imp-scores-name {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+}
+.imp-scores-turns {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.imp-gain {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+.imp-scores-total {
+  min-width: 24px;
+  font-size: 17px;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes imp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+}
+@keyframes imp-pulse {
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+/* ---------- Home page card ---------- */
+
+.imp-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.imp-thumb-bg {
+  fill: var(--surface-2);
+}
+.imp-thumb-card {
+  fill: var(--surface);
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+.imp-thumb-line {
+  stroke: var(--line);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.imp-thumb-front {
+  fill: var(--accent);
+}
+.imp-thumb-mark {
+  fill: var(--accent-fg);
+  font-family: var(--font-sans);
+  font-size: 32px;
+  font-weight: 750;
+}
