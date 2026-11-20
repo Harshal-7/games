@@ -68,11 +68,11 @@ describe("tableFor", () => {
   const own = { theme: "game", matchPhone: false } as const;
 
   it("puts each game on its own table, and the rest of the site on felt", () => {
-    expect(tableFor(own, "/imposter", false)).toBe("blush");
+    expect(tableFor(own, "/imposter", false)).toBe("lamplight");
     expect(tableFor(own, "/mafia", false)).toBe("midnight");
-    expect(tableFor(own, "/patakha", false)).toBe("haldi");
-    expect(tableFor(own, "/highway-bingo", false)).toBe("asphalt");
-    expect(tableFor(own, "/ulta", false)).toBe("studio");
+    expect(tableFor(own, "/patakha", false)).toBe("sunrise");
+    expect(tableFor(own, "/highway-bingo", false)).toBe("night-drive");
+    expect(tableFor(own, "/ulta", false)).toBe("stage");
     expect(tableFor(own, "/knights-tour", false)).toBe("felt");
     expect(tableFor(own, "/", false)).toBe("felt");
     expect(tableFor(own, "/settings", false)).toBe("felt");
@@ -80,15 +80,15 @@ describe("tableFor", () => {
   });
 
   it("uses a picked table everywhere", () => {
-    expect(tableFor({ theme: "studio", matchPhone: false }, "/imposter", true)).toBe("studio");
-    expect(tableFor({ theme: "haldi", matchPhone: false }, "/", false)).toBe("haldi");
+    expect(tableFor({ theme: "stage", matchPhone: false }, "/imposter", true)).toBe("stage");
+    expect(tableFor({ theme: "sunrise", matchPhone: false }, "/", false)).toBe("sunrise");
   });
 
   it("is Daylight while Match my phone is on and the phone is light", () => {
     expect(tableFor({ theme: "game", matchPhone: true }, "/mafia", true)).toBe("daylight");
     expect(tableFor({ theme: "midnight", matchPhone: true }, "/", true)).toBe("daylight");
     expect(tableFor({ theme: "game", matchPhone: true }, "/mafia", false)).toBe("midnight");
-    expect(tableFor({ theme: "blush", matchPhone: true }, "/", false)).toBe("blush");
+    expect(tableFor({ theme: "lamplight", matchPhone: true }, "/", false)).toBe("lamplight");
   });
 
   it("reads the game from the first part of the path only", () => {
