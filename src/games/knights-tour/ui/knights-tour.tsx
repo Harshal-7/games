@@ -1,13 +1,13 @@
 "use client";
 
-import { useDeferredValue, useEffect, useEffectEvent, useMemo, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useState } from "react";
 
 import { count, formatDuration } from "@/ui/format";
 import { BulbIcon, PlayIcon, RestartIcon, StopIcon, UndoIcon } from "@/ui/icons";
 
 import { nextSolveStep } from "../logic/autoplay";
 import { isClosedTour, SIZES, type Size } from "../logic/board";
-import { elapsed, newGame, phaseOf, reduce, type Action } from "../logic/game";
+import { elapsed, HINT_GO_BACK, newGame, phaseOf, reduce, type Action } from "../logic/game";
 import { analyseCached, lastFinishable, warnsdorffMove } from "../logic/solver";
 import { Board } from "./board";
 import { ResultPanel } from "./result-panel";
@@ -29,13 +29,8 @@ export function KnightsTour() {
   const closed = isClosedTour(path, size);
   const act = (action: Action) => setGame((g) => reduce(g, action));
 
-  // Can the tour still be finished? Worked out just after each move is drawn, so the
-  // knight never waits for it.
-  const settled = useDeferredValue(game);
-  const analysis = useMemo(() => analyseCached(settled.path, settled.size), [settled.path, settled.size]);
-  const upToDate = settled.path === path && settled.size === size;
-  const hopeless = upToDate && analysis.status === "impossible";
-  const backTo = useMemo(() => (hopeless ? lastFinishable(path, size) : null), [hopeless, path, size]);
+  // When the knight is stuck: the last move the tour could still be finished from.
+  const backTo = useMemo(() => (phase === "stuck" ? lastFinishable(path, size) : null), [phase, path, size]);
 
   // Clock.
   const now = useNow(game.startedAt !== null && game.finishedAt === null);
@@ -96,9 +91,14 @@ export function KnightsTour() {
     if (phase === "start") return act({ type: "hint", square: 0 });
     if (phase !== "playing") return;
     const here = analyseCached(path, size);
+    // In a dead end the honest hint is "go back": it makes the Undo button pulse.
     const square =
-      here.status === "solvable" ? here.completion[0] : here.status === "unknown" ? warnsdorffMove(path, size) : null;
-    if (square !== null) act({ type: "hint", square });
+      here.status === "solvable"
+        ? here.completion[0]
+        : here.status === "unknown"
+          ? (warnsdorffMove(path, size) ?? HINT_GO_BACK)
+          : HINT_GO_BACK;
+    act({ type: "hint", square });
   }
 
   const onKey = useEffectEvent((e: KeyboardEvent) => {
@@ -123,7 +123,7 @@ export function KnightsTour() {
   const panelKey = `${game.id}:${path.length}`;
   const showPanel = finished && !solving && closedPanel !== panelKey;
   const nextSize = SIZES.find((s) => s > size) ?? null;
-  const canHint = !solving && (phase === "start" || (phase === "playing" && !hopeless));
+  const canHint = !solving && (phase === "start" || phase === "playing");
 
   const status =
     phase === "start"
@@ -182,7 +182,12 @@ export function KnightsTour() {
         </div>
 
         <div className="kt-controls">
-          <button type="button" className="btn kt-text-only" onClick={undo} disabled={path.length === 0}>
+          <button
+            type="button"
+            className={game.hint === HINT_GO_BACK ? "btn kt-text-only is-nudged" : "btn kt-text-only"}
+            onClick={undo}
+            disabled={path.length === 0}
+          >
             <UndoIcon /> Undo
           </button>
           <button type="button" className="btn kt-text-only" onClick={hint} disabled={!canHint}>
@@ -201,19 +206,6 @@ export function KnightsTour() {
             <RestartIcon />
           </button>
         </div>
-
-        {hopeless && phase === "playing" && !solving && (
-          <div className="kt-banner" role="status">
-            <p>
-              {path.length === 1
-                ? `No full tour starts from this square on ${size}×${size}. Corners always work.`
-                : "This tour can't be finished from here any more."}
-            </p>
-            <button type="button" className="btn" onClick={goBack}>
-              {backTo ? `Back to move ${backTo}` : "Pick another square"}
-            </button>
-          </div>
-        )}
       </div>
 
       <p className="kt-best">
@@ -221,7 +213,6 @@ export function KnightsTour() {
           ? `Best on ${size}×${size}: ${formatDuration(record.ms)} · ${count(record.undos, "undo")} · ${count(record.hints, "hint")}`
           : `No best time on ${size}×${size} yet.`}
       </p>
-      <p className="kt-keys">Arrow keys move around the board · Enter jumps · U undo · H hint</p>
     </div>
   );
 }

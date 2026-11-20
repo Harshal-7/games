@@ -9,13 +9,16 @@ export type Game = {
   path: readonly number[];
   undos: number;
   hints: number;
-  /** The square the current hint points at, until the knight moves. */
+  /** The square the current hint points at (or HINT_GO_BACK), until the knight moves. */
   hint: number | null;
   /** Watch it solve made a move, so this run doesn't count for best times. */
   assisted: boolean;
   startedAt: number | null;
   finishedAt: number | null;
 };
+
+/** A hint that isn't a square: the tour can't be finished from here, so step back. */
+export const HINT_GO_BACK = -1;
 
 export type Phase = "start" | "playing" | "won" | "stuck";
 
