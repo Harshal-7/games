@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore, type ReactNode } from "react";
+import { useState, useSyncExternalStore, type ReactNode } from "react";
 
 import type { Clue, Room, Round } from "../logic/room";
 import { category } from "../logic/words";
@@ -27,90 +27,70 @@ export function useHydrated(): boolean {
   );
 }
 
-/**
- * What a card says. The word and the imposter card share one layout and one look,
- * so nobody across the table can tell them apart from a glance at the colours.
- */
-export function SecretFace({ round, id, clue }: { round: Round; id: string; clue: Clue }) {
-  const label = category(round.category).label;
-  if (!round.imposters.includes(id)) {
-    return (
-      <>
-        <span className="imp-face-kicker">The word is</span>
-        <span className="imp-face-word">{round.word}</span>
-        <span className="imp-face-note">{label}</span>
-      </>
-    );
-  }
+/** The three lines on a face-up card. */
+type FaceText = { kicker: string; word: string; note: string };
+
+export function wordFace(round: Round): FaceText {
+  return { kicker: "The word is", word: round.word, note: category(round.category).label };
+}
+
+export function imposterFace(round: Round, clue: Clue): FaceText {
+  const note =
+    clue === "hint"
+      ? `Hint: ${round.hint}`
+      : clue === "category"
+        ? `Category: ${category(round.category).label}`
+        : "No hint. Blend in.";
+  return { kicker: "You're the", word: "Imposter", note };
+}
+
+/** A face-up card's lines; the card around them is styled by its class (.imp-face). */
+export function Face({ kicker, word, note }: FaceText) {
   return (
     <>
-      <span className="imp-face-kicker">You&apos;re the</span>
-      <span className="imp-face-word">Imposter</span>
-      <span className="imp-face-note">
-        {clue === "hint" ? (
-          <>
-            Hint: <b>{round.hint}</b>
-          </>
-        ) : clue === "category" ? (
-          <>
-            Category: <b>{label}</b>
-          </>
-        ) : (
-          "No hint. Blend in."
-        )}
-      </span>
+      <span className="imp-face-kicker">{kicker}</span>
+      <span className="imp-face-word">{word}</span>
+      <span className="imp-face-note">{note}</span>
     </>
   );
 }
 
-/** The word, its category, the imposters and their hint, shown at the end of a round. */
-export function Answer({ round, names }: { round: Round; names: Record<string, string> }) {
-  const imposters = round.imposters.map((id) => names[id]);
+/**
+ * What a player's card says. The word and the imposter card share one layout and one
+ * look, so nobody across the table can tell them apart from a glance at the card.
+ */
+export function SecretFace({ round, id, clue }: { round: Round; id: string; clue: Clue }) {
+  return <Face {...(round.imposters.includes(id) ? imposterFace(round, clue) : wordFace(round))} />;
+}
+
+/** "Round 3" on the left, where the round is on the right. */
+export function PlayHead({ round, label }: { round: number; label: string }) {
   return (
-    <dl className="imp-answer">
-      <div>
-        <dt>The word</dt>
-        <dd className="imp-answer-word">{round.word}</dd>
-        <dd className="imp-answer-category">{category(round.category).label}</dd>
-      </div>
-      <div>
-        <dt>{imposters.length === 1 ? "Imposter" : "Imposters"}</dt>
-        <dd>{listNames(imposters)}</dd>
-      </div>
-      <div>
-        <dt>Their hint</dt>
-        <dd>{round.hint}</dd>
-      </div>
-    </dl>
+    <div className="imp-play-head">
+      <span className="imp-round">Round {round}</span>
+      <span className="imp-play-label">{label}</span>
+    </div>
   );
 }
 
-/** A small inline "are you sure?" with the safe choice first. */
-export function Confirm({
-  title,
-  detail,
-  yes,
-  onYes,
-  onNo,
-}: {
-  title: string;
-  detail: ReactNode;
-  yes: string;
-  onYes: () => void;
-  onNo: () => void;
-}) {
+/** A name in big type. Long names step down a size so they fit a phone. */
+export function BigName({ name }: { name: string }) {
+  return <h2 className={name.length > 9 ? "imp-big-name is-long" : "imp-big-name"}>{name}</h2>;
+}
+
+/**
+ * A rubber stamp ("Caught!") that drops in once. Next keeps visited pages in the
+ * page and replays CSS animations when one shows again, so once the stamp has landed
+ * it switches to a still class.
+ */
+export function Stamp({ children, className }: { children: ReactNode; className?: string }) {
+  const [landed, setLanded] = useState(false);
   return (
-    <div className="imp-confirm" role="alertdialog" aria-label={title}>
-      <strong>{title}</strong>
-      <p>{detail}</p>
-      <div className="imp-row">
-        <button type="button" className="btn" onClick={onNo} autoFocus>
-          Cancel
-        </button>
-        <button type="button" className="btn btn-primary" onClick={onYes}>
-          {yes}
-        </button>
-      </div>
-    </div>
+    <span
+      className={["imp-stamp", landed ? null : "is-dropping", className].filter(Boolean).join(" ")}
+      onAnimationEnd={() => setLanded(true)}
+    >
+      {children}
+    </span>
   );
 }

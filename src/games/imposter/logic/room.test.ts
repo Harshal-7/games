@@ -8,8 +8,11 @@ import {
   newRoom,
   parseRoom,
   reduce,
+  ringFraction,
   startProblem,
+  tickDue,
   timeLeft,
+  timerTone,
   type Action,
   type Room,
 } from "./room";
@@ -64,7 +67,7 @@ describe("words", () => {
     let last = null as ReturnType<typeof drawWord>["category"] | null;
     let used: string[] = [];
     for (let i = 0; i < 40; i++) {
-      const drawn = drawWord(["food", "animals", "jobs"], used, last, rng);
+      const drawn = drawWord(["food", "animals", "places"], used, last, rng);
       expect(drawn.category).not.toBe(last);
       last = drawn.category;
       used = drawn.used;
@@ -90,6 +93,16 @@ describe("room setup", () => {
     expect(reduce(room, { type: "quick-players", count: 5, rng })).toBe(room);
     expect(reduce(newRoom(), { type: "quick-players", count: 99, rng }).players).toHaveLength(20);
     expect(reduce(newRoom(), { type: "quick-players", count: 1, rng }).players).toHaveLength(3);
+  });
+
+  it("a new game keeps the players; clearing the room keeps only the options", () => {
+    const played = dealAll(run(roomWith(["A", "B", "C"], { sound: false }), { type: "start", rng }));
+    const fresh = reduce(played, { type: "new-room" });
+    expect(fresh.players).toEqual(played.players);
+    expect([fresh.round, fresh.played, fresh.scores]).toEqual([null, 0, {}]);
+    const cleared = reduce(played, { type: "clear-room" });
+    expect(cleared).toEqual(newRoom([], played.options));
+    expect(cleared.options.sound).toBe(false);
   });
 
   it("keeps imposters outnumbered", () => {
@@ -197,14 +210,59 @@ describe("a round", () => {
   });
 });
 
+describe("the talking timer", () => {
+  it("turns red at 30 seconds or less", () => {
+    expect(timerTone(180_000)).toBe("calm");
+    expect(timerTone(30_001)).toBe("calm");
+    expect(timerTone(30_000)).toBe("hurry");
+    expect(timerTone(0)).toBe("hurry");
+  });
+
+  it("draws the ring as a share of the total, never more than full", () => {
+    expect(ringFraction(90_000, 180_000)).toBe(0.5);
+    expect(ringFraction(0, 180_000)).toBe(0);
+    // +30 sec at 2:45 of 3:00 leaves 3:15: the ring stays full.
+    expect(ringFraction(195_000, 180_000)).toBe(1);
+    expect(ringFraction(-5, 180_000)).toBe(0);
+    expect(ringFraction(5_000, 0)).toBe(0);
+  });
+
+  it("ticks once a second from 10 to 1 with the 250 ms clock", () => {
+    const ticks: number[] = [];
+    for (let left = 12_000; left > 0; left -= 250) {
+      const next = Math.max(0, left - 250);
+      if (tickDue(left, next)) ticks.push(Math.ceil(next / 1000));
+    }
+    expect(ticks).toEqual([10, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
+  });
+
+  it("stays quiet when paused, when time goes up and when time runs out", () => {
+    expect(tickDue(5_000, 5_000)).toBe(false);
+    expect(tickDue(4_200, 34_200)).toBe(false);
+    expect(tickDue(800, 0)).toBe(false);
+    expect(tickDue(11_000, 10_500)).toBe(false);
+  });
+
+  it("ticks only once when a background tab wakes several seconds later", () => {
+    expect(tickDue(15_000, 3_400)).toBe(true);
+    // Still 0:04, then on to 0:03 as usual.
+    expect(tickDue(3_400, 3_150)).toBe(false);
+    expect(tickDue(3_150, 2_900)).toBe(true);
+  });
+});
+
 describe("saving", () => {
   it("survives a round trip and rejects junk", () => {
     const room = dealAll(run(roomWith(["Riya", "Aman", "Kabir"]), { type: "start", rng }));
     expect(parseRoom(JSON.stringify(room))).toEqual(room);
     expect(parseRoom("not json")).toBeNull();
     expect(parseRoom(JSON.stringify({ version: 2 }))).toBeNull();
-    const broken = parseRoom(JSON.stringify({ ...room, round: { stage: "nope" }, options: { timer: 7 } }));
+    const broken = parseRoom(JSON.stringify({ ...room, round: { stage: "nope" }, options: { clue: "?", timer: 7 } }));
     expect(broken?.round).toBeNull();
-    expect(broken?.options.timer).toBe(180);
+    expect(broken?.options).toEqual({ ...room.options, clue: "category" });
+    // A category taken out of the list drops from the options, and a round dealt from it.
+    const old = { ...room, options: { ...room.options, categories: ["food", "slang", "jobs"] } };
+    expect(parseRoom(JSON.stringify(old))?.options.categories).toEqual(["food"]);
+    expect(parseRoom(JSON.stringify({ ...room, round: { ...room.round, category: "slang" } }))?.round).toBeNull();
   });
 });

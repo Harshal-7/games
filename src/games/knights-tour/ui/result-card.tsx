@@ -1,9 +1,7 @@
 "use client";
 
-import { useId } from "react";
-
 import { count } from "@/ui/format";
-import { CheckIcon } from "@/ui/icons";
+import { CheckIcon, RestartIcon, UndoIcon } from "@/ui/icons";
 
 import type { Size } from "../logic/board";
 import type { Game } from "../logic/game";
@@ -29,40 +27,38 @@ export function ResultCard(props: ResultCardProps) {
 
   if (outcome === "won") {
     const tags = [
-      newBest && { label: "New best", accent: true },
-      closed && { label: "Closed tour", accent: false },
+      newBest && { label: "New best", best: true },
+      closed && { label: "Closed tour", best: false },
     ].filter((tag) => tag !== false);
     return (
-      <div className="kt-result" role="status">
+      <div className="card kt-result" role="status">
         <div className="kt-result-head">
           <span className="kt-result-icon" aria-hidden="true">
-            <CheckIcon width={20} height={20} strokeWidth={2.4} />
+            <CheckIcon width={20} height={20} strokeWidth={2.8} />
           </span>
           <div>
             <h2>All {total} squares visited</h2>
-            <p>
-              {game.assisted
-                ? "Solved by Watch it solve, so not counted for best time"
-                : `${count(game.undos, "undo")} · ${count(game.hints, "hint")}`}
-            </p>
+            <div className="kt-result-meta">
+              <span>
+                {game.assisted
+                  ? "Solved by Watch it solve, so not counted for best time"
+                  : `${count(game.undos, "undo")} · ${count(game.hints, "hint")}`}
+              </span>
+              {tags.map(({ label, best }) => (
+                <span key={label} className={best ? "kt-tag is-best" : "kt-tag"}>
+                  {label}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-        {tags.length > 0 && (
-          <div className="kt-tags">
-            {tags.map(({ label, accent }) => (
-              <span key={label} className={accent ? "kt-tag is-accent" : "kt-tag"}>
-                {label}
-              </span>
-            ))}
-          </div>
-        )}
         <div className="kt-result-actions">
           <button type="button" className="btn btn-primary" onClick={props.onRestart} autoFocus>
             Play again
           </button>
           {nextSize && (
             <button type="button" className="btn" onClick={props.onNextSize}>
-              Next: {nextSize}×{nextSize}
+              Next: <span className="kt-num">{`${nextSize}×${nextSize}`}</span>
             </button>
           )}
         </div>
@@ -72,19 +68,18 @@ export function ResultCard(props: ResultCardProps) {
 
   const showBack = backTo !== null && backTo > 0 && backTo < game.path.length - 1;
   return (
-    <div className="kt-result" role="status">
-      <div className="kt-result-head">
-        <div>
-          <h2>No square left to jump to</h2>
-          <p>
-            {game.path.length} of {total} visited. Step back and try another way.
-          </p>
-        </div>
+    <div className="card kt-result is-stuck" role="status">
+      <div>
+        <h2>No square left to jump to</h2>
+        <p>
+          {game.path.length} of {total} visited. Step back and try another way.
+        </p>
       </div>
-      <div className="kt-result-actions">
-        <button type="button" className="btn btn-primary" onClick={props.onUndo} autoFocus>
-          Undo
-        </button>
+      <button type="button" className="btn btn-primary kt-result-main" onClick={props.onUndo} autoFocus>
+        <UndoIcon width={17} height={17} strokeWidth={2.6} />
+        Undo
+      </button>
+      <div className="kt-result-more">
         {showBack && (
           <button
             type="button"
@@ -95,43 +90,9 @@ export function ResultCard(props: ResultCardProps) {
             Back to move {backTo}
           </button>
         )}
-        <button type="button" className="btn btn-quiet" onClick={props.onRestart}>
+        <button type="button" className="btn" onClick={props.onRestart}>
+          <RestartIcon width={16} height={16} strokeWidth={2.6} />
           Restart
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/** Asks before a tour in progress is thrown away. "Keep playing" has the focus. */
-export function ConfirmCard({
-  title,
-  detail,
-  confirmLabel,
-  onConfirm,
-  onCancel,
-}: {
-  title: string;
-  detail: string;
-  confirmLabel: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  const id = useId();
-  return (
-    <div className="kt-result" role="alertdialog" aria-labelledby={`${id}-title`} aria-describedby={`${id}-detail`}>
-      <div className="kt-result-head">
-        <div>
-          <h2 id={`${id}-title`}>{title}</h2>
-          <p id={`${id}-detail`}>{detail}</p>
-        </div>
-      </div>
-      <div className="kt-result-actions">
-        <button type="button" className="btn btn-primary" onClick={onConfirm}>
-          {confirmLabel}
-        </button>
-        <button type="button" className="btn" onClick={onCancel} autoFocus>
-          Keep playing
         </button>
       </div>
     </div>

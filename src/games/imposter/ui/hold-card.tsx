@@ -1,23 +1,29 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 
 import { EyeOffIcon, LockIcon } from "@/ui/icons";
 
+import { buzzOpen } from "./sounds";
+
 /**
- * A secret card you have to hold to read. Letting go, switching apps or the phone
- * changing hands hides it straight away. The secret is only in the page while the
- * card is held, and every press counts as an open, so a card someone else peeked
- * at shows "Opened" before its owner touches it.
+ * A secret card you have to hold to read: TOP SECRET on the back, the same for
+ * everyone. Holding turns it face up; letting go, switching apps or the phone changing
+ * hands wipes the face straight away and the blank card turns back over. The secret is
+ * only in the page while the card is held, and every press counts as an open, so a card
+ * someone else peeked at shows "Opened" before its owner touches it.
  */
 export function HoldCard({
   name,
   opens,
+  buzz,
   onOpen,
   children,
 }: {
   name: string;
   opens: number;
+  /** A short buzz on every press (the room's Sound switch). */
+  buzz: boolean;
   onOpen: () => void;
   children: ReactNode;
 }) {
@@ -35,20 +41,32 @@ export function HoldCard({
     };
   }, [held]);
 
+  // Next keeps a page in the DOM when you leave it; never come back to a card left open.
+  useLayoutEffect(() => () => setHeld(false), []);
+
   const show = () => {
     if (held) return;
     setHeld(true);
+    if (buzz) buzzOpen();
     onOpen();
   };
   const hide = () => setHeld(false);
   const isKey = (key: string) => key === " " || key === "Enter";
+
+  let label: string | undefined;
+  if (!held) {
+    label =
+      opens === 0
+        ? `${name}'s card. Press and hold to see it.`
+        : `${name}'s card, opened${opens > 1 ? ` ${opens} times` : ""}. Press and hold to see it again.`;
+  }
 
   return (
     <button
       type="button"
       className="imp-hold"
       data-state={held ? "held" : opens > 0 ? "opened" : "sealed"}
-      aria-label={held ? undefined : `${name}'s card. Press and hold to see it.`}
+      aria-label={label}
       onPointerDown={(e) => {
         if (e.button !== 0) return;
         try {
@@ -70,27 +88,33 @@ export function HoldCard({
       onBlur={hide}
       onContextMenu={(e) => e.preventDefault()}
     >
-      {held ? (
-        <span className="imp-face" aria-live="assertive">
-          {children}
-        </span>
-      ) : opens > 0 ? (
-        <span className="imp-cover">
-          <span className="imp-seal is-broken">
-            <EyeOffIcon width={26} height={26} />
+      <span className="imp-hold-turn">
+        <span className="imp-back" aria-hidden="true">
+          <span className="imp-back-secret">TOP SECRET</span>
+          <span className="imp-back-for">For {name} only</span>
+          <span className="imp-tape is-under">SEALED · SEALED · SEALED · SEALED</span>
+          <span className="imp-tape">DON&apos;T PEEK · DON&apos;T PEEK · DON&apos;T PEEK</span>
+          {opens === 0 ? (
+            <span className="imp-back-note">
+              <span className="imp-back-title">Sealed</span>
+              Press and hold to open
+            </span>
+          ) : (
+            <span className="imp-back-note is-opened">
+              <span className="imp-back-stamp">{opens === 1 ? "Opened" : `Opened ${opens} times`}</span>
+              Hold to see it again
+            </span>
+          )}
+          <span className="imp-wax">
+            {opens === 0 ? <LockIcon strokeWidth={2.4} /> : <EyeOffIcon strokeWidth={2.4} />}
+            hold
           </span>
-          <span className="imp-cover-title">{opens === 1 ? "Opened" : `Opened ${opens} times`}</span>
-          <span className="imp-cover-note">Hold to see it again</span>
         </span>
-      ) : (
-        <span className="imp-cover">
-          <span className="imp-seal">
-            <LockIcon width={26} height={26} />
-          </span>
-          <span className="imp-cover-title">Sealed</span>
-          <span className="imp-cover-note">Press and hold to open</span>
+        {/* Always there, so letting go has a blank face to turn back from. */}
+        <span className="imp-face is-held" aria-live="assertive" aria-hidden={!held}>
+          {held && children}
         </span>
-      )}
+      </span>
     </button>
   );
 }

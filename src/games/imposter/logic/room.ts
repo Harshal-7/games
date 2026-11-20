@@ -12,7 +12,8 @@ import { category, CATEGORY_IDS, isCategoryId, type CategoryId } from "./words";
 export const MIN_PLAYERS = 3;
 export const MAX_PLAYERS = 20;
 export const MAX_NAME = 16;
-export const TIMERS = [0, 60, 120, 180, 300] as const;
+/** Talking time: always 3 minutes. Pause and +30 sec on the talk screen adjust it. */
+export const TALK_MS = 180_000;
 /** Quick start: how many numbered players to suggest. */
 export const QUICK_PLAYERS = 5;
 
@@ -26,8 +27,6 @@ export type Options = {
   /** Wanted number of imposters; a small table gets fewer (see imposterCount). */
   imposters: number;
   clue: Clue;
-  /** Talking time in seconds; 0 means no timer. */
-  timer: number;
   categories: CategoryId[];
   sound: boolean;
 };
@@ -84,8 +83,8 @@ export type Room = {
 
 export const DEFAULT_OPTIONS: Options = {
   imposters: 1,
-  clue: "hint",
-  timer: 180,
+  // The classic game: the imposter knows the topic, not the word. Hint is the easy mode.
+  clue: "category",
   categories: [...CATEGORY_IDS],
   sound: true,
 };
@@ -222,6 +221,30 @@ export function timeLeft(timer: Timer, now: number): number {
   return Math.max(0, timer.endsAt === null ? timer.left : timer.endsAt - now);
 }
 
+/** The timer ring turns red for the last 30 seconds. */
+export const HURRY_MS = 30_000;
+/** A soft tick each second from 10 down to 1. */
+export const TICK_FROM = 10;
+
+export function timerTone(leftMs: number): "calm" | "hurry" {
+  return leftMs <= HURRY_MS ? "hurry" : "calm";
+}
+
+/** How much of the ring to draw, 0 to 1. +30 sec can push the time left past the total, so it's capped. */
+export function ringFraction(leftMs: number, totalMs: number): number {
+  return totalMs > 0 ? Math.min(1, Math.max(0, leftMs / totalMs)) : 0;
+}
+
+/**
+ * Whether the clock should tick now: once as the shown time (whole seconds, rounded
+ * up) drops onto each of 10…1. Nothing while paused or when time goes up, and one
+ * tick at most when the clock jumps ahead (a background tab waking up).
+ */
+export function tickDue(prevLeftMs: number, leftMs: number): boolean {
+  const shown = Math.ceil(leftMs / 1000);
+  return shown < Math.ceil(prevLeftMs / 1000) && shown >= 1 && shown <= TICK_FROM;
+}
+
 function changeTimer(timer: Timer, op: TimerOp, now: number): Timer {
   const left = timeLeft(timer, now);
   if (op === "pause") return { endsAt: null, left };
@@ -249,7 +272,8 @@ export type Action =
   | { type: "accuse"; ids: string[] }
   | { type: "guess"; correct: boolean }
   | { type: "lobby" }
-  | { type: "new-room" };
+  | { type: "new-room" }
+  | { type: "clear-room" };
 
 /** The whole game as one function: room + action → next room. Bad actions change nothing. */
 export function reduce(room: Room, action: Action): Room {
@@ -287,6 +311,9 @@ export function reduce(room: Room, action: Action): Room {
       return round || startProblem(room) ? room : deal(room, action.rng);
     case "new-room":
       return newRoom(room.players, room.options);
+    case "clear-room":
+      // Home's Remove: no players, rounds or scores left; the options stay as they were.
+      return newRoom([], room.options);
     case "lobby":
       return round ? { ...room, round: null } : room;
   }
@@ -313,7 +340,6 @@ export function reduce(room: Room, action: Action): Room {
       if (round.stage !== "deal" || !round.looking || round.opens[current] === 0) return room;
       if (round.turn + 1 < round.seats.length) return set({ turn: round.turn + 1, looking: false });
       // Everyone has their card: the round counts from here.
-      const time = room.options.timer * 1000;
       return {
         ...room,
         ledger: settle(round.seats, room.ledger, round.imposters),
@@ -322,7 +348,7 @@ export function reduce(room: Room, action: Action): Room {
           ...round,
           stage: "talk",
           looking: false,
-          timer: time > 0 ? { endsAt: action.now + time, left: time } : null,
+          timer: { endsAt: action.now + TALK_MS, left: TALK_MS },
         },
       };
     }
@@ -368,7 +394,6 @@ function parseOptions(v: unknown): Options {
   return {
     imposters: isNumber(v.imposters) ? Math.min(3, Math.max(1, Math.round(v.imposters))) : DEFAULT_OPTIONS.imposters,
     clue: CLUES.includes(v.clue as Clue) ? (v.clue as Clue) : DEFAULT_OPTIONS.clue,
-    timer: (TIMERS as readonly unknown[]).includes(v.timer) ? (v.timer as number) : DEFAULT_OPTIONS.timer,
     categories,
     sound: typeof v.sound === "boolean" ? v.sound : DEFAULT_OPTIONS.sound,
   };

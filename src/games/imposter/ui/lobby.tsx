@@ -2,10 +2,12 @@
 
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 
-import { CloseIcon, MinusIcon, PlusIcon } from "@/ui/icons";
+import { Confirm } from "@/ui/confirm";
+import { CloseIcon, MinusIcon, PlusIcon, RestartIcon } from "@/ui/icons";
 
 import { cryptoRandom, randomId } from "../logic/random";
 import {
+  cleanName,
   imposterCount,
   MAX_NAME,
   MAX_PLAYERS,
@@ -14,13 +16,12 @@ import {
   nameProblem,
   QUICK_PLAYERS,
   startProblem,
-  TIMERS,
   type Clue,
   type Player,
   type Room,
 } from "../logic/room";
 import { CATEGORIES, CATEGORY_IDS } from "../logic/words";
-import { Confirm } from "./parts";
+import { ChevronDownIcon, DealIcon } from "./marks";
 import { act } from "./use-room";
 
 const CLUE_LABELS: Record<Clue, { label: string; note: string }> = {
@@ -32,37 +33,71 @@ const CLUE_LABELS: Record<Clue, { label: string; note: string }> = {
 /** Players, round options and scores: the screen between rounds. */
 export function Lobby({ room }: { room: Room }) {
   const problem = startProblem(room);
-  const [resetting, setResetting] = useState(false);
+  const [ask, setAsk] = useState<"new-room" | "reset" | null>(null);
+  const count = room.players.length;
 
   return (
     <div className="imp-lobby">
       <header className="imp-intro">
-        <h1 className="game-title">Imposter</h1>
-        <p className="game-blurb">
+        <div className="imp-title-card">
+          <span className="imp-title-mark" aria-hidden="true">
+            ?
+          </span>
+          <span className="imp-title-mark is-turned" aria-hidden="true">
+            ?
+          </span>
+          <div className="imp-title-plate">
+            <h1 className="imp-title-name">Imposter</h1>
+            <span className="imp-title-meta">
+              {MIN_PLAYERS}–{MAX_PLAYERS} players · one phone
+            </span>
+          </div>
+        </div>
+        <p className="game-blurb imp-blurb">
           One phone, one secret word. Everyone gets it except the imposter, who has to fake it.
         </p>
       </header>
 
-      <section className="imp-panel imp-players" aria-labelledby="imp-players-title">
-        <div className="imp-panel-head">
-          <h2 id="imp-players-title">
-            Players <span className="imp-count">{room.players.length}</span>
-          </h2>
-          {room.played > 0 && (
-            <button type="button" className="btn btn-quiet imp-small" onClick={() => setResetting(true)}>
-              New room
+      <section className="card section imp-players" aria-labelledby="imp-players-title">
+        <h2 className="tape" id="imp-players-title">
+          Players <span className="tape-count">· {room.players.length}</span>
+        </h2>
+        {/* After a round: a new room keeps the players. Before one: Reset clears them, back
+            to Quick start and the name field. */}
+        {room.played > 0 ? (
+          <button type="button" className="btn imp-small imp-new-room" onClick={() => setAsk("new-room")}>
+            <RestartIcon width={15} height={15} strokeWidth={2.6} />
+            New room
+          </button>
+        ) : (
+          count > 0 && (
+            <button type="button" className="btn imp-small imp-new-room" onClick={() => setAsk("reset")}>
+              <RestartIcon width={15} height={15} strokeWidth={2.6} />
+              Reset
             </button>
-          )}
-        </div>
-        {resetting && (
+          )
+        )}
+        {ask === "new-room" && (
           <Confirm
             title="Start a new room?"
             detail="Scores and the imposter count go back to zero. Players and options stay."
             yes="New room"
-            onNo={() => setResetting(false)}
+            onNo={() => setAsk(null)}
             onYes={() => {
               act({ type: "new-room" });
-              setResetting(false);
+              setAsk(null);
+            }}
+          />
+        )}
+        {ask === "reset" && (
+          <Confirm
+            title="Start over?"
+            detail={`Removes ${count === 1 ? "the player" : `all ${count} players`}, so you can quick start or add names again. Options stay.`}
+            yes="Reset"
+            onNo={() => setAsk(null)}
+            onYes={() => {
+              act({ type: "clear-room" });
+              setAsk(null);
             }}
           />
         )}
@@ -71,33 +106,40 @@ export function Lobby({ room }: { room: Room }) {
 
       <Options room={room} />
 
-      <details className="imp-panel imp-rules">
-        <summary>How to play</summary>
-        <ol>
-          <li>Add everyone, then pass the phone round. Each player holds their card to see it, alone.</li>
-          <li>Everyone gets the same secret word, except the imposter.</li>
-          <li>Go round the circle: one word each about the secret word. Not too obvious.</li>
-          <li>Vote for who&apos;s faking it. A caught imposter gets one guess at the word to steal the round.</li>
-        </ol>
-        <p>
-          Points: catching the imposter gives everyone else 1. An imposter who gets away gets 2, or 1 for guessing
-          the word after being caught.
-        </p>
-        <p>
-          Fair play: cards are sealed, and a card shows &ldquo;Opened&rdquo; once anyone has looked, so a peek at
-          someone else&apos;s card is always noticed. Over a few rounds everyone gets a turn as the imposter.
-        </p>
+      <details className="imp-rules">
+        <summary className="btn">
+          How to play
+          <ChevronDownIcon className="imp-rules-chevron" />
+        </summary>
+        <div className="card imp-rules-body">
+          <ol>
+            <li>Add everyone, then pass the phone round. Each player holds their card to see it, alone.</li>
+            <li>Everyone gets the same secret word, except the imposter.</li>
+            <li>Go round the circle: one word each about the secret word. Not too obvious.</li>
+            <li>Vote for who&apos;s faking it. A caught imposter gets one guess at the word to steal the round.</li>
+          </ol>
+          <p>
+            Points: catching the imposter gives everyone else 1. An imposter who gets away gets 2, or 1 for guessing
+            the word after being caught.
+          </p>
+          <p>
+            Fair play: cards are sealed, and a card shows &ldquo;Opened&rdquo; once anyone has looked, so a peek at
+            someone else&apos;s card is always noticed. Over a few rounds everyone gets a turn as the imposter.
+          </p>
+        </div>
       </details>
 
+      {/* Stuck to the bottom on phones, on a solid tray, so it's always in reach. */}
       <div className="imp-start">
         {problem && <p className="imp-start-note">{problem}</p>}
         <button
           type="button"
-          className="btn btn-primary imp-big"
+          className="btn btn-primary btn-big"
           disabled={problem !== null}
           onClick={() => act({ type: "start", rng: cryptoRandom })}
         >
-          {room.played > 0 ? `Start round ${room.played + 1}` : "Start the game"}
+          {room.played > 0 ? `Deal round ${room.played + 1}` : "Deal the cards"}
+          <DealIcon width={22} height={22} />
         </button>
       </div>
     </div>
@@ -126,11 +168,11 @@ function Roster({ room }: { room: Room }) {
       {room.players.length > 0 ? (
         <ol className="imp-roster">
           {room.players.map((player, i) => (
-            <li key={player.id} className="imp-player">
+            <li key={player.id} className="imp-seat-pill">
               <span className="imp-seat" aria-hidden="true">
                 {i + 1}
               </span>
-              <NameInput player={player} players={room.players} />
+              <NameInput key={player.name} player={player} players={room.players} />
               {room.played > 0 && (
                 <span className="imp-points" title="Points">
                   {room.scores[player.id] ?? 0}
@@ -144,7 +186,7 @@ function Roster({ room }: { room: Room }) {
                 title="Remove"
                 onClick={() => act({ type: "remove-player", id: player.id })}
               >
-                <CloseIcon width={16} height={16} />
+                <CloseIcon width={16} height={16} strokeWidth={2.6} />
               </button>
             </li>
           ))}
@@ -176,7 +218,7 @@ function Roster({ room }: { room: Room }) {
           }}
         />
         <button type="submit" className="btn" disabled={!draft.trim()}>
-          <PlusIcon width={16} height={16} />
+          <PlusIcon width={16} height={16} strokeWidth={2.6} />
           Add
         </button>
       </form>
@@ -193,29 +235,29 @@ function Roster({ room }: { room: Room }) {
 function QuickStart() {
   const [count, setCount] = useState(QUICK_PLAYERS);
   return (
-    <div className="imp-quick">
-      <div>
-        <span className="imp-quick-title">Quick start</span>
-        <span className="imp-quick-note">Skip the names and play as Player 1, Player 2… Rename anyone later.</span>
-      </div>
+    <div>
+      <p className="imp-quick-title">Quick start</p>
+      <p className="imp-quick-note">Skip the names and play as Player 1, Player 2… Rename anyone later.</p>
       <div className="imp-quick-row">
         <div className="imp-stepper" role="group" aria-label="How many players">
           <button
             type="button"
+            className="icon-btn"
             aria-label="One player fewer"
             disabled={count <= MIN_PLAYERS}
             onClick={() => setCount((n) => n - 1)}
           >
-            <MinusIcon width={16} height={16} />
+            <MinusIcon width={16} height={16} strokeWidth={2.6} />
           </button>
           <output aria-live="polite">{count}</output>
           <button
             type="button"
+            className="icon-btn"
             aria-label="One player more"
             disabled={count >= MAX_PLAYERS}
             onClick={() => setCount((n) => n + 1)}
           >
-            <PlusIcon width={16} height={16} />
+            <PlusIcon width={16} height={16} strokeWidth={2.6} />
           </button>
         </div>
         <button
@@ -230,24 +272,31 @@ function QuickStart() {
   );
 }
 
-/** A player's name, editable in place. A name that's empty or taken goes back to what it was. */
+/**
+ * A player's name, editable in place and as wide as the name (the hidden copy in
+ * data-value sizes the field). A name that's empty or taken goes back to what it was.
+ */
 function NameInput({ player, players }: { player: Player; players: Player[] }) {
+  const [value, setValue] = useState(player.name);
   return (
-    <input
-      key={player.name}
-      className="imp-name-input"
-      defaultValue={player.name}
-      maxLength={MAX_NAME}
-      aria-label={`Name of player ${player.name}`}
-      autoComplete="off"
-      enterKeyHint="done"
-      onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-      onBlur={(e) => {
-        const name = e.currentTarget.value;
-        if (nameProblem(players, name, player.id)) e.currentTarget.value = player.name;
-        else if (name !== player.name) act({ type: "rename-player", id: player.id, name });
-      }}
-    />
+    <span className="imp-name" data-value={value}>
+      <input
+        className="imp-name-input"
+        value={value}
+        size={1}
+        maxLength={MAX_NAME}
+        aria-label={`Name of player ${player.name}`}
+        autoComplete="off"
+        enterKeyHint="done"
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+        onBlur={() => {
+          const name = cleanName(value);
+          if (name === player.name || nameProblem(players, value, player.id)) setValue(player.name);
+          else act({ type: "rename-player", id: player.id, name });
+        }}
+      />
+    </span>
   );
 }
 
@@ -259,13 +308,14 @@ function Options({ room }: { room: Room }) {
   const set = (patch: Partial<Room["options"]>) => act({ type: "options", patch });
 
   return (
-    <section className="imp-panel imp-options" aria-labelledby="imp-options-title">
-      <div className="imp-panel-head">
-        <h2 id="imp-options-title">Round</h2>
-      </div>
+    <section className="card section imp-options" aria-labelledby="imp-options-title">
+      <h2 className="tape is-game" id="imp-options-title">
+        Options
+      </h2>
 
       <Choice
         label="Imposters"
+        narrow
         note={max < 3 ? `${max + 1} imposters need ${2 * max + 3} or more players.` : undefined}
       >
         {[1, 2, 3].map((n) => (
@@ -283,25 +333,17 @@ function Options({ room }: { room: Room }) {
         ))}
       </Choice>
 
-      <Choice label="Talking time">
-        {TIMERS.map((seconds) => (
-          <SegButton key={seconds} on={options.timer === seconds} onClick={() => set({ timer: seconds })}>
-            {seconds === 0 ? "Off" : `${seconds / 60}m`}
-          </SegButton>
-        ))}
-      </Choice>
-
       <div className="imp-field">
         <div className="imp-field-head">
           <span className="field-label" id="imp-categories">
             Categories
-            <span className="field-note">
+            <span className="imp-cat-count">
               {options.categories.length} of {CATEGORY_IDS.length}
             </span>
           </span>
           <button
             type="button"
-            className="btn btn-quiet imp-small"
+            className="btn imp-small"
             onClick={() => set({ categories: allOn ? [] : [...CATEGORY_IDS] })}
           >
             {allOn ? "Clear" : "Pick all"}
@@ -325,7 +367,9 @@ function Options({ room }: { room: Room }) {
                   })
                 }
               >
-                <span aria-hidden="true">{emoji}</span>
+                <span className="imp-chip-emoji" aria-hidden="true">
+                  {emoji}
+                </span>
                 {label}
               </button>
             );
@@ -340,7 +384,7 @@ function Options({ room }: { room: Room }) {
               Sound and vibration
             </span>
             <span className="switch-detail" id="imp-sound-detail">
-              A buzz when talking time is up
+              A buzz when you open your card or time runs out, and a tick in the last 10 seconds
             </span>
           </span>
           <button
@@ -360,17 +404,26 @@ function Options({ room }: { room: Room }) {
   );
 }
 
-function Choice({ label, note, children }: { label: string; note?: string; children: ReactNode }) {
+function Choice({
+  label,
+  note,
+  narrow,
+  children,
+}: {
+  label: string;
+  note?: string;
+  /** A short row of options (1, 2, 3) that doesn't need the full width. */
+  narrow?: boolean;
+  children: ReactNode;
+}) {
   const id = useId();
   return (
     <div className="imp-field">
-      <div className="imp-field-head">
-        <span className="field-label" id={id}>
-          {label}
-        </span>
-        <div className="seg" role="radiogroup" aria-labelledby={id}>
-          {children}
-        </div>
+      <span className="field-label" id={id}>
+        {label}
+      </span>
+      <div className={narrow ? "seg is-narrow" : "seg"} role="radiogroup" aria-labelledby={id}>
+        {children}
       </div>
       {note && <p className="imp-field-note">{note}</p>}
     </div>

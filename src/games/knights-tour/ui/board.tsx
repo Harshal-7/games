@@ -74,95 +74,113 @@ export function Board({ size, path, phase, hint, locked, moveMs, onSquare, optio
   const centre = (sq: number) => [(sq % size) + 0.5, Math.floor(sq / size) + 0.5] as const;
   const jumps = path.slice(-3).map(centre);
   const style = { "--n": size, "--move": `${moveMs}ms` } as CSSProperties;
+  // The letters and numbers on the frame, like a real board: rows count up from the bottom.
+  const files = Array.from({ length: size }, (_, col) => squareName(col, size).charAt(0));
+  const ranks = Array.from({ length: size }, (_, row) => String(size - row));
 
   return (
     <div
       className="kt-board"
       data-phase={phase}
       data-locked={locked || undefined}
+      data-numbers={options.numbers ? undefined : "off"}
       style={style}
       role="group"
       aria-label={`Board, ${size} by ${size}`}
     >
-      <div className="kt-squares" aria-hidden="true">
-        {Array.from({ length: n }, (_, sq) => (
-          <div
-            key={sq}
-            className={[
-              "kt-sq",
-              (Math.floor(sq / size) + (sq % size)) % 2 ? "is-dark" : "is-light",
-              moveNumber.has(sq) && "is-visited",
-              sq === knight && "is-current",
-            ]
-              .filter(Boolean)
-              .join(" ")}
-          />
+      <div className="kt-ranks" aria-hidden="true">
+        {ranks.map((rank) => (
+          <span key={rank}>{rank}</span>
+        ))}
+      </div>
+      <div className="kt-files" aria-hidden="true">
+        {files.map((file) => (
+          <span key={file}>{file}</span>
         ))}
       </div>
 
-      <svg className="kt-trail" viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
-        {options.trail &&
-          jumps.slice(1).map(([x2, y2], i) => {
-            const [x1, y1] = jumps[i];
-            const latest = i === jumps.length - 2;
-            return (
-              <line
-                key={`${path.length}-${i}`}
-                className={latest ? "is-latest" : undefined}
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-              />
-            );
-          })}
-      </svg>
-
-      <div className="kt-cells" onKeyDown={onKeyDown}>
-        {Array.from({ length: n }, (_, sq) => {
-          const move = moveNumber.get(sq);
-          const pressable = canPress(sq);
-          return (
-            <button
+      <div className="kt-grid">
+        <div className="kt-squares" aria-hidden="true">
+          {Array.from({ length: n }, (_, sq) => (
+            <div
               key={sq}
-              ref={(el) => {
-                cells.current[sq] = el;
-              }}
-              type="button"
               className={[
-                "kt-cell",
-                pressable && "is-pressable",
-                legal.has(sq) && phase === "playing" && "is-legal",
-                sq === hint && "is-hint",
+                "kt-sq",
+                (Math.floor(sq / size) + (sq % size)) % 2 ? "is-dark" : "is-light",
+                moveNumber.has(sq) && "is-visited",
               ]
                 .filter(Boolean)
                 .join(" ")}
-              tabIndex={sq === focusIndex ? 0 : -1}
-              aria-label={label(sq)}
-              aria-disabled={!pressable}
-              onFocus={() => setFocused(sq)}
-              onClick={() => pressable && onSquare(sq)}
-            >
-              {options.numbers && move && sq !== knight ? (
-                <span className="kt-node" style={{ "--i": move } as CSSProperties}>
-                  {move}
-                </span>
-              ) : null}
-              {options.moves && legal.has(sq) && phase === "playing" ? <span className="kt-dot" /> : null}
-            </button>
-          );
-        })}
-      </div>
-
-      {knight !== null && (
-        <div
-          className="kt-knight"
-          style={{ transform: `translate(${(knight % size) * 100}%, ${Math.floor(knight / size) * 100}%)` }}
-          aria-hidden="true"
-        >
-          <Piece className="kt-piece" />
+            />
+          ))}
         </div>
-      )}
+
+        {/* Under the squares' contents, so the number tiles sit on top of the line. */}
+        <svg className="kt-trail" viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+          {options.trail &&
+            jumps.slice(1).map(([x2, y2], i) => {
+              const [x1, y1] = jumps[i];
+              const latest = i === jumps.length - 2;
+              return (
+                <line
+                  key={`${path.length}-${i}`}
+                  className={latest ? "is-latest" : undefined}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                />
+              );
+            })}
+        </svg>
+
+        <div className="kt-cells" onKeyDown={onKeyDown}>
+          {Array.from({ length: n }, (_, sq) => {
+            const move = moveNumber.get(sq);
+            const pressable = canPress(sq);
+            return (
+              <button
+                key={sq}
+                ref={(el) => {
+                  cells.current[sq] = el;
+                }}
+                type="button"
+                className={[
+                  "kt-cell",
+                  pressable && "is-pressable",
+                  legal.has(sq) && phase === "playing" && "is-legal",
+                  sq === hint && "is-hint",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                tabIndex={sq === focusIndex ? 0 : -1}
+                aria-label={label(sq)}
+                aria-disabled={!pressable}
+                onFocus={() => setFocused(sq)}
+                onClick={() => pressable && onSquare(sq)}
+              >
+                {options.numbers && move && sq !== knight ? (
+                  <span className="kt-node" style={{ "--i": move } as CSSProperties}>
+                    {move}
+                  </span>
+                ) : null}
+                {options.moves && legal.has(sq) && phase === "playing" ? <span className="kt-dot" /> : null}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* The knight and the ring around its square slide together. */}
+        {knight !== null && (
+          <div
+            className="kt-knight"
+            style={{ transform: `translate(${(knight % size) * 100}%, ${Math.floor(knight / size) * 100}%)` }}
+            aria-hidden="true"
+          >
+            <Piece className="kt-piece" />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

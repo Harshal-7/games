@@ -1,45 +1,5 @@
-/* Knight's Tour. Board colours come from the board style ([data-kt-board]); everything else
-   from the shared tokens in globals.css. */
-
-/* Board styles (Settings → Board). Any element can carry data-kt-board, which is
-   how the option cards show their own colours. Stone is the default. */
-:root,
-[data-kt-board="stone"] {
-  --sq-light: #f1eee6;
-  --sq-dark: #e2dccf;
-}
-[data-kt-board="tournament"] {
-  --sq-light: #eef0e0;
-  --sq-dark: #a9bd95;
-}
-[data-kt-board="slate"] {
-  --sq-light: #eef1f5;
-  --sq-dark: #d3dbe6;
-}
-html[data-mode="dark"],
-html[data-mode="dark"] [data-kt-board="stone"],
-html[data-mode="dark"][data-kt-board="stone"] {
-  --sq-light: #33312d;
-  --sq-dark: #262522;
-}
-html[data-mode="dark"] [data-kt-board="tournament"],
-html[data-mode="dark"][data-kt-board="tournament"] {
-  --sq-light: #3d4838;
-  --sq-dark: #2b3327;
-}
-html[data-mode="dark"] [data-kt-board="slate"],
-html[data-mode="dark"][data-kt-board="slate"] {
-  --sq-light: #333a47;
-  --sq-dark: #262b35;
-}
-
-.kt-board {
-  --piece: var(--fg);
-  --piece-shadow: rgb(29 28 26 / 0.28);
-}
-html[data-mode="dark"] .kt-board {
-  --piece-shadow: rgb(0 0 0 / 0.55);
-}
+/* Knight's Tour. Board colours come from the board style (../board-styles.css); everything
+   else from the shared tokens in globals.css. */
 
 /* Layout. Phones and small windows: one column (title, sizes, status, board,
    buttons, best time). Big screens: the board on the left as large as the window
@@ -54,28 +14,34 @@ html[data-mode="dark"] .kt-board {
 }
 .kt-sizes {
   grid-area: sizes;
-  margin-top: 24px;
+  margin-top: 16px;
 }
 .kt-status {
   grid-area: status;
+  margin-top: 14px;
 }
 .kt-board-area {
   grid-area: board;
+  margin-top: 14px;
 }
 .kt-actions {
   grid-area: actions;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 .kt-best {
   grid-area: best;
+  margin-top: 14px;
 }
 
-/* One column: keep the board small enough that it and its buttons fit a laptop
-   window without scrolling. */
-.kt-status,
-.kt-board-area,
-.kt-actions {
-  max-width: max(300px, calc(100dvh - 330px));
+/* One column on a tablet or a narrow laptop window: keep the board small enough that
+   it and its buttons fit the window. Phones use the whole width and scroll. */
+@media (min-width: 600px) {
+  .kt-sizes,
+  .kt-status,
+  .kt-board-area,
+  .kt-actions {
+    max-width: max(300px, calc(100svh - 450px));
+  }
 }
 
 @media (min-width: 860px) and (min-height: 480px) {
@@ -95,6 +61,7 @@ html[data-mode="dark"] .kt-board {
     column-gap: var(--frame-gap);
     min-height: var(--frame-board);
   }
+  .kt-sizes,
   .kt-status,
   .kt-board-area,
   .kt-actions {
@@ -102,75 +69,157 @@ html[data-mode="dark"] .kt-board {
   }
   .kt-board-area {
     align-self: center;
+    margin-top: 0;
   }
   .kt-sizes {
-    margin-top: 22px;
+    margin-top: 20px;
   }
   .kt-status {
-    margin-top: 26px;
+    margin-top: 16px;
   }
 }
 
-.kt-sizes {
-  display: flex;
-  width: fit-content;
+/* ---------- Board size ---------- */
+
+/* An outlined segmented control across the column; the sizes are numbers, in DM Mono. */
+.seg.kt-sizes {
+  display: grid;
+}
+.seg.kt-sizes button {
+  min-width: 0;
+  padding: 0;
+  font-family: var(--num);
+  font-weight: 400;
+}
+.seg.kt-sizes button[aria-checked="true"] {
+  font-weight: 500;
 }
 
+/* ---------- Status card ---------- */
+
 .kt-status {
-  margin: 20px 2px 10px;
+  display: grid;
+  gap: 8px;
+  padding: 10px 14px 12px;
 }
 .kt-status-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  color: var(--muted);
-  font-size: 15px;
+  min-height: 28px;
 }
-.kt-status-row > span:first-child {
-  color: var(--fg);
-  font-weight: 550;
+.kt-status-text {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.kt-status-text svg {
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: -2px;
+}
+/* "Move 12 of 25": the move in Fraunces italic. */
+.kt-status-num {
+  font-family: var(--display);
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
 }
 .kt-time {
-  font-family: var(--font-mono);
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--num);
+  font-size: 19px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
-  font-size: 15px;
+  line-height: 1;
 }
-.kt-status[data-phase="won"] .kt-status-row > span {
-  color: var(--accent);
-  font-weight: 650;
+.kt-time svg {
+  color: var(--muted);
 }
 .kt-progress {
-  height: 3px;
-  margin-top: 8px;
+  height: 6px;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--line);
+  background: var(--inset);
 }
 .kt-progress span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--accent);
+  background: var(--game);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ink) 25%, transparent);
   transition: width 0.25s ease;
 }
 
 /* ---------- Board ---------- */
 
+/* A wooden frame with the letters along the bottom and the numbers up the left, both
+   inside the board's square. Sizes inside scale with the board: cqi is its width. */
 .kt-board {
-  --cell: calc(100cqi / var(--n));
+  --gut: clamp(16px, 6.4cqi, 28px);
+  --rim: clamp(6px, 2.6cqi, 12px);
+  --cell: calc((100cqi - var(--gut) - var(--rim)) / var(--n));
+  /* The knight is ink on every board. */
+  --piece: var(--ink);
+  --piece-shadow: rgb(0 0 0 / 0.35);
   position: relative;
   container-type: inline-size;
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 16px;
-  overflow: hidden;
+  border-radius: 12px;
+  background: var(--board-frame);
   box-shadow:
-    0 0 0 1px var(--line),
-    var(--shadow);
+    var(--shadow),
+    inset 0 0 0 1px rgb(255 255 255 / 0.08);
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
+}
+
+.kt-ranks,
+.kt-files {
+  position: absolute;
+  display: grid;
+  color: var(--board-coord);
+  font-family: var(--num);
+  font-size: clamp(9px, 3.4cqi, 14px);
+  line-height: 1;
+  pointer-events: none;
+}
+.kt-ranks {
+  top: var(--rim);
+  bottom: var(--gut);
+  left: 0;
+  width: var(--gut);
+  grid-template-rows: repeat(var(--n), 1fr);
+}
+.kt-files {
+  right: var(--rim);
+  bottom: 0;
+  left: var(--gut);
+  height: var(--gut);
+  grid-template-columns: repeat(var(--n), 1fr);
+}
+.kt-ranks span,
+.kt-files span {
+  display: grid;
+  place-items: center;
+}
+
+/* The squares and everything on them. */
+.kt-grid {
+  position: absolute;
+  top: var(--rim);
+  right: var(--rim);
+  bottom: var(--gut);
+  left: var(--gut);
+  overflow: hidden;
+  border-radius: 3px;
 }
 
 .kt-squares,
@@ -191,14 +240,12 @@ html[data-mode="dark"] .kt-board {
 .kt-sq.is-dark {
   background: var(--sq-dark);
 }
-.kt-sq.is-visited.is-light {
-  background: color-mix(in oklab, var(--accent) 9%, var(--sq-light));
+/* With move numbers off (Settings), visited squares go a shade darker instead. */
+.kt-board[data-numbers="off"] .kt-sq.is-visited.is-light {
+  background: color-mix(in oklab, var(--ink) 18%, var(--sq-light));
 }
-.kt-sq.is-visited.is-dark {
-  background: color-mix(in oklab, var(--accent) 11%, var(--sq-dark));
-}
-.kt-sq.is-current {
-  background: color-mix(in oklab, var(--accent) 24%, var(--sq-light)) !important;
+.kt-board[data-numbers="off"] .kt-sq.is-visited.is-dark {
+  background: color-mix(in oklab, var(--ink) 18%, var(--sq-dark));
 }
 
 .kt-trail {
@@ -208,17 +255,17 @@ html[data-mode="dark"] .kt-board {
   height: 100%;
   pointer-events: none;
 }
-/* Only the last two jumps are drawn, dotted: the newest a little stronger. Units
-   are squares. */
+/* Only the last two jumps are drawn, dotted in ink: the newest a little stronger.
+   Units are squares. */
 .kt-trail line {
-  stroke: var(--accent);
-  stroke-width: 0.035;
+  stroke: var(--ink);
+  stroke-width: 0.045;
   stroke-linecap: round;
-  stroke-dasharray: 0 0.12;
-  opacity: 0.3;
+  stroke-dasharray: 0.02 0.125;
+  opacity: 0.4;
 }
 .kt-trail line.is-latest {
-  opacity: 0.65;
+  opacity: 0.6;
 }
 
 .kt-cell {
@@ -232,39 +279,42 @@ html[data-mode="dark"] .kt-board {
   font: inherit;
   cursor: default;
 }
+/* Ink reads on light and dark squares alike. */
 .kt-cell:focus-visible {
-  outline: 2px solid var(--accent);
+  z-index: 2;
+  outline: 3px solid var(--ink);
   outline-offset: -3px;
   border-radius: 6px;
-  z-index: 2;
 }
 .kt-cell.is-pressable {
   cursor: pointer;
 }
 @media (hover: hover) {
   .kt-cell.is-pressable:hover {
-    background: var(--accent-soft);
+    background: color-mix(in oklab, var(--brass) 40%, transparent);
   }
 }
 
-/* Visited squares: a numbered node the trail runs through. */
+/* Visited squares: the move number on a small cream tile, over the trail. */
 .kt-node {
   display: grid;
   place-items: center;
-  width: calc(var(--cell) * 0.46);
-  aspect-ratio: 1;
-  border: max(1px, calc(var(--cell) * 0.025)) solid color-mix(in oklab, var(--accent) 45%, transparent);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--fg);
-  font-family: var(--font-mono);
-  font-size: calc(var(--cell) * 0.2);
-  font-weight: 600;
+  min-width: calc(var(--cell) * 0.46);
+  height: calc(var(--cell) * 0.43);
+  padding: 0 calc(var(--cell) * 0.05);
+  box-sizing: border-box;
+  border-radius: calc(var(--cell) * 0.11);
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: calc(var(--cell) * 0.24);
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   line-height: 1;
-  animation: kt-node-in 0.25s ease-out both;
+  box-shadow: 0 max(1px, calc(var(--cell) * 0.02)) 0 color-mix(in oklab, var(--ink) 35%, transparent);
+  animation: kt-node-in 0.25s ease-out;
 }
-/* A finished tour: the numbers ripple in the order they were visited. */
+/* A finished tour: the tiles ripple in the order they were visited. */
 .kt-board[data-phase="won"] .kt-node {
   animation: kt-wave 0.5s ease-in-out both;
   animation-delay: calc(var(--i) * 24ms);
@@ -272,34 +322,38 @@ html[data-mode="dark"] .kt-board {
 @keyframes kt-wave {
   50% {
     transform: scale(1.18);
-    border-color: var(--accent);
-    background: var(--accent-soft);
+    background: var(--brass);
   }
 }
 
-/* Squares the knight can jump to. */
+/* Squares the knight can jump to: brass dots with an ink ring. */
 .kt-dot {
-  width: calc(var(--cell) * 0.2);
+  width: min(calc(var(--cell) * 0.28), 24px);
   aspect-ratio: 1;
-  border-radius: 999px;
-  background: var(--accent);
-  opacity: 0.8;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-  animation: kt-dot-in 0.2s ease-out both;
+  border-radius: 50%;
+  background: var(--brass);
+  box-shadow:
+    0 0 0 clamp(1.5px, calc(var(--cell) * 0.045), 3px) var(--ink),
+    0 2px 3px rgb(0 0 0 / 0.3);
+  transition: transform 0.15s ease;
+  animation: kt-dot-in 0.2s ease-out;
 }
 @media (hover: hover) {
   .kt-cell.is-pressable:hover .kt-dot {
-    transform: scale(1.35);
-    opacity: 1;
+    transform: scale(1.3);
   }
 }
 
+/* The hinted square: a pulsing brass ring, edged in ink so it shows on any square. */
 .kt-cell.is-hint::after {
   content: "";
   position: absolute;
-  inset: 12%;
-  border: max(2px, calc(var(--cell) * 0.04)) solid var(--accent);
-  border-radius: 999px;
+  inset: 13%;
+  border: clamp(2px, calc(var(--cell) * 0.05), 4px) solid var(--brass);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1.5px var(--ink),
+    inset 0 0 0 1.5px var(--ink);
   animation: kt-pulse 1.1s ease-in-out infinite;
   pointer-events: none;
 }
@@ -308,16 +362,21 @@ html[data-mode="dark"] .kt-board {
   cursor: default;
 }
 
-/* The knight slides between squares; the piece pops in when first placed. */
+/* The knight slides between squares, with a brass and ink ring around its square; the
+   piece pops in when first placed. */
 .kt-knight {
+  --ring: clamp(2px, calc(var(--cell) * 0.055), 4px);
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 1;
   width: calc(100% / var(--n));
   height: calc(100% / var(--n));
+  box-shadow:
+    inset 0 0 0 var(--ring) var(--brass),
+    inset 0 0 0 calc(var(--ring) * 1.7) var(--ink);
   pointer-events: none;
   transition: transform var(--move) cubic-bezier(0.3, 0.7, 0.3, 1);
-  z-index: 1;
 }
 .kt-piece {
   display: block;
@@ -326,7 +385,7 @@ html[data-mode="dark"] .kt-board {
   padding: 13%;
   box-sizing: border-box;
   color: var(--piece);
-  filter: drop-shadow(0 calc(var(--cell) * 0.03) calc(var(--cell) * 0.04) var(--piece-shadow));
+  filter: drop-shadow(0 calc(var(--cell) * 0.035) calc(var(--cell) * 0.02) var(--piece-shadow));
   animation: kt-pop 0.28s cubic-bezier(0.3, 1.4, 0.5, 1) both;
 }
 
@@ -359,15 +418,63 @@ html[data-mode="dark"] .kt-board {
   }
 }
 
+/* ---------- Under the board ---------- */
+
+.kt-controls {
+  display: grid;
+  gap: 12px;
+}
+/* Undo and Hint share the row; Restart is a round button at the end. */
+.kt-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 56px;
+  gap: 10px;
+}
+.kt-tools .btn {
+  padding: 0 14px;
+}
+.kt-tools .kt-restart {
+  padding: 0;
+}
+/* The hint says "go back": Undo turns brass and pings. */
+.kt-tools .btn.is-nudged {
+  position: relative;
+  background: var(--game);
+  color: var(--on-game);
+}
+.kt-tools .btn.is-nudged:hover:not(:disabled) {
+  background: var(--game-deep);
+}
+.kt-tools .btn.is-nudged::after {
+  content: "";
+  position: absolute;
+  inset: -2.5px;
+  border-radius: inherit;
+  animation: kt-nudge 1.1s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes kt-nudge {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--game) 75%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 9px color-mix(in oklab, var(--game) 0%, transparent);
+  }
+}
+.btn.kt-solve {
+  gap: 10px;
+}
+
 /* ---------- Result card (takes the buttons' place when the tour ends) ---------- */
 
 .kt-result {
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
+  display: grid;
+  gap: 14px;
+  padding: 14px 16px 16px;
   animation: kt-rise 0.3s cubic-bezier(0.3, 1.2, 0.5, 1) both;
+}
+.kt-result.is-stuck {
+  gap: 12px;
 }
 .kt-result-head {
   display: flex;
@@ -378,49 +485,82 @@ html[data-mode="dark"] .kt-board {
   display: grid;
   flex: none;
   place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-fg);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--game);
+  color: var(--on-game);
+  box-shadow: 0 0 0 2.5px var(--ink);
 }
 .kt-result h2 {
   margin: 0;
-  font-size: 17px;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-family: var(--display);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.1;
 }
 .kt-result p {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 14.5px;
+  line-height: 1.4;
 }
-.kt-tags {
+.kt-result-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
 }
 .kt-tag {
-  padding: 3px 10px;
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 9px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--ink);
   border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--fg);
+  background: var(--inset);
+  color: var(--ink);
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 700;
 }
-.kt-tag.is-accent {
-  background: var(--accent);
-  color: var(--accent-fg);
+.kt-tag.is-best {
+  background: var(--game);
+  color: var(--on-game);
 }
 .kt-result-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
+  gap: 10px;
 }
-.kt-result-actions .btn-primary {
+.kt-result-actions > .btn {
+  flex: 1 1 0;
+  min-height: 52px;
+  padding: 0 14px;
+}
+.kt-num {
+  font-family: var(--num);
+  font-weight: 500;
+}
+/* Stuck: Undo is the way out, full width; going further back or starting over below. */
+.btn.kt-result-main {
+  width: 100%;
+  font-size: 19px;
+}
+.kt-result-more {
+  display: flex;
+  gap: 10px;
+}
+.kt-result-more > .btn {
   flex: 1 1 auto;
+  padding: 0 14px;
+}
+.kt-result-more > .btn + .btn {
+  flex: 0 1 auto;
+  padding: 0 16px;
 }
 
 @keyframes kt-rise {
@@ -430,111 +570,95 @@ html[data-mode="dark"] .kt-board {
   }
 }
 
-/* ---------- Under the board ---------- */
-
-.kt-controls {
-  display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto;
-  gap: 8px;
-}
-.kt-controls .btn {
-  padding: 0 14px;
-}
-.kt-controls .is-nudged {
-  border-color: var(--accent);
-  animation: kt-nudge 1.1s ease-in-out infinite;
-}
-@keyframes kt-nudge {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 var(--accent-soft);
-  }
-  50% {
-    box-shadow: 0 0 0 5px var(--accent-soft);
-  }
-}
-.kt-controls .kt-restart {
-  width: 42px;
-  padding: 0;
-}
-.kt-restart-label {
-  display: none;
-}
-/* Big screens: four labelled buttons in a 2 × 2 grid, since the side column is too
-   narrow for one row. Same breakpoint as the two-column layout above. */
-@media (min-width: 860px) and (min-height: 480px) {
-  .kt-controls {
-    grid-template-columns: 1fr 1fr;
-  }
-  .kt-controls .kt-restart {
-    width: auto;
-    padding: 0 14px;
-  }
-  .kt-restart-label {
-    display: inline;
-  }
-}
+/* ---------- Best time ---------- */
 
 .kt-best {
-  margin: 16px 2px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px;
   color: var(--muted);
   font-size: 14px;
+  line-height: 1.4;
+}
+.kt-best-time {
+  color: var(--fg);
+  font-family: var(--num);
   font-variant-numeric: tabular-nums;
 }
-/* Phones: the four buttons must fit one row, so Undo and Hint drop their icons. */
-@media (max-width: 400px) {
-  .kt-controls {
-    gap: 6px;
+/* A small brass medal. */
+.kt-medal {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 3px dotted var(--on-game);
+  border-radius: 50%;
+  background: var(--game);
+}
+
+/* ---------- Short big screens ---------- */
+
+/* Big but short windows (down to 480px tall): everything in the side column tightens
+   up, and while a card replaces the buttons the blurb steps aside to make room. */
+@media (min-width: 860px) and (min-height: 480px) and (max-height: 600px) {
+  .kt .game-title {
+    font-size: 30px;
   }
-  .kt-controls .btn {
-    padding: 0 12px;
-    gap: 6px;
+  .kt .game-blurb {
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 1.4;
   }
-  .kt-controls .kt-text-only svg {
+  .kt:not([data-panel="controls"]) .game-blurb {
     display: none;
   }
-}
-
-/* ---------- Settings previews ---------- */
-
-.mini-board {
-  display: grid;
-  flex: none;
-  grid-template-columns: repeat(4, 1fr);
-  width: 30px;
-  height: 30px;
-  overflow: hidden;
-  border-radius: 6px;
-  box-shadow: 0 0 0 1px var(--line);
-}
-.mini-board .is-light {
-  background: var(--sq-light);
-}
-.mini-board .is-dark {
-  background: var(--sq-dark);
-}
-
-/* ---------- Card picture on the games list ---------- */
-
-.kt-thumb {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.kt-thumb-light {
-  fill: var(--sq-light);
-}
-.kt-thumb-dark {
-  fill: var(--sq-dark);
-}
-.kt-thumb-trail {
-  stroke: var(--accent);
-  stroke-width: 0.07;
-  opacity: 0.75;
-}
-.kt-thumb-dot {
-  fill: var(--accent);
-}
-.kt-thumb-knight {
-  fill: var(--fg);
+  .kt-sizes {
+    margin-top: 12px;
+  }
+  .seg.kt-sizes button {
+    height: 40px;
+  }
+  .kt-status {
+    margin-top: 10px;
+    padding: 7px 14px 9px;
+    gap: 6px;
+  }
+  .kt-actions {
+    margin-top: 12px;
+  }
+  .kt-controls {
+    gap: 10px;
+  }
+  .kt-tools .btn {
+    min-height: 40px;
+  }
+  .btn.kt-solve {
+    min-height: 46px;
+    font-size: 19px;
+  }
+  .kt-best {
+    margin-top: 10px;
+  }
+  .kt-result {
+    gap: 10px;
+    padding: 12px 14px 14px;
+  }
+  .kt-result.is-stuck {
+    gap: 8px;
+  }
+  .kt-result h2 {
+    font-size: 19px;
+  }
+  .kt-result p {
+    margin-top: 2px;
+    font-size: 14px;
+  }
+  .kt-result-actions > .btn,
+  .btn.kt-result-main {
+    min-height: 44px;
+  }
+  .kt-result-more > .btn {
+    min-height: 40px;
+  }
 }

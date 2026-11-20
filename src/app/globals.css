@@ -1,127 +1,161 @@
 @import "tailwindcss";
 
 /*
- * Colours for every game. html[data-mode], [data-accent] and the board style are
- * set before first paint by the settings script in the layout.
+ * Design 4, "Game Night + Sticker". Felt (a green card table) is the default look and
+ * lives on :root, so the first paint is already right; html[data-mode="light"] repaints
+ * the same names as daylight (paper and ink). The settings script in the layout sets
+ * data-mode before the first paint.
+ *
+ * Raw colours: the page, the cards and the two game colours. Components use the
+ * context names further down (--fg, --muted, --line, --ring) so the same part
+ * reads right straight on the page and inside a card.
  */
 :root {
-  --bg: #f6f5f1;
-  --surface: #ffffff;
-  --surface-2: #efede7;
-  --fg: #1d1c1a;
-  --muted: #6b6861;
-  --line: #e2dfd6;
-  --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
-  --shadow: 0 1px 2px rgb(29 28 26 / 0.06), 0 8px 24px -12px rgb(29 28 26 / 0.18);
-  color-scheme: light;
-}
+  --page: #1e4a38;
+  --page-texture:
+    radial-gradient(rgb(255 255 255 / 0.05) 0.8px, transparent 1.3px) 0 0 / 5px 5px,
+    radial-gradient(rgb(0 0 0 / 0.12) 0.8px, transparent 1.3px) 2.5px 2.5px / 5px 5px;
+  /* Solid page colour for trays that sit over scrolling content. */
+  --page-deep: #173b2c;
+  --on-page: #f5ecd9;
+  --on-page-muted: #cdc3aa;
+  --page-line: rgb(245 236 217 / 0.2);
+  /* Timer and progress tracks drawn on the page. */
+  --track: rgb(0 0 0 / 0.28);
 
-html[data-mode="dark"] {
-  --bg: #131312;
-  --surface: #1b1b19;
-  --surface-2: #252422;
-  --fg: #edebe6;
-  --muted: #9d9a92;
-  --line: #2e2d2a;
-  --accent-soft: color-mix(in oklab, var(--accent) 16%, transparent);
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px -14px rgb(0 0 0 / 0.7);
+  --card: #f7f0e1;
+  --inset: #ece2cc;
+  --ink: #221c15;
+  --ink-muted: #6a5d4a;
+  --card-line: #dccfb4;
+  --edge: rgb(34 28 21 / 0.14);
+  --shadow: 0 1px 0 rgb(0 0 0 / 0.25), 0 14px 28px -12px rgb(0 0 0 / 0.6);
+
+  /* Knight's Tour is brass, Imposter is red. Brass is never small text: on cream it
+     is about 2:1. Text on brass is ink; red text on cream uses --red-deep. */
+  --brass: #d9a441;
+  --brass-deep: #c48f2c;
+  --red: #b42a22;
+  --red-deep: #9c2019;
+  --red-soft: #f3d8cf;
+  --on-red: #fbf3e4;
+
+  --radius: 16px;
+  --radius-sm: 12px;
+
+  --display: var(--font-fraunces), Georgia, serif;
+  --body: var(--font-dm-sans), system-ui, sans-serif;
+  /* DM Mono only comes in 400 and 500. */
+  --num: var(--font-dm-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
   color-scheme: dark;
 }
 
-/* Accent colours (Settings → Colour). Any element can carry data-accent, which is
-   how the colour swatches show their own colour. Ocean is the default. */
-:root,
-[data-accent="ocean"] {
-  --accent: #2563eb;
-  --accent-strong: #1d4ed8;
-  --accent-fg: #ffffff;
+html[data-mode="light"] {
+  --page: #efe6d3;
+  --page-texture: radial-gradient(rgb(34 28 21 / 0.07) 0.8px, transparent 1.3px) 0 0 / 5px 5px;
+  --page-deep: #e7dcc5;
+  --on-page: #221c15;
+  --on-page-muted: #5a4f3f;
+  --page-line: rgb(34 28 21 / 0.16);
+  --track: rgb(34 28 21 / 0.12);
+
+  --card: #fffaf0;
+  --inset: #f3ead7;
+  --card-line: #e0d3b8;
+  --edge: rgb(34 28 21 / 0.16);
+  --shadow: 0 1px 0 rgb(34 28 21 / 0.1), 0 12px 24px -14px rgb(34 28 21 / 0.45);
+  --red-soft: #f6dcd3;
+
+  color-scheme: light;
 }
-[data-accent="sage"] {
-  --accent: #2f7d5b;
-  --accent-strong: #256649;
-  --accent-fg: #ffffff;
+
+/* ---------- Context: what the colour names mean where you are ---------- */
+
+/* On the page. */
+:root {
+  --fg: var(--on-page);
+  --muted: var(--on-page-muted);
+  --line: var(--page-line);
+  --ring: var(--on-page);
 }
-[data-accent="indigo"] {
-  --accent: #4f46e5;
-  --accent-strong: #4338ca;
-  --accent-fg: #ffffff;
+
+/* Inside a card: ink on cream. The focus ring and insets switch too. */
+.card,
+.confirm {
+  --fg: var(--ink);
+  --muted: var(--ink-muted);
+  --line: var(--card-line);
+  --ring: var(--ink);
 }
-[data-accent="plum"] {
-  --accent: #8b3fbf;
-  --accent-strong: #7531a3;
-  --accent-fg: #ffffff;
+
+/* Cream controls: ink text, but their focus ring stays the one of the place they sit. */
+.btn,
+.icon-btn,
+.seg,
+.switch {
+  --fg: var(--ink);
+  --muted: var(--ink-muted);
+  --line: var(--card-line);
 }
-[data-accent="ember"] {
-  --accent: #d4531f;
-  --accent-strong: #b8431a;
-  --accent-fg: #ffffff;
+
+/* ---------- The game's colour ---------- */
+
+/* Each page wrapper says which game it is (GameShell sets data-game). The main button
+   takes --game; picked and on states take --pick: ink for site-wide choices, the
+   game's colour inside a game. */
+:root {
+  --game: var(--card);
+  --game-deep: var(--inset);
+  --on-game: var(--ink);
+  --pick: var(--ink);
+  --on-pick: var(--card);
 }
-html[data-mode="dark"],
-html[data-mode="dark"] [data-accent="ocean"],
-html[data-mode="dark"][data-accent="ocean"] {
-  --accent: #7cb4ff;
-  --accent-strong: #a3cbff;
-  --accent-fg: #0c1a2e;
+[data-game="knights-tour"] {
+  --game: var(--brass);
+  --game-deep: var(--brass-deep);
+  --on-game: var(--ink);
+  --pick: var(--brass);
+  --on-pick: var(--ink);
 }
-html[data-mode="dark"] [data-accent="sage"],
-html[data-mode="dark"][data-accent="sage"] {
-  --accent: #6fcf97;
-  --accent-strong: #8fdcaf;
-  --accent-fg: #0f1f17;
-}
-html[data-mode="dark"] [data-accent="indigo"],
-html[data-mode="dark"][data-accent="indigo"] {
-  --accent: #a5b4fc;
-  --accent-strong: #c3cdfd;
-  --accent-fg: #141433;
-}
-html[data-mode="dark"] [data-accent="plum"],
-html[data-mode="dark"][data-accent="plum"] {
-  --accent: #d0a2f7;
-  --accent-strong: #dfbdf9;
-  --accent-fg: #24122f;
-}
-html[data-mode="dark"] [data-accent="ember"],
-html[data-mode="dark"][data-accent="ember"] {
-  --accent: #ff7a45;
-  --accent-strong: #ff9466;
-  --accent-fg: #1a1209;
+[data-game="imposter"] {
+  --game: var(--red);
+  --game-deep: var(--red-deep);
+  --on-game: var(--on-red);
+  --pick: var(--red);
+  --on-pick: var(--on-red);
 }
 
 @theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-fg: var(--fg);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-accent: var(--accent);
-  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: var(--body);
+  --font-mono: var(--num);
 }
 
-html,
-body {
-  margin: 0;
-  background-color: var(--bg);
+/* ---------- Base ---------- */
+
+html {
+  background: var(--page-texture), var(--page);
   color: var(--fg);
 }
 
 body {
   min-height: 100dvh;
-  font-family: var(--font-sans);
+  margin: 0;
+  font-family: var(--body);
   font-size: 16px;
-  line-height: 1.55;
+  line-height: 1.5;
+  font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
-  background: var(--accent-soft);
+  background: color-mix(in oklab, var(--brass) 45%, transparent);
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
 }
 
 /* ---------- Page frame ---------- */
@@ -129,50 +163,43 @@ body {
 .page {
   max-width: 640px;
   margin: 0 auto;
-  padding: 0 16px 48px;
+  padding: 0 20px 48px;
 }
 
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   height: 64px;
 }
 
-/* The way back, top left: a pill that lines up with the content's left edge and
-   matches the round buttons on the right. */
+/* The way back, top left: a plain link, the one exception to outlined buttons. */
 .back-link {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 40px;
-  padding: 0 14px 0 9px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface);
+  min-height: 44px;
+  margin-left: -6px;
+  padding: 0 10px 0 4px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
   color: var(--fg);
   font: inherit;
-  font-size: 14.5px;
-  font-weight: 550;
+  font-size: 15px;
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  box-sizing: border-box;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-.back-link svg {
-  color: var(--muted);
 }
 .back-link:hover {
-  background: var(--surface-2);
-}
-.topbar .btn {
-  height: 40px;
-  padding: 0 14px;
-  font-size: 14.5px;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
 }
 
 .game-main {
-  padding-top: 8px;
+  padding-top: 4px;
 }
 
 /* Game pages on big screens: the whole page fits the window, nothing scrolls. The
@@ -182,15 +209,13 @@ body {
   :root {
     --frame-side: 380px;
     --frame-gap: 56px;
-    --frame-board: min(calc(100dvh - 104px), calc(100vw - var(--frame-side) - var(--frame-gap) - 48px), 820px);
-    --frame-width: calc(var(--frame-board) + var(--frame-gap) + var(--frame-side) + 32px);
-  }
-  .page.is-game {
-    max-width: var(--frame-width);
+    --frame-board: min(calc(100dvh - 104px), calc(100vw - var(--frame-side) - var(--frame-gap) - 56px), 820px);
+    --frame-width: calc(var(--frame-board) + var(--frame-gap) + var(--frame-side) + 40px);
   }
   .page.is-game {
     display: flex;
     flex-direction: column;
+    max-width: var(--frame-width);
     height: 100dvh;
     padding-bottom: 0;
     box-sizing: border-box;
@@ -198,101 +223,191 @@ body {
   .page.is-game .game-main {
     display: grid;
     flex: 1;
-    align-content: center;
+    align-content: safe center;
     min-height: 0;
     padding: 0 0 40px;
   }
 }
 
+/* ---------- Type ---------- */
+
 .game-title {
   margin: 0;
-  font-size: clamp(28px, 7vw, 36px);
-  font-weight: 650;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
+  color: var(--fg);
+  font-family: var(--display);
+  font-size: clamp(30px, 8.5vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.02;
 }
 
 .game-blurb {
   margin: 8px 0 0;
   color: var(--muted);
-  font-size: 16px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* Small labels: DM Mono capitals in ink (on the page: the page's text colour). */
+.label,
+.field-label {
+  color: var(--fg);
+  font-family: var(--num);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+.field-label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+/* A count or note inside a label stays lower case. */
+.field-label .field-note {
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+.field-note {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 400;
 }
 
 /* ---------- Buttons ---------- */
 
-.icon-btn {
-  display: inline-grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface);
-  color: var(--fg);
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-.icon-btn:hover {
-  background: var(--surface-2);
-}
-
+/* Every button you tap is an outlined pill, sticker style. Pressing pushes it into
+   its shadow. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 42px;
-  padding: 0 16px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface);
-  color: var(--fg);
+  min-height: 44px;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
   font: inherit;
+  font-family: var(--body);
   font-size: 15px;
-  font-weight: 550;
+  font-weight: 700;
+  line-height: 1.1;
   white-space: nowrap;
+  box-shadow: 3px 3px 0 var(--ink);
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    background-color 0.15s ease;
 }
 .btn svg {
   flex: none;
 }
 .btn:hover:not(:disabled) {
-  background: var(--surface-2);
+  background: color-mix(in oklab, var(--card) 90%, var(--ink));
 }
 .btn:active:not(:disabled) {
-  transform: scale(0.97);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
 }
 .btn:disabled {
   opacity: 0.45;
-  cursor: default;
+  box-shadow: none;
+  cursor: not-allowed;
 }
+/* A picked pill (a vote, a toggle): the game's colour. */
+.btn[aria-pressed="true"] {
+  background: var(--pick);
+  color: var(--on-pick);
+}
+
+/* The one main button on a screen: solid, in the game's colour. */
 .btn-primary {
-  border-color: transparent;
-  background: var(--accent);
-  color: var(--accent-fg);
+  min-height: 52px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--game);
+  color: var(--on-game);
+  font-family: var(--display);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 700;
+  box-shadow: 0 3px 0 rgb(0 0 0 / 0.35);
 }
 .btn-primary:hover:not(:disabled) {
-  background: var(--accent-strong);
+  background: var(--game-deep);
 }
-.btn-quiet {
-  border-color: transparent;
+.btn-primary:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.35);
+}
+/* Not ready yet: a dashed empty slot in the muted colour of the place it sits (cream
+   on the felt, ink in a card); the reason sits next to it. */
+.btn-primary {
+  --muted: inherit;
+}
+.btn-primary:disabled {
+  border: 2px dashed var(--muted);
   background: transparent;
   color: var(--muted);
+  opacity: 1;
 }
-.btn-quiet:hover:not(:disabled) {
-  color: var(--fg);
+/* Full width and a little bigger, for the bottom of a screen. */
+.btn-big {
+  width: 100%;
+  min-height: 56px;
+  font-size: 21px;
+}
+/* Quiet buttons are outlined pills too; the class stays for layout tweaks. */
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  box-sizing: border-box;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+.icon-btn:active:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.icon-btn:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 /* ---------- Segmented control ---------- */
 
+/* It clips its corners, so it keeps a floor: a clipped box in a column that runs out of
+   height could otherwise shrink to its borders. */
 .seg {
-  display: inline-flex;
-  gap: 2px;
-  padding: 3px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface-2);
+  display: inline-grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  border: 2.5px solid var(--ink);
+  min-height: min-content;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--card);
+  box-shadow: 3px 3px 0 var(--ink);
 }
 .seg button {
   display: inline-flex;
@@ -300,345 +415,129 @@ body {
   justify-content: center;
   gap: 6px;
   min-width: 52px;
-  height: 34px;
+  height: 44px;
   padding: 0 12px;
   border: 0;
-  border-radius: 9px;
   background: transparent;
-  color: var(--muted);
+  color: var(--ink);
   font: inherit;
-  font-size: 14px;
-  font-weight: 550;
+  font-family: var(--body);
+  font-size: 15px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
-.seg button:hover {
-  color: var(--fg);
+.seg button + button {
+  border-left: 2.5px solid var(--ink);
 }
 .seg button[aria-checked="true"] {
-  background: var(--surface);
+  background: var(--pick);
+  color: var(--on-pick);
+  font-weight: 700;
+}
+.seg button:disabled {
+  color: var(--ink-muted);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+/* The group clips its corners, so the focus ring goes inside the option. */
+.seg button:focus-visible {
+  border-radius: 999px;
+  outline: 3px solid var(--ink);
+  outline-offset: -6px;
+}
+.seg button[aria-checked="true"]:focus-visible {
+  outline-color: var(--on-pick);
+}
+
+/* ---------- Cards and section labels ---------- */
+
+/* Cards you read stay soft: no outline, a soft shadow. */
+.card {
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  background: var(--card);
   color: var(--fg);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 0 0 1px var(--line);
-}
-
-/* ---------- Games home ---------- */
-
-.home-hero {
-  padding: 72px 0 28px;
-}
-.home-title {
-  margin: 0;
-  font-size: clamp(34px, 9vw, 48px);
-  font-weight: 650;
-  letter-spacing: -0.035em;
-  line-height: 1.05;
-}
-.home-lede {
-  margin: 12px 0 0;
-  max-width: 36ch;
-  color: var(--muted);
-  font-size: 17px;
-}
-
-.game-list {
-  display: grid;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* Big screens: the game cards sit side by side. */
-@media (min-width: 760px) {
-  .page.is-home {
-    max-width: 920px;
-  }
-  .game-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.game-card {
-  display: grid;
-  height: 100%;
-  box-sizing: border-box;
-  grid-template-columns: 96px 1fr;
-  gap: 18px;
-  align-items: center;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: var(--surface);
-  color: inherit;
-  text-decoration: none;
   box-shadow: var(--shadow);
-  transition: transform 0.2s ease, border-color 0.2s ease;
 }
-a.game-card:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
+
+/* A card with a strip of tape on its top edge as its heading ("Players · 5"). */
+.section {
+  position: relative;
+  padding: 26px 16px 16px;
 }
-.game-card h2 {
-  margin: 0;
-  font-size: 19px;
-  font-weight: 620;
-  letter-spacing: -0.01em;
-}
-.game-card p {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 15px;
-}
-.game-card .meta {
+.tape {
+  position: absolute;
+  top: -17px;
+  left: 16px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 10px;
-  color: var(--accent);
-  font-size: 14px;
-  font-weight: 600;
-}
-.game-card.is-soon {
-  border-style: dashed;
-  background: transparent;
-  box-shadow: none;
-}
-.game-card .thumb {
-  width: 96px;
-  height: 96px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-.game-card.is-soon .thumb {
-  display: grid;
-  place-items: center;
-  background: var(--surface-2);
-  color: var(--muted);
-  font-size: 28px;
-  font-weight: 600;
-}
-
-.site-footer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 16px;
-  justify-content: space-between;
-  margin-top: 48px;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 14px;
-}
-.site-footer a {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--fg);
-  text-decoration: none;
-}
-.site-footer a:hover {
-  color: var(--accent);
-}
-
-/* ---------- Settings ---------- */
-
-/* Phones: one column. Big screens: the preview and the Look card on the left, the
-   Knight's Tour card on the right. */
-.page.is-settings {
-  max-width: 1040px;
-}
-@media (min-width: 860px) and (min-height: 480px) {
-  .page.is-settings {
-    max-width: var(--frame-width);
-  }
-}
-.settings {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "top" "intro" "preview" "look" "kt";
-  row-gap: 16px;
-}
-.settings > .topbar {
-  grid-area: top;
-}
-.settings-intro {
-  grid-area: intro;
-}
-.settings-preview {
-  grid-area: preview;
-  justify-self: center;
-  width: min(100%, 320px);
-}
-.settings-look {
-  grid-area: look;
-}
-.settings-kt {
-  grid-area: kt;
-}
-@media (min-width: 860px) {
-  .settings {
-    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
-    grid-template-rows: auto auto auto 1fr;
-    grid-template-areas:
-      "top top"
-      "intro intro"
-      "preview kt"
-      "look kt";
-    column-gap: 40px;
-    row-gap: 20px;
-    align-items: start;
-  }
-  .settings-preview {
-    justify-self: stretch;
-    width: 100%;
-  }
-}
-
-.settings-card {
-  padding: 22px 24px 24px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: var(--surface);
-}
-.settings-card h2 {
+  height: 32px;
   margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-.field {
-  margin-top: 20px;
-}
-.field-label {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 10px;
-  font-size: 15px;
-  font-weight: 600;
-}
-.field-note {
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 400;
-}
-.field.is-inline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px 16px;
-}
-.field.is-inline .field-label {
-  margin-bottom: 0;
-}
-
-/* Board and knight choices: one-line tiles, a small tick on the picked one. */
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-.tile {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  height: 56px;
   padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--bg);
-  color: var(--fg);
-  font: inherit;
+  box-sizing: border-box;
+  border: 2px solid var(--ink);
+  background: var(--inset);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+  transform: rotate(-2.5deg);
+}
+/* In the game's colour: red "Options", brass "Knight's Tour". */
+.tape.is-game {
+  background: var(--game);
+  color: var(--on-game);
+  transform: rotate(2deg);
+}
+.tape-count {
+  font-family: var(--num);
   font-size: 14px;
-  font-weight: 550;
-  text-align: left;
-  cursor: pointer;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.tile:hover {
-  border-color: color-mix(in oklab, var(--fg) 22%, var(--line));
-}
-.tile[aria-checked="true"] {
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
-}
-.tile-art {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-}
-.tile-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.tile-piece {
-  width: 30px;
-  height: 30px;
-  color: var(--fg);
-}
-.tile-check {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 18px;
-  height: 18px;
-  margin-left: auto;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-fg);
-  opacity: 0;
-  transform: scale(0.6);
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-.tile[aria-checked="true"] .tile-check {
-  opacity: 1;
-  transform: none;
+  font-weight: 500;
 }
 
-/* On/off options: one list, a switch on each row. */
+/* ---------- Switches ---------- */
+
 .switches {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--bg);
+  display: grid;
 }
 .switch-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 12px 16px;
+  padding: 11px 0;
 }
 .switch-row + .switch-row {
   border-top: 1px solid var(--line);
 }
 .switch-label {
   display: block;
-  font-size: 14.5px;
-  font-weight: 550;
+  font-size: 16px;
+  font-weight: 600;
 }
 .switch-detail {
   display: block;
-  margin-top: 1px;
+  margin-top: 2px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 13.5px;
+  line-height: 1.35;
 }
 .switch {
   position: relative;
   flex: none;
-  width: 42px;
-  height: 24px;
+  width: 64px;
+  height: 40px;
   padding: 0;
-  border: 0;
+  box-sizing: border-box;
+  border: 2.5px solid var(--ink);
   border-radius: 999px;
-  background: color-mix(in oklab, var(--fg) 18%, transparent);
+  background: var(--inset);
+  box-shadow: 2px 2px 0 var(--ink);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -646,53 +545,55 @@ a.game-card:hover {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: #fff;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  width: 29px;
+  height: 29px;
+  box-sizing: border-box;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--card);
   transition: transform 0.2s ease;
 }
 .switch[aria-checked="true"] {
-  background: var(--accent);
+  background: var(--pick);
 }
 .switch[aria-checked="true"] span {
-  transform: translateX(18px);
+  transform: translateX(24px);
 }
 
-/* Colours: plain dots; the picked one gets a neutral ring and a tick. */
-.swatches {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.swatch {
+/* ---------- Confirm ---------- */
+
+/* One "are you sure?" card for the whole site: the safe choice first, with the focus. */
+.confirm {
   display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-fg);
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  gap: 10px;
+  padding: 18px 16px 16px;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--fg);
+  box-shadow: var(--shadow);
 }
-.swatch svg {
-  opacity: 0;
-  transition: opacity 0.15s ease;
+.confirm-title {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.15;
 }
-.swatch:hover {
-  transform: scale(1.08);
+.confirm p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
 }
-.swatch[aria-checked="true"] {
-  box-shadow:
-    0 0 0 3px var(--surface),
-    0 0 0 5px var(--fg);
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 2px;
 }
-.swatch[aria-checked="true"] svg {
-  opacity: 1;
+.confirm-actions > .btn {
+  flex: 1 1 0;
+  min-height: 52px;
+  white-space: normal;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -3,8 +3,9 @@
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 
 import { updateSettings, useSettings } from "@/settings/store";
+import { Confirm } from "@/ui/confirm";
 import { count, formatDuration } from "@/ui/format";
-import { BulbIcon, PlayIcon, RestartIcon, StopIcon, UndoIcon } from "@/ui/icons";
+import { BulbIcon, CheckIcon, ClockIcon, PlayIcon, RestartIcon, StopIcon, UndoIcon } from "@/ui/icons";
 
 import { nextSolveStep } from "../logic/autoplay";
 import { isClosedTour, SIZES, type Size } from "../logic/board";
@@ -12,10 +13,11 @@ import { elapsed, HINT_GO_BACK, newGame, phaseOf, reduce, type Action, type Game
 import { analyseCached, lastFinishable, warnsdorffMove } from "../logic/solver";
 import { Board } from "./board";
 import { cue } from "./feedback";
-import { ConfirmCard, ResultCard } from "./result-card";
+import { ResultCard } from "./result-card";
 import { recordBest, useBestTimes } from "./use-best-times";
 import { useNow } from "./use-clock";
 
+import "../board-styles.css";
 import "./knights-tour.css";
 
 const FIRST_SIZE: Size = 5;
@@ -172,17 +174,24 @@ export function KnightsTour() {
   const nextSize = SIZES.find((s) => s > size) ?? null;
   const canHint = !solving && (phase === "start" || phase === "playing");
 
+  // "Move 12 of 25", with the move number set apart.
   const status =
-    phase === "start"
-      ? "Tap any square to place the knight"
-      : phase === "won"
-        ? "Tour complete"
-        : phase === "stuck"
-          ? `Stuck at ${path.length} of ${total}`
-          : `Move ${path.length} of ${total}`;
+    phase === "start" ? (
+      "Tap any square to place the knight"
+    ) : phase === "won" ? (
+      <>
+        <CheckIcon width={16} height={16} strokeWidth={3} />
+        Tour complete
+      </>
+    ) : (
+      <>
+        {phase === "stuck" ? "Stuck at" : "Move"} <span className="kt-status-num">{path.length}</span> of {total}
+      </>
+    );
 
   return (
-    <div className="kt">
+    // data-panel: what sits under the board, so short windows can make room for a card.
+    <div className="kt" data-panel={pending ? "confirm" : finished ? "result" : "controls"}>
       <div className="kt-intro">
         <h1 className="game-title">Knight&apos;s Tour</h1>
         <p className="game-blurb">Jump like a chess knight and land on every square exactly once.</p>
@@ -196,12 +205,18 @@ export function KnightsTour() {
         ))}
       </div>
 
-      <div className="kt-status" data-phase={phase}>
+      <div className="card kt-status">
         <div className="kt-status-row">
-          <span aria-live="polite">{status}</span>
-          <span className="kt-time" aria-label={`Time ${formatDuration(time)}`}>
-            {formatDuration(time)}
+          <span className="kt-status-text" aria-live="polite">
+            {status}
           </span>
+          {/* The clock starts with the first jump; before it the instructions need the room. */}
+          {phase !== "start" && (
+            <span className="kt-time" aria-label={`Time ${formatDuration(time)}`}>
+              <ClockIcon width={16} height={16} strokeWidth={2} />
+              {formatDuration(time)}
+            </span>
+          )}
         </div>
         <div className="kt-progress" aria-hidden="true">
           <span style={{ width: `${(path.length / total) * 100}%` }} />
@@ -223,12 +238,13 @@ export function KnightsTour() {
 
       <div className="kt-actions">
         {pending ? (
-          <ConfirmCard
+          <Confirm
             title={pending.kind === "restart" ? "Start over?" : `Switch to ${pending.size}×${pending.size}?`}
             detail={`You're on move ${path.length} of ${total}. This tour will be lost.`}
-            confirmLabel={pending.kind === "restart" ? "Start over" : `Start ${pending.size}×${pending.size}`}
-            onConfirm={() => (pending.kind === "restart" ? restart() : resize(pending.size))}
-            onCancel={() => setPending(null)}
+            yes={pending.kind === "restart" ? "Start over" : `Start ${pending.size}×${pending.size}`}
+            no="Keep playing"
+            onYes={() => (pending.kind === "restart" ? restart() : resize(pending.size))}
+            onNo={() => setPending(null)}
           />
         ) : finished ? (
           <ResultCard
@@ -245,38 +261,43 @@ export function KnightsTour() {
           />
         ) : (
           <div className="kt-controls">
-            <button
-              type="button"
-              className={game.hint === HINT_GO_BACK ? "btn kt-text-only is-nudged" : "btn kt-text-only"}
-              onClick={undo}
-              disabled={path.length === 0}
-              title="Undo (U)"
-            >
-              <UndoIcon /> Undo
-            </button>
-            <button type="button" className="btn kt-text-only" onClick={hint} disabled={!canHint} title="Hint (H)">
-              <BulbIcon /> Hint
-            </button>
-            <button
-              type="button"
-              className={solving ? "btn btn-primary" : "btn"}
-              onClick={() => setSolving((s) => !s)}
-            >
-              {solving ? <StopIcon /> : <PlayIcon />}
+            <div className="kt-tools">
+              <button
+                type="button"
+                className={game.hint === HINT_GO_BACK ? "btn is-nudged" : "btn"}
+                onClick={undo}
+                disabled={path.length === 0}
+                title="Undo (U)"
+              >
+                <UndoIcon width={16} height={16} strokeWidth={2.6} /> Undo
+              </button>
+              <button type="button" className="btn" onClick={hint} disabled={!canHint} title="Hint (H)">
+                <BulbIcon width={16} height={16} strokeWidth={2.6} /> Hint
+              </button>
+              <button type="button" className="btn kt-restart" onClick={askRestart} aria-label="Restart" title="Restart">
+                <RestartIcon width={18} height={18} strokeWidth={2.6} />
+              </button>
+            </div>
+            <button type="button" className="btn btn-primary btn-big kt-solve" onClick={() => setSolving((s) => !s)}>
+              {solving ? <StopIcon width={16} height={16} /> : <PlayIcon width={16} height={16} />}
               {solving ? "Stop" : "Watch it solve"}
-            </button>
-            <button type="button" className="btn kt-restart" onClick={askRestart} aria-label="Restart" title="Restart">
-              <RestartIcon />
-              <span className="kt-restart-label">Restart</span>
             </button>
           </div>
         )}
       </div>
 
       <p className="kt-best">
-        {record
-          ? `Best on ${size}×${size}: ${formatDuration(record.ms)} · ${count(record.undos, "undo")} · ${count(record.hints, "hint")}`
-          : `No best time on ${size}×${size} yet.`}
+        {record ? (
+          <>
+            <span className="kt-medal" aria-hidden="true" />
+            <span>
+              Best on {size}×{size}: <span className="kt-best-time">{formatDuration(record.ms)}</span> ·{" "}
+              {count(record.undos, "undo")} · {count(record.hints, "hint")}
+            </span>
+          </>
+        ) : (
+          `No best time on ${size}×${size} yet.`
+        )}
       </p>
     </div>
   );

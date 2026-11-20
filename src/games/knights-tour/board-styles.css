@@ -1,0 +1,29 @@
+/* Board styles (Settings → Board): the squares, the frame around them and the letters on
+   the frame. Any element can carry data-kt-board, which is how the option tiles show
+   their own colours; <html> carries the one you picked. Wood is the default. A board is
+   a real object on the table, so it looks the same in felt and daylight. */
+:root,
+[data-kt-board="wood"] {
+  --sq-light: #ecd6ae;
+  --sq-dark: #b0834f;
+  --board-frame: #5b3a1f;
+  --board-coord: #ecd6ae;
+}
+[data-kt-board="stone"] {
+  --sq-light: #ece8df;
+  --sq-dark: #bdb5a6;
+  --board-frame: #6e675c;
+  --board-coord: #ece8df;
+}
+[data-kt-board="tournament"] {
+  --sq-light: #eef0e0;
+  --sq-dark: #7f9a6c;
+  --board-frame: #3d4a33;
+  --board-coord: #eef0e0;
+}
+[data-kt-board="slate"] {
+  --sq-light: #e6eaf0;
+  --sq-dark: #8f9bb0;
+  --board-frame: #3b4352;
+  --board-coord: #e6eaf0;
+}

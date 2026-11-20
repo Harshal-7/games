@@ -1,39 +1,37 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { ChevronLeftIcon, SlidersIcon } from "./icons";
+import type { GameSlug } from "@/games/slugs";
+
+import { ChevronLeftIcon } from "./icons";
+import { SettingsLink } from "./settings-link";
 import { TopBar } from "./top-bar";
 
 /**
- * The frame around every game: back to the list, Settings when the game has any,
- * then the game itself. "board" games fill the window on big screens without
- * scrolling; "party" games scroll like a normal page.
+ * The frame around every game: back to the list, Settings, then the game itself.
+ * `game` colours the page (data-game: brass for Knight's Tour, red for Imposter).
+ * "board" games fill the window on big screens without scrolling; "party" games
+ * scroll like a normal page.
  */
 export function GameShell({
   children,
+  game,
   layout = "board",
-  settings = true,
 }: {
   children: ReactNode;
+  game: GameSlug;
   layout?: "board" | "party";
-  settings?: boolean;
 }) {
   return (
-    <div className={layout === "board" ? "page is-game" : "page is-party"}>
+    <div className={layout === "board" ? "page is-game" : "page is-party"} data-game={game}>
       <TopBar
         back={
           <Link href="/" className="back-link">
-            <ChevronLeftIcon />
+            <ChevronLeftIcon width={18} height={18} strokeWidth={2.2} />
             Games
           </Link>
         }
-        actions={
-          settings && (
-            <Link href="/settings" className="icon-btn" aria-label="Settings" title="Settings">
-              <SlidersIcon />
-            </Link>
-          )
-        }
+        actions={<SettingsLink from={game} />}
       />
       <main className="game-main">{children}</main>
     </div>
