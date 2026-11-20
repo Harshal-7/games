@@ -353,6 +353,36 @@
   box-shadow: 2px 2px 0 var(--ink);
 }
 
+/* Every deal screen keeps the card screen's height, with the main button in one fixed
+   slot near the bottom and a row under it for Go back, so handing the phone on never
+   moves the button you tap next. The card screen's height is the card plus 198px: 18
+   padding, 30 for "Riya's card", 14 above the card, 20 + 56 for the main slot and 60 for
+   the Go back row. The pass screen is shorter, so this keeps both the same even when the
+   row of names above takes all the spare room. */
+.party-stage.imp-deal {
+  justify-content: flex-start;
+  min-height: calc(var(--card-w) * 4 / 3 + 198px);
+  padding-bottom: 0;
+}
+.imp-deal-body {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.imp-deal-main {
+  width: 100%;
+  min-height: 56px;
+  margin-top: 20px;
+}
+.imp-deal-under {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+}
+
 /* Pass the phone */
 .imp-pass-mark {
   display: grid;
@@ -378,9 +408,6 @@
   font-size: 16px;
   line-height: 1.5;
 }
-.imp-pass .btn-big {
-  margin-top: 32px;
-}
 
 .imp-card-kicker {
   margin: 0;
@@ -392,10 +419,6 @@
 }
 .imp-after-card {
   margin-top: 20px;
-}
-/* "Go back" is smaller than "Done": same slot, so the card doesn't shift when it swaps. */
-.btn.imp-after-card:not(.btn-big) {
-  margin-block: 26px 6px;
 }
 
 /* ---------- Talking ---------- */
