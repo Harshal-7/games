@@ -203,6 +203,9 @@ html[data-room] .saved-slot:empty {
 [data-game="imposter"] .game-card h2 {
   color: var(--red-deep);
 }
+[data-game="mafia"] .game-card h2 {
+  color: var(--night-deep);
+}
 .game-card p {
   margin: 6px 0 0;
   color: var(--muted);
@@ -230,6 +233,10 @@ html[data-room] .saved-slot:empty {
 [data-game="imposter"] .game-chip {
   background: var(--red-soft);
   color: var(--red-deep);
+}
+[data-game="mafia"] .game-chip {
+  background: var(--night-soft);
+  color: var(--night-deep);
 }
 .game-chip.is-best {
   padding-left: 5px;
