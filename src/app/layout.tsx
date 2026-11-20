@@ -22,6 +22,8 @@ const dmMono = DM_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "
 export const metadata: Metadata = {
   title: { default: `Games · ${AUTHOR}`, template: "%s · Games" },
   description: `Small browser games designed and built by ${AUTHOR}.`,
+  // The name under the icon when an iPhone adds the site to its Home Screen.
+  appleWebApp: { title: "Games" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
