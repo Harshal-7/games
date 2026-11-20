@@ -7,6 +7,7 @@ lives in its own folder and has its own page, and the home page lists them all.
 | --- | --- | --- |
 | Knight's Tour | `/knights-tour` | Move a chess knight to every square exactly once, on 5×5 to 8×8 boards. |
 | Imposter | `/imposter` | Party game for one phone: everyone gets the secret word except the imposter. |
+| Patakha | `/patakha` | Party game for one phone: say an answer and pass it on before the hidden fuse runs out. |
 
 ## Run it
 
@@ -38,6 +39,9 @@ src/
     imposter/
       logic/              rooms and rounds, the word list, with tests
       ui/                 lobby, pass-the-phone deal, talk, vote and result screens
+    patakha/
+      logic/              the room, the hidden fuse and its ticking, the prompt packs, with tests
+      ui/                 setup, the burning fuse, the bang and the winner; the cracker drawing and sounds
 ```
 
 ### Shared parts for party games
@@ -54,12 +58,17 @@ callbacks), never a game's own types, and Imposter shows each one in use.
 | `Timer`, `changeTimer`, `timeLeft` | `logic/timer.ts` | A countdown kept as data: a deadline while it runs |
 | `createStore(key, parse, reduce, empty)` | `ui/store.ts` | A game's state in localStorage, so a reload comes back to the same screen |
 | `useClock`, `useHydrated` | `ui/use-clock.ts`, `ui/use-hydrated.ts` | A clock that ticks four times a second; whether the browser has loaded |
+| `useWakeLock` | `ui/wake-lock.ts` | Keeps the screen on while a round is played (https only) |
 | `wakeAudio`, `buzzOpen`, `tick`, `timeUp` | `ui/sounds.ts` | Party sounds, on top of `src/ui/sound.ts` |
 | `Roster` | `ui/roster.tsx` | The player list on a setup screen: Quick start, add, rename in place, remove |
 | `HoldCard`, `Face` | `ui/hold-card.tsx` | The hold-to-see secret card, and a face-up card's lines |
 | `RingTimer` | `ui/ring-timer.tsx` | The ring timer with Pause and +30 sec |
 | `Vote` | `ui/vote.tsx` | Point on three, tap who got the most fingers |
 | `PlayHead`, `BigName`, `Stamp` | `ui/parts.tsx` | The round chip, a name in big type, a rubber stamp |
+
+`src/ui/sound.ts` (all games) makes every sound with Web Audio: `playNotes` for tones,
+`playNoise` for bursts of noise (Patakha's bang), and `soundLikeMedia` for games that are
+mostly sound: it lets iPhones play through the silent switch, and pauses music in other apps.
 
 `party.css` also holds the play screen these sit in: `.page.is-party`, `.party-play`
 (which sizes the secret card), `.party-stage`, `.party-title`, `.party-help` and
@@ -165,3 +174,26 @@ plays with none.
 - **Words** (`logic/words.ts`): 10 categories, 30+ each, every word with a one-word hint
   for the imposter. No word repeats in a room until its category runs out, and the
   category changes every round.
+
+## Patakha notes
+
+- **Rounds.** One reducer over plain data (`logic/room.ts`), saved as `games:patakha:room:v1`.
+  The first holder of each game is a fair pick; after that the loser lights the next round, or
+  the next player still in if that loss knocked them out. Players who are out are skipped.
+- **The hidden fuse** (`logic/fuse.ts`) burns for a random time (short 10–25 s, normal 20–50 s,
+  long 30–60 s) and runs off a deadline. Nothing on screen depends on the time left: the spark
+  flickers at one pace and the fuse never burns down. Only the ticking changes: a little quicker
+  the longer it burns (by time burned, never time left), then much faster from a random point
+  3 to 9 seconds before the end.
+- **No accidental taps.** Pass ignores a tap within 300 ms of the last pass (or of lighting and
+  resuming), and Light it waits a second after the bang, so a frantic last Pass can't skip
+  anyone or light the next fuse.
+- **Pausing.** Locking the phone, switching apps, reloading or leaving the page (Settings, the
+  games list) pauses the fuse. The prompt hides until Resume, and that tap wakes the sound and
+  the screen lock again.
+- **Sound.** Ticks, the bang (a crack, a boom and crackles from `playNoise`, peaking near 0.8 of
+  full scale) and the buzz all follow the Sound switch. Light it, Pass and Resume each wake the
+  sound, as iPhones need. Setup has Test sound for checking a phone before playing.
+- **Prompts** (`logic/prompts.ts`): 4 packs, 135 prompts, each with at least 15 easy answers.
+  None repeats in a room until the packs run out. Answers in any language by default; English
+  only is a table rule shown on the play screen, and the table judges.
