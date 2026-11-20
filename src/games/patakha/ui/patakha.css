@@ -457,6 +457,12 @@ html[data-mode="light"] .pk-cracker {
   line-height: 1.05;
   overflow-wrap: anywhere;
 }
+.pk-holder.is-long {
+  font-size: 38px;
+}
+.pk-holder.is-longer {
+  font-size: 32px;
+}
 .pk-holder-name {
   display: inline-block;
   animation: pk-hand 0.26s ease-out both;
@@ -534,6 +540,12 @@ html[data-mode="light"] .pk-cracker {
   }
   .pk-holder {
     font-size: 40px;
+  }
+  .pk-holder.is-long {
+    font-size: 34px;
+  }
+  .pk-holder.is-longer {
+    font-size: 30px;
   }
   .pk-prompt {
     min-height: 104px;

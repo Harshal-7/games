@@ -29,6 +29,9 @@ import { act } from "./use-room";
 
 type ScreenProps = { room: Room; game: Game; names: Record<string, string> };
 
+/** Long names step down a size or two, like BigName, so they fit a phone in one piece. */
+const nameSize = (name: string) => (name.length > 13 ? " is-longer" : name.length > 9 ? " is-long" : "");
+
 /** The bang this phone just set off (its time), so its screen flashes once and a reload doesn't. */
 let freshBang: number | null = null;
 
@@ -104,7 +107,7 @@ function Burning({ room, game, names }: ScreenProps) {
       <PlayHead round={game.round} label={english ? "English only" : "Any language"} />
       <div className="party-stage pk-stage">
         <Firecracker lit className="pk-cracker-small" />
-        <p className="pk-holder" aria-live="polite">
+        <p className={`pk-holder${nameSize(names[game.holder])}`} aria-live="polite">
           <span key={game.holder} className="pk-holder-name">
             {names[game.holder]}
           </span>

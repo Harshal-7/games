@@ -19,8 +19,8 @@ export function fizz(): void {
 
 /** A tick of the fuse: tick-tock while calm, higher and sharper once it hurries. */
 export function fuseTick(count: number, hurried: boolean): void {
-  if (hurried) playNotes([[1_480, 0, 0.04, 0.09]]);
-  else playNotes([[count % 2 ? 980 : 1_180, 0, 0.05, 0.075]]);
+  if (hurried) playNotes([[1_480, 0, 0.04, 0.12]]);
+  else playNotes([[count % 2 ? 980 : 1_180, 0, 0.05, 0.1]]);
 }
 
 /** A pass: a soft pop. */
@@ -28,21 +28,22 @@ export function passPop(): void {
   playNotes([[620, 0, 0.06, 0.06]]);
 }
 
-/** The bang: a crack, a rolling boom and a few crackles, and a long buzz on Android. The
-    last bang of a game ends with a little fanfare for whoever's left. */
+/** The bang: a crack, a rolling boom and a few crackles, and a long buzz on Android. Peaks
+    at about 0.8 of full scale, so it's loud without clipping. The last bang of a game ends
+    with a little fanfare for whoever's left. */
 export function bang(won: boolean): void {
   vibrate([380, 90, 160]);
   playNoise([
-    [0, 0.1, 0.45, 9_000],
-    [0.005, 1.3, 0.5, 1_600],
-    [0.2, 0.05, 0.22, 6_000],
-    [0.33, 0.04, 0.16, 6_500],
-    [0.43, 0.05, 0.12, 5_500],
-    [0.56, 0.04, 0.08, 6_000],
+    [0, 0.1, 0.58, 9_000],
+    [0.005, 1.3, 0.65, 1_600],
+    [0.2, 0.05, 0.28, 6_000],
+    [0.33, 0.04, 0.2, 6_500],
+    [0.43, 0.05, 0.16, 5_500],
+    [0.56, 0.04, 0.1, 6_000],
   ]);
   playNotes([
-    [110, 0, 0.45, 0.25],
-    [82, 0.02, 0.6, 0.2],
+    [110, 0, 0.45, 0.32],
+    [82, 0.02, 0.6, 0.26],
   ]);
   if (won) {
     playNotes([
