@@ -2,7 +2,7 @@
 
 import { Face, type FaceText } from "@/party/ui/hold-card";
 
-import { KIND_TEXT, type AnswerKind } from "../logic/questions";
+import { KIND_TEXT } from "../logic/questions";
 import type { Clue, Room, Round, WordRound } from "../logic/room";
 import { category } from "../logic/words";
 
@@ -31,9 +31,19 @@ export function imposterFace(round: WordRound, clue: Clue): FaceText {
   return { kicker: "You're the", word: "Imposter", note };
 }
 
-/** A question card: the crew's and the imposter's read exactly alike, bar the question. */
-export function questionFace(question: string, kind: AnswerKind): FaceText {
-  return { kicker: "Your question", word: question, note: KIND_TEXT[kind].note };
+/**
+ * A card with a question on it: a face's three lines, with the question in a smaller
+ * size than a word so a sentence fits. The crew's and the imposter's read exactly alike,
+ * bar the question.
+ */
+export function QuestionFace({ kicker, question, note }: { kicker: string; question: string; note?: string }) {
+  return (
+    <>
+      <span className="party-face-kicker">{kicker}</span>
+      <span className="party-face-word imp-question">{question}</span>
+      {note && <span className="party-face-note">{note}</span>}
+    </>
+  );
 }
 
 /**
@@ -44,7 +54,7 @@ export function SecretFace({ round, id, clue }: { round: Round; id: string; clue
   const imposter = round.imposters.includes(id);
   if (round.mode === "questions") {
     const { crew, odd, kind } = round.question;
-    return <Face {...questionFace(imposter ? odd : crew, kind)} />;
+    return <QuestionFace kicker="Your question" question={imposter ? odd : crew} note={KIND_TEXT[kind].note} />;
   }
   return <Face {...(imposter ? imposterFace(round, clue) : wordFace(round))} />;
 }

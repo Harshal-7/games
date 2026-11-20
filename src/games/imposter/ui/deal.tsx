@@ -49,7 +49,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
   } else if (opens > 0) {
     main = (
       <button type="button" className="btn btn-primary btn-big" onClick={done}>
-        {next ? `Done, pass to ${names[next]}` : "Done, start talking"}
+        {next ? `Done, pass to ${names[next]}` : round.mode === "questions" ? "Done, time to answer" : "Done, start talking"}
       </button>
     );
   }
@@ -103,7 +103,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
       {ask === "redeal" ? (
         <Confirm
           title="Re-deal for everyone?"
-          detail="Use this if someone saw a card that wasn't theirs. Everyone gets a new word and the imposter changes."
+          detail={`Use this if someone saw a card that wasn't theirs. Everyone gets a new ${round.mode === "questions" ? "question" : "word"} and the imposter changes.`}
           yes="Re-deal"
           onNo={() => setAsk(null)}
           onYes={() => {

@@ -614,3 +614,145 @@
 .imp-result-go {
   margin-top: 24px;
 }
+
+/* ---------- Questions mode ---------- */
+
+/* A question on a card is a sentence, so it's smaller than a word (30px on a full-size
+   card), on every card that shows one: held, revealed and on the result. */
+.party-face-word.imp-question {
+  font-size: calc(var(--face-word) * 30 / 44);
+  line-height: 1.15;
+  overflow-wrap: break-word;
+}
+
+/* Answer: how to answer, and the count-in. */
+.imp-answer-title {
+  margin-top: 4px;
+}
+.imp-answer-how {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  gap: 14px;
+  margin-top: 24px;
+  padding: 16px 18px;
+  text-align: left;
+}
+.imp-answer-mark {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--game-soft);
+  color: var(--ink);
+  box-shadow: 0 0 0 2.5px var(--ink);
+  font-family: var(--display);
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.imp-answer-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.imp-answer-name {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.imp-answer-detail {
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+.imp-count {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.imp-count li {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  box-sizing: border-box;
+  border: 2px dashed var(--muted);
+  border-radius: 50%;
+  font-family: var(--display);
+  font-size: 26px;
+  font-style: italic;
+  font-weight: 700;
+  transition:
+    background-color 0.15s ease,
+    scale 0.15s ease;
+}
+.imp-count li[data-on] {
+  border: 0;
+  background: var(--game);
+  color: var(--on-game);
+  box-shadow:
+    0 0 0 2.5px var(--ink),
+    3px 3px 0 2.5px var(--ink);
+}
+.imp-count-go {
+  margin-top: 18px;
+}
+.imp-answer-go {
+  margin-top: 18px;
+}
+
+/* Reveal: the crew's question, face up. It turns over once as the screen opens. */
+.party-face.imp-question-card {
+  width: min(100%, 288px);
+  min-height: 340px;
+  margin-top: 16px;
+  rotate: -1.5deg;
+}
+.party-face.imp-question-card.is-turning {
+  animation: imp-turn-up 0.45s 0.1s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+@keyframes imp-turn-up {
+  from {
+    opacity: 0;
+    transform: perspective(1100px) rotateY(80deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.imp-reveal-help {
+  margin-top: 22px;
+  font-size: 16px;
+}
+
+/* Talk: the real question stays on screen. */
+.imp-talk-question {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  gap: 4px;
+  margin-top: 14px;
+  padding: 10px 16px 12px;
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+.imp-talk-question-text {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* A foot with only End round keeps the pill its own size. */
+.party-foot > .btn.imp-solo {
+  flex: 0 1 auto;
+}

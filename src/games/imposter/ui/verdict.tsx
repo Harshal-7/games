@@ -8,7 +8,7 @@ import { PlayHead, Stamp } from "@/party/ui/parts";
 import { Vote as PartyVote } from "@/party/ui/vote";
 
 import { startProblem, verdict, type Room, type Round, type WordRound } from "../logic/room";
-import { imposterFace, listNames, namesOf, wordFace } from "./parts";
+import { imposterFace, listNames, namesOf, QuestionFace, wordFace } from "./parts";
 import { act } from "./use-room";
 
 /** The table points, someone taps the suspect(s). Never shows the word or the imposters. */
@@ -140,7 +140,7 @@ export function Result({ room, round }: { room: Room; round: Round }) {
             {round.mode === "words" ? (
               <Face {...wordFace(round)} />
             ) : (
-              <Face kicker="The question" word={round.question.crew} note="" />
+              <QuestionFace kicker="The question" question={round.question.crew} />
             )}
           </div>
           <figcaption>{questions ? "Everyone else" : "The word"}</figcaption>
@@ -151,7 +151,7 @@ export function Result({ room, round }: { room: Room; round: Round }) {
               {round.mode === "words" ? (
                 <Face {...imposterFace(round, room.options.clue)} />
               ) : (
-                <Face kicker="The question" word={round.question.odd} note="" />
+                <QuestionFace kicker="The question" question={round.question.odd} />
               )}
               {round.accused.includes(id) && <Stamp className="imp-card-stamp">Caught!</Stamp>}
             </div>
