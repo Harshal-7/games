@@ -206,6 +206,9 @@ html[data-room] .saved-slot:empty {
 [data-game="mafia"] .game-card h2 {
   color: var(--night-deep);
 }
+[data-game="patakha"] .game-card h2 {
+  color: var(--marigold-ink);
+}
 .game-card p {
   margin: 6px 0 0;
   color: var(--muted);
@@ -237,6 +240,10 @@ html[data-room] .saved-slot:empty {
 [data-game="mafia"] .game-chip {
   background: var(--night-soft);
   color: var(--night-deep);
+}
+[data-game="patakha"] .game-chip {
+  background: var(--marigold-soft);
+  color: var(--marigold-ink);
 }
 .game-chip.is-best {
   padding-left: 5px;
@@ -296,6 +303,51 @@ html[data-room] .saved-slot:empty {
   box-shadow:
     0 0 0 2px var(--red),
     0 0 0 3.5px var(--on-red);
+}
+/* Patakha: a lit cracker on a marigold card, cream with red caps like the one in the game. */
+.game-thumb-patakha {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 124px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  background:
+    radial-gradient(rgb(255 255 255 / 0.28) 1.2px, transparent 1.7px) 0 0 / 10px 10px,
+    var(--marigold);
+  box-shadow:
+    inset 0 0 0 5px var(--marigold),
+    inset 0 0 0 6.5px var(--ink);
+}
+.game-thumb-cracker {
+  width: 80px;
+  overflow: visible;
+}
+.pk-thumb-body {
+  fill: var(--card);
+}
+.pk-thumb-stripe,
+.pk-thumb-cap {
+  fill: var(--red);
+}
+.pk-thumb-edge,
+.pk-thumb-fuse,
+.pk-thumb-rays {
+  fill: none;
+  stroke: var(--ink);
+  stroke-linecap: round;
+  stroke-width: 5;
+}
+.pk-thumb-fuse {
+  stroke-width: 5.5;
+}
+.pk-thumb-rays {
+  stroke-width: 4.5;
+}
+.pk-thumb-spark {
+  fill: var(--card);
+  stroke: var(--ink);
+  stroke-width: 4;
 }
 
 /* The next game's empty spot. */

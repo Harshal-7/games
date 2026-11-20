@@ -44,6 +44,12 @@
   --night-deep: #22397a;
   --night-soft: #dbe2f3;
   --on-night: #fbf3e4;
+  /* Patakha is marigold: never small text either (2:1 on cream). Text on it is ink, and
+     marigold text on cream uses --marigold-ink. */
+  --marigold: #f08c1a;
+  --marigold-deep: #db7a0e;
+  --marigold-ink: #9e4b05;
+  --marigold-soft: #fbe0bc;
 
   --radius: 16px;
   --radius-sm: 12px;
@@ -71,6 +77,7 @@ html[data-mode="light"] {
   --edge: rgb(34 28 21 / 0.16);
   --shadow: 0 1px 0 rgb(34 28 21 / 0.1), 0 12px 24px -14px rgb(34 28 21 / 0.45);
   --red-soft: #f6dcd3;
+  --marigold-soft: #fce6c9;
 
   color-scheme: light;
 }
@@ -139,6 +146,14 @@ html[data-mode="light"] {
   --on-game: var(--on-night);
   --pick: var(--night);
   --on-pick: var(--on-night);
+}
+[data-game="patakha"] {
+  --game: var(--marigold);
+  --game-deep: var(--marigold-deep);
+  --game-soft: var(--marigold-soft);
+  --on-game: var(--ink);
+  --pick: var(--marigold);
+  --on-pick: var(--ink);
 }
 
 @theme inline {

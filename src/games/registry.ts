@@ -4,6 +4,7 @@ import { ImposterThumb } from "./imposter/ui/thumb";
 import { KnightsTourBestBadge } from "./knights-tour/ui/best-badge";
 import { KnightsTourThumb } from "./knights-tour/ui/thumb";
 import { MafiaThumb } from "./mafia/ui/thumb";
+import { PatakhaThumb } from "./patakha/ui/thumb";
 import { GAME_NAMES, type GameSlug } from "./slugs";
 
 /** Every game on the site. Adding a game = a folder in src/games, a page, one entry here. */
@@ -40,5 +41,12 @@ export const GAMES: GameEntry[] = [
     blurb: "The phone narrates the night. Find the Mafia before they take over the town.",
     detail: "5 to 15 players · one phone",
     Thumb: MafiaThumb,
+  },
+  {
+    slug: "patakha",
+    name: GAME_NAMES.patakha,
+    blurb: "Say an answer and pass the phone on before the hidden fuse runs out.",
+    detail: "3 to 20 players · one phone",
+    Thumb: PatakhaThumb,
   },
 ];

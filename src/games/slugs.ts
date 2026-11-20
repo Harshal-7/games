@@ -7,6 +7,7 @@ export const GAME_NAMES = {
   "knights-tour": "Knight's Tour",
   imposter: "Imposter",
   mafia: "Mafia",
+  patakha: "Patakha",
 } as const;
 
 export type GameSlug = keyof typeof GAME_NAMES;

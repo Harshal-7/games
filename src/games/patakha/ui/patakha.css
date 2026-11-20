@@ -1,0 +1,848 @@
+/* Patakha in design 4: cream cards on the felt, marigold for the game's own parts. Built on
+   the shared tokens and parts in globals.css (.btn, .btn-primary, .seg, .card, .tape,
+   .switch, .confirm) and the party parts in src/party/ui/party.css (play screens, the
+   player list); everything here is prefixed pk- so it can't touch other games. Marigold
+   is never small text: text on it is ink, marigold text on cream is --marigold-ink. */
+
+/* Nothing until the saved room has loaded. */
+.pk-loading {
+  min-height: 60vh;
+}
+
+/* Smaller outlined pills: New room, Clear, Pause, End game. */
+.btn.pk-small {
+  gap: 6px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+/* ---------- The patakha drawing ---------- */
+
+.pk-cracker {
+  --spark: #ffd36b;
+  --spark-core: #fff6d8;
+  display: block;
+  flex: none;
+  width: 150px;
+  height: auto;
+  overflow: visible;
+}
+html[data-mode="light"] .pk-cracker {
+  --spark: var(--marigold-deep);
+  --spark-core: #ffe08a;
+}
+.pk-cracker-big {
+  width: 168px;
+}
+.pk-cracker-small {
+  width: 112px;
+}
+.pk-cracker-shadow {
+  fill: rgb(0 0 0 / 0.22);
+}
+.pk-cracker-body {
+  fill: var(--marigold);
+}
+.pk-cracker-stripe {
+  fill: var(--card);
+}
+.pk-cracker-cap {
+  fill: var(--red);
+}
+.pk-cracker-edge {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3.5;
+}
+.pk-fuse {
+  fill: none;
+  stroke: var(--on-page);
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+/* The spark fizzes at one steady pace, whatever is left on the fuse. */
+.pk-spark {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pk-fizz 0.34s ease-in-out infinite alternate;
+}
+.pk-spark-glow {
+  fill: var(--spark);
+  opacity: 0.4;
+}
+.pk-spark-rays {
+  fill: none;
+  stroke: var(--spark);
+  stroke-linecap: round;
+  stroke-width: 3.2;
+}
+.pk-spark-core {
+  fill: var(--spark-core);
+}
+@keyframes pk-fizz {
+  0% {
+    opacity: 0.8;
+    rotate: -10deg;
+    scale: 0.84;
+  }
+  60% {
+    opacity: 1;
+    rotate: 8deg;
+    scale: 1.1;
+  }
+  100% {
+    opacity: 0.9;
+    rotate: 16deg;
+    scale: 0.95;
+  }
+}
+
+/* ---------- Setup: title card, players, options ---------- */
+
+/* Phones: one column. A column of flex items, not a grid, so the sticky start tray can
+   travel the whole page (a grid item can't leave its own grid area). */
+.pk-lobby {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+@media (min-width: 860px) {
+  .pk-lobby {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+      "intro intro"
+      "players options"
+      "start options"
+      "rules options";
+    gap: 28px 32px;
+    align-items: start;
+  }
+  .pk-intro {
+    grid-area: intro;
+  }
+  .pk-players {
+    grid-area: players;
+  }
+  .pk-options {
+    grid-area: options;
+  }
+  .pk-rules {
+    grid-area: rules;
+  }
+  .pk-start {
+    grid-area: start;
+  }
+}
+
+/* The marigold title card: a dotted wrapper, the cracker, and a cream name plate. */
+.pk-title-card {
+  display: flex;
+  align-items: center;
+  max-width: 380px;
+  height: 92px;
+  margin: 10px 4px 0;
+  padding: 0 16px 0 4px;
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  background:
+    radial-gradient(rgb(255 255 255 / 0.28) 1.2px, transparent 1.7px) 0 0 / 11px 11px,
+    var(--marigold);
+  box-shadow:
+    inset 0 0 0 6px var(--marigold),
+    inset 0 0 0 7.5px var(--ink),
+    var(--shadow);
+  rotate: 0.8deg;
+}
+.pk-title-cracker {
+  --spark: var(--card);
+  --spark-core: var(--card);
+  width: 92px;
+  margin: -14px -2px 0 0;
+}
+.pk-title-cracker .pk-cracker-shadow {
+  display: none;
+}
+.pk-title-cracker .pk-cracker-body {
+  fill: var(--card);
+}
+.pk-title-cracker .pk-cracker-stripe {
+  fill: var(--marigold-soft);
+}
+.pk-title-cracker .pk-fuse {
+  stroke: var(--ink);
+}
+.pk-title-cracker .pk-spark-glow {
+  opacity: 0.55;
+}
+.pk-title-plate {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 8px 14px 9px;
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow:
+    0 0 0 2px var(--marigold),
+    0 0 0 3.5px var(--ink);
+}
+.pk-title-name {
+  margin: 0;
+  color: var(--marigold-ink);
+  font-family: var(--display);
+  font-size: 36px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+.pk-title-meta {
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.pk-blurb {
+  max-width: 46ch;
+  margin: 12px 4px 0;
+}
+
+/* Players */
+.pk-corner {
+  position: absolute;
+  top: -22px;
+  right: 14px;
+}
+.pk-players > .confirm {
+  margin: 4px 0 16px;
+}
+.pk-seat-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+/* Options */
+.pk-field + .pk-field,
+.pk-field + .pk-switches {
+  margin-top: 20px;
+}
+.pk-field .seg {
+  display: grid;
+  width: 100%;
+}
+.pk-field .seg.is-narrow {
+  width: min(100%, 210px);
+}
+.pk-field .seg button {
+  min-width: 0;
+  padding: 0 4px;
+}
+.pk-field-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.pk-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.pk-field-head .field-label {
+  margin: 0;
+}
+.pk-pack-count {
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Prompt packs: on = marigold-soft with an ink edge, off = dashed and struck through. */
+.pk-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px 0 10px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--marigold-soft);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+.pk-chip:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.pk-chip[aria-pressed="false"] {
+  border-style: dashed;
+  background: transparent;
+  color: var(--muted);
+  text-decoration: line-through;
+  box-shadow: none;
+}
+.pk-chip[aria-pressed="false"]:hover {
+  color: var(--ink);
+}
+/* An inline block, so the line through the label skips the emoji. */
+.pk-chip-emoji {
+  display: inline-block;
+}
+.pk-chip[aria-pressed="false"] .pk-chip-emoji {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+.pk-switches {
+  margin-top: 22px;
+  padding-top: 5px;
+  border-top: 1.5px dashed var(--line);
+}
+.pk-test {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 2px 0 6px;
+}
+.pk-test .pk-field-note {
+  flex: 1 1 200px;
+  margin: 0;
+  font-size: 13.5px;
+}
+
+/* How to play: an outlined row; open, the rules in a reading card under it. */
+.pk-rules > summary {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px 0 20px;
+  list-style: none;
+}
+.pk-rules > summary::-webkit-details-marker {
+  display: none;
+}
+.pk-rules-chevron {
+  transition: rotate 0.2s ease;
+}
+.pk-rules[open] .pk-rules-chevron {
+  rotate: 180deg;
+}
+.pk-rules-body {
+  margin-top: 14px;
+  padding: 16px 18px 18px;
+}
+.pk-rules-body ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 22px;
+  font-size: 15px;
+  line-height: 1.45;
+  list-style: decimal;
+}
+.pk-rules-body li::marker {
+  color: var(--muted);
+  font-family: var(--num);
+  font-size: 13px;
+}
+.pk-rules-body p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* Start: stuck to the bottom on phones, on a solid tray (a see-through fade would show a
+   band over the felt's texture). The page's bottom padding goes under it. */
+.pk-start {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  gap: 10px;
+  margin: 0 -20px -48px;
+  padding: 12px 20px 20px;
+  border-top: 1px solid var(--edge);
+  background: var(--page-deep);
+  box-shadow: 0 -12px 22px -14px rgb(0 0 0 / 0.55);
+}
+.pk-start-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+/* Wider than a phone the page stops growing: a shelf rather than a full-width tray. */
+@media (min-width: 640px) {
+  .pk-start {
+    border: 1px solid var(--edge);
+    border-bottom: 0;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+}
+@media (min-width: 860px) {
+  .pk-start {
+    position: static;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+  }
+}
+
+/* ---------- Ready and paused ---------- */
+
+.pk-kicker {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 18px;
+  font-weight: 600;
+}
+.pk-ready .party-help,
+.pk-paused .party-help {
+  max-width: 300px;
+  margin-top: 14px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.pk-paused .party-title {
+  margin-top: 18px;
+}
+.pk-light {
+  margin-top: 26px;
+}
+
+/* ---------- The fuse is burning ---------- */
+
+.pk-stage {
+  justify-content: center;
+  padding: 8px 0 16px;
+}
+/* Whose turn: the name changes hands with a little slide, so a pass is easy to see. It
+   never fades: the name on screen at the bang loses, so it must always be readable. */
+.pk-holder {
+  max-width: 100%;
+  margin: 2px 0 0;
+  font-family: var(--display);
+  font-size: 46px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.pk-holder.is-long {
+  font-size: 38px;
+}
+.pk-holder.is-longer {
+  font-size: 32px;
+}
+.pk-holder-name {
+  display: inline-block;
+  animation: pk-hand 0.26s ease-out both;
+}
+@keyframes pk-hand {
+  from {
+    translate: 26px 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+/* The prompt, on a cream card in big type. */
+.pk-prompt {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 124px;
+  margin-top: 26px;
+  padding: 24px 20px 20px;
+  box-sizing: border-box;
+  rotate: -0.8deg;
+}
+.pk-prompt-text {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: clamp(28px, 8.6vw, 38px);
+  font-weight: 700;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+.pk-rule {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+/* Pass: one big target at the bottom, in easy reach of a thumb. */
+.btn.pk-pass {
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  min-height: 116px;
+  border-radius: 24px;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pk-pass-word {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 40px;
+  line-height: 1;
+}
+.pk-pass-to {
+  max-width: 100%;
+  overflow: hidden;
+  font-family: var(--body);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  text-overflow: ellipsis;
+}
+.btn.pk-muted {
+  align-self: center;
+  margin-bottom: 12px;
+}
+
+/* Short phones: a smaller cracker and a little less air, so Pass stays on screen. */
+@media (max-height: 720px) {
+  .pk-cracker-small {
+    width: 84px;
+  }
+  .pk-holder {
+    font-size: 40px;
+  }
+  .pk-holder.is-long {
+    font-size: 34px;
+  }
+  .pk-holder.is-longer {
+    font-size: 30px;
+  }
+  .pk-prompt {
+    min-height: 104px;
+    margin-top: 20px;
+  }
+  .btn.pk-pass {
+    min-height: 100px;
+  }
+}
+
+/* ---------- The bang ---------- */
+
+.pk-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: radial-gradient(
+    circle at 50% 36%,
+    #fffaf0 0%,
+    color-mix(in srgb, var(--marigold) 70%, #fffaf0) 32%,
+    color-mix(in srgb, var(--marigold) 40%, transparent) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
+  animation: pk-flash 0.65s ease-out both;
+}
+@keyframes pk-flash {
+  from {
+    opacity: 0.95;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.pk-bang {
+  padding-top: 8px;
+}
+.pk-burst {
+  display: block;
+  flex: none;
+  width: 196px;
+  height: auto;
+  overflow: visible;
+}
+.pk-burst.is-popping {
+  animation: pk-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes pk-pop {
+  from {
+    opacity: 0;
+    rotate: -14deg;
+    scale: 0.3;
+  }
+  to {
+    opacity: 1;
+    rotate: 0deg;
+    scale: 1;
+  }
+}
+.pk-burst-outer {
+  fill: var(--marigold);
+  stroke: var(--ink);
+  stroke-linejoin: round;
+  stroke-width: 3.5;
+}
+.pk-burst-inner {
+  fill: var(--card);
+}
+.pk-burst-text {
+  fill: var(--ink);
+  font-family: var(--display);
+  font-size: 30px;
+  font-style: italic;
+  font-weight: 800;
+}
+.pk-bang .party-big-name {
+  margin-top: 10px;
+}
+.pk-loss {
+  margin: 4px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+.pk-bang .party-help {
+  margin-top: 6px;
+}
+
+/* Everyone's lives: a pill each, hearts left; dashed and struck through once out. */
+.pk-lives {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 14px -2px 0;
+  padding: 0;
+  list-style: none;
+}
+.pk-life {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 10px 0 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+.pk-life[data-hit="true"] {
+  box-shadow:
+    0 0 0 2.5px var(--marigold),
+    0 0 0 4px var(--ink);
+}
+.pk-life[data-out="true"] {
+  border: 1.5px dashed var(--on-page-muted);
+  background: transparent;
+  color: var(--on-page-muted);
+  text-decoration: line-through;
+}
+.pk-hearts {
+  display: inline-flex;
+  gap: 1px;
+}
+.pk-heart {
+  width: 16px;
+  height: 16px;
+}
+.pk-heart path {
+  fill: var(--marigold);
+  stroke: var(--ink);
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+}
+.pk-heart[data-full="false"] path {
+  fill: none;
+  stroke: var(--ink-muted);
+  stroke-dasharray: 3 2.6;
+}
+.pk-life[data-out="true"] .pk-heart path {
+  stroke: var(--on-page-muted);
+}
+
+.pk-next {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+  text-align: center;
+}
+.pk-next-line {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.pk-next-line strong {
+  font-weight: 800;
+}
+
+/* ---------- Game over ---------- */
+
+.pk-won {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 16px;
+  text-align: center;
+}
+.pk-won .pk-burst {
+  width: 150px;
+}
+.pk-won-out {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.pk-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  margin-top: 18px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--marigold);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.pk-headline {
+  margin: 10px 0 0;
+  font-family: var(--display);
+  font-size: 46px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.pk-wins {
+  margin-top: 26px;
+  padding: 14px 18px 6px;
+}
+.pk-wins-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ink);
+}
+.pk-wins-head h3 {
+  margin: 0;
+}
+.pk-wins-head span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.pk-wins ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pk-wins li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+}
+.pk-wins li + li {
+  border-top: 1px dashed var(--line);
+}
+.pk-rank {
+  flex: none;
+  width: 18px;
+  color: var(--muted);
+  font-family: var(--display);
+  font-size: 17px;
+  font-style: italic;
+}
+.pk-wins-name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pk-wins-end {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+.pk-gain {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--marigold-soft);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 13px;
+  font-weight: 500;
+}
+.pk-total {
+  min-width: 22px;
+  font-family: var(--num);
+  font-size: 20px;
+  font-weight: 500;
+  text-align: right;
+}
+
+/* Two answers side by side: outlined, then the solid one. */
+.pk-pair {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+.pk-pair > .btn {
+  flex: 1 1 0;
+  min-height: 52px;
+  padding: 0 12px;
+  white-space: normal;
+}
+
+/* No fizzing, sliding, popping or flashing for people who asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .pk-spark,
+  .pk-holder-name,
+  .pk-burst.is-popping {
+    animation: none;
+  }
+  .pk-flash {
+    display: none;
+  }
+}

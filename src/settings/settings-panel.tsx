@@ -41,6 +41,7 @@ const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
   "knights-tour": KnightsTourSection,
   imposter: ImposterNote,
   mafia: MafiaNote,
+  patakha: PatakhaNote,
 };
 
 /**
@@ -217,6 +218,16 @@ function MafiaNote() {
     <p className="settings-note">
       <SpeakerIcon width={18} height={18} />
       <span>Mafia&apos;s narrator voice, sound and roles are in its setup, under Options.</span>
+    </p>
+  );
+}
+
+/** Patakha keeps its options with the room, in its setup screen. */
+function PatakhaNote() {
+  return (
+    <p className="settings-note">
+      <SpeakerIcon width={18} height={18} />
+      <span>Patakha&apos;s sound, lives and fuse length are in its setup, under Options.</span>
     </p>
   );
 }

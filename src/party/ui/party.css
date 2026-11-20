@@ -332,6 +332,10 @@
 .party-big-name.is-long {
   font-size: 40px;
 }
+/* Up to 16 letters (the longest a name can be) on a phone 375px wide. */
+.party-big-name.is-longer {
+  font-size: 32px;
+}
 
 /* The quiet way out of a screen: two pills side by side, the same width. They stack
    only on the narrowest phones. */
