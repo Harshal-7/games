@@ -466,6 +466,12 @@
   min-height: calc(100dvh - 64px - 4px - 48px);
   margin: 0 auto;
 }
+/* Big screens: the same stage, a little wider, in the middle of the page. */
+@media (min-width: 860px) {
+  .party-play {
+    max-width: 520px;
+  }
+}
 
 /* "Round 3" chip on the left, where the round is on the right. */
 .party-play-head {
