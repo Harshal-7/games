@@ -1,5 +1,7 @@
 "use client";
 
+import { useId } from "react";
+
 import { count } from "@/ui/format";
 import { CheckIcon } from "@/ui/icons";
 
@@ -95,6 +97,41 @@ export function ResultCard(props: ResultCardProps) {
         )}
         <button type="button" className="btn btn-quiet" onClick={props.onRestart}>
           Restart
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Asks before a tour in progress is thrown away. "Keep playing" has the focus. */
+export function ConfirmCard({
+  title,
+  detail,
+  confirmLabel,
+  onConfirm,
+  onCancel,
+}: {
+  title: string;
+  detail: string;
+  confirmLabel: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const id = useId();
+  return (
+    <div className="kt-result" role="alertdialog" aria-labelledby={`${id}-title`} aria-describedby={`${id}-detail`}>
+      <div className="kt-result-head">
+        <div>
+          <h2 id={`${id}-title`}>{title}</h2>
+          <p id={`${id}-detail`}>{detail}</p>
+        </div>
+      </div>
+      <div className="kt-result-actions">
+        <button type="button" className="btn btn-primary" onClick={onConfirm}>
+          {confirmLabel}
+        </button>
+        <button type="button" className="btn" onClick={onCancel} autoFocus>
+          Keep playing
         </button>
       </div>
     </div>

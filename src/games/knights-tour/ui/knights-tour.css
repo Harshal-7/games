@@ -78,11 +78,11 @@ html[data-mode="dark"] .kt-board {
   max-width: max(300px, calc(100dvh - 330px));
 }
 
-@media (min-width: 900px) and (min-height: 600px) {
+@media (min-width: 860px) and (min-height: 480px) {
+  /* Sizes come from the shared game frame in globals.css; the page is exactly
+     that wide, so the top bar lines up with the board and the side column. */
   .kt {
-    --side: 380px;
-    --board: min(calc(100dvh - 112px), calc(100vw - var(--side) - 112px), 820px);
-    grid-template-columns: var(--board) var(--side);
+    grid-template-columns: var(--frame-board) var(--frame-side);
     grid-template-rows: 1fr repeat(5, auto) 1fr;
     grid-template-areas:
       "board ."
@@ -92,9 +92,8 @@ html[data-mode="dark"] .kt-board {
       "board actions"
       "board best"
       "board .";
-    column-gap: 64px;
-    justify-content: center;
-    height: var(--board);
+    column-gap: var(--frame-gap);
+    min-height: var(--frame-board);
   }
   .kt-status,
   .kt-board-area,
@@ -458,6 +457,23 @@ html[data-mode="dark"] .kt-board {
   width: 42px;
   padding: 0;
 }
+.kt-restart-label {
+  display: none;
+}
+/* Big screens: four labelled buttons in a 2 × 2 grid, since the side column is too
+   narrow for one row. Same breakpoint as the two-column layout above. */
+@media (min-width: 860px) and (min-height: 480px) {
+  .kt-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+  .kt-controls .kt-restart {
+    width: auto;
+    padding: 0 14px;
+  }
+  .kt-restart-label {
+    display: inline;
+  }
+}
 
 .kt-best {
   margin: 16px 2px 0;
@@ -481,17 +497,14 @@ html[data-mode="dark"] .kt-board {
 
 /* ---------- Settings previews ---------- */
 
-.settings-preview {
-  width: min(100%, 260px);
-  margin: 6px auto 16px;
-}
 .mini-board {
   display: grid;
+  flex: none;
   grid-template-columns: repeat(4, 1fr);
-  width: 56px;
-  height: 56px;
+  width: 30px;
+  height: 30px;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 6px;
   box-shadow: 0 0 0 1px var(--line);
 }
 .mini-board .is-light {
