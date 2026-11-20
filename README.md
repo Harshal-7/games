@@ -7,6 +7,7 @@ lives in its own folder and has its own page, and the home page lists them all.
 | --- | --- | --- |
 | Knight's Tour | `/knights-tour` | Move a chess knight to every square exactly once, on 5×5 to 8×8 boards. |
 | Imposter | `/imposter` | Party game for one phone: everyone gets the secret word except the imposter. |
+| Mafia | `/mafia` | Party game for one phone, 5 to 15 players: the phone narrates the night, so nobody sits out. |
 
 ## Run it
 
@@ -38,6 +39,9 @@ src/
     imposter/
       logic/              rooms and rounds, the word list, with tests
       ui/                 lobby, pass-the-phone deal, talk, vote and result screens
+    mafia/
+      logic/              roles, the timed night, votes, the narrator's script, with tests
+      ui/                 setup, deal, the narrated night, day, vote and the end
 ```
 
 ### Shared parts for party games
@@ -165,3 +169,24 @@ plays with none.
 - **Words** (`logic/words.ts`): 10 categories, 30+ each, every word with a one-word hint
   for the imposter. No word repeats in a room until its category runs out, and the
   category changes every round.
+
+## Mafia notes
+
+- **Games.** One reducer over plain data (`logic/game.ts`), saved as
+  `games:mafia:room:v1`, so a reload comes back to the same step, even mid-night.
+- **The night runs on the clock.** Every role's turn lasts at least 10 seconds plus a
+  random 0 to 5, however fast its tap, and a Doctor or Police who is out is still called
+  with the same wait, so the timing gives nothing away. The screen ticks the reducer with
+  `Date.now()`; nothing counts intervals. Each role's screen starts clean, so the Doctor
+  and the Police never see the Mafia's pick.
+- **The narrator** (`ui/narrator.ts`) is the phone's own voice (`speechSynthesis`):
+  English (India) when the phone has it, and offline only a voice on the phone itself.
+  What it says at each moment comes from `logic/narration.ts`, keyed so nothing is said
+  twice. Phones only speak after a tap, so the night starts from one, and after a reload
+  mid-night Carry on says the last line again with a fresh wait. On iPhones the page asks
+  for the playback audio session (Safari 17+), so the silent switch doesn't mute it.
+- **The screen stays on** (Screen Wake Lock, https only) from the first night to the last
+  vote.
+- **Fair roles.** One fair-pick ledger per role, booked once everyone has seen their card.
+- **Words** (`logic/script.ts`): the narrator's lines and 40 morning stories with a
+  `{name}` slot. No story repeats in a room until they've all been told.
