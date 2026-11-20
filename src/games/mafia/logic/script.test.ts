@@ -9,6 +9,8 @@ import {
   listNames,
   morningLines,
   nightLogLine,
+  NIGHTS,
+  nightScript,
   outLines,
   pickStory,
   STORIES,
@@ -99,5 +101,27 @@ describe("the night log", () => {
   it("tells each day", () => {
     expect(dayLogLine(2, { name: "Aman", role: "villager" })).toBe("Day 2: Aman was voted out (Villager).");
     expect(dayLogLine(1, null)).toBe("Day 1: a tie, nobody was out.");
+  });
+});
+
+describe("the nights' scenes", () => {
+  it("has a few scenes, each calling every role to open their eyes by name", () => {
+    expect(NIGHTS.length).toBeGreaterThanOrEqual(3);
+    for (const night of NIGHTS) {
+      expect(night.dusk).toMatch(/close your eyes\.$/);
+      expect(night.dawn).toMatch(/wake up\.$/);
+      for (const role of ["mafia", "doctor", "police"] as const) {
+        expect(night.open[role]).toMatch(new RegExp(`^${role === "mafia" ? "Mafia" : role === "doctor" ? "Doctor" : "Police"}, open your eyes`));
+      }
+      for (const line of [night.dusk, night.dawn, ...Object.values(night.open)]) expect(line.length).toBeLessThanOrEqual(90);
+    }
+    expect(new Set(NIGHTS.map((n) => n.dusk)).size).toBe(NIGHTS.length);
+  });
+
+  it("moves on to a new scene every night, and starts each game somewhere new", () => {
+    expect(nightScript(1, 1)).toBe(NIGHTS[0]);
+    expect(nightScript(1, 2)).not.toBe(nightScript(1, 1));
+    expect(nightScript(2, 1)).not.toBe(nightScript(1, 1));
+    expect(callLine("police", "close", NIGHTS[2])).toBe("Police, close your eyes.");
   });
 });

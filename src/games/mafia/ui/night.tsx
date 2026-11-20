@@ -128,7 +128,9 @@ function Sky({ room, game, night }: { room: Room; game: Game; night: Night }) {
     <div className="party-play">
       <Head chip={`Night ${game.round}`} label={STEP_LABELS[step]} />
       <section className="maf-sky" aria-live="polite" data-step={step}>
-        {!answering && <p className="maf-sky-line">{line?.lines[0]}</p>}
+        {!answering && line && (
+          <p className={line.lines[0].length > 56 ? "maf-sky-line is-long" : "maf-sky-line"}>{line.lines[0]}</p>
+        )}
         {body}
       </section>
       <Foot room={room} />

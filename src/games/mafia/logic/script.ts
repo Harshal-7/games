@@ -4,23 +4,70 @@ import { roleAfterWas, ROLE_NAMES, type NightRole, type Role } from "./roles";
 
 /**
  * Everything the narrator says. Every line is spoken (when the voice is on) and shown
- * in big type. Friendly, plain English with a desi flavour; the night calls are the
- * classic ones, word for word, so everyone knows when to open and close their eyes.
+ * in big type. Friendly, plain English with a desi flavour. Each night has its own
+ * little scene (a power cut, the monsoon…) so the nights don't all sound the same, but
+ * every call still says "open your eyes" and "close your eyes" with the role's name, so
+ * nobody misses their turn.
  */
 
-export const DUSK = "Night falls. Everyone, close your eyes.";
-export const DAWN = "Everyone, wake up.";
-export const NOBODY_DIED = "Nobody died last night.";
-
-const OPEN: Record<NightRole, string> = {
-  mafia: "Mafia, open your eyes and pick someone.",
-  doctor: "Doctor, open your eyes. Who do you want to save?",
-  police: "Police, open your eyes. Who do you want to check?",
+export type NightScript = {
+  /** "Night falls. Everyone, close your eyes." */
+  dusk: string;
+  open: Record<NightRole, string>;
+  /** "Everyone, wake up." */
+  dawn: string;
 };
 
+/** The scenes, in turn: night 1 of the first game is the classic one. */
+export const NIGHTS: readonly NightScript[] = [
+  {
+    dusk: "Night falls. Everyone, close your eyes.",
+    open: {
+      mafia: "Mafia, open your eyes and pick someone.",
+      doctor: "Doctor, open your eyes. Who do you want to save?",
+      police: "Police, open your eyes. Who do you want to check?",
+    },
+    dawn: "Everyone, wake up.",
+  },
+  {
+    dusk: "Power cut! The whole town goes dark. Everyone, close your eyes.",
+    open: {
+      mafia: "Mafia, open your eyes. Nobody can see a thing. Pick someone.",
+      doctor: "Doctor, open your eyes and light a candle. Who do you want to save?",
+      police: "Police, open your eyes. Torch on. Who do you want to check?",
+    },
+    dawn: "The lights are back. Everyone, wake up.",
+  },
+  {
+    dusk: "It's pouring outside, and the whole town is indoors. Everyone, close your eyes.",
+    open: {
+      mafia: "Mafia, open your eyes. The thunder hides every footstep. Pick someone.",
+      doctor: "Doctor, open your eyes. Umbrella ready? Who do you want to save?",
+      police: "Police, open your eyes. Raincoat on. Who do you want to check?",
+    },
+    dawn: "The rain has stopped. Everyone, wake up.",
+  },
+  {
+    dusk: "The match is over and the town has finally gone quiet. Everyone, close your eyes.",
+    open: {
+      mafia: "Mafia, open your eyes. Time for your late-night plan. Pick someone.",
+      doctor: "Doctor, open your eyes. Who do you want to save tonight?",
+      police: "Police, open your eyes. Somebody looks suspicious. Who do you want to check?",
+    },
+    dawn: "Cock-a-doodle-doo! Everyone, wake up.",
+  },
+];
+
+/** Tonight's scene: the next one each night, and each new game starts one further on. */
+export function nightScript(game: number, round: number): NightScript {
+  return NIGHTS[(Math.max(0, game - 1) + Math.max(0, round - 1)) % NIGHTS.length];
+}
+
+export const NOBODY_DIED = "Nobody died last night.";
+
 /** A role's call: "Doctor, open your eyes…" and, once its turn is over, "Doctor, close your eyes." */
-export function callLine(role: NightRole, phase: "open" | "close"): string {
-  if (phase === "open") return OPEN[role];
+export function callLine(role: NightRole, phase: "open" | "close", script: NightScript = NIGHTS[0]): string {
+  if (phase === "open") return script.open[role];
   return `${role === "mafia" ? "Mafia" : role === "doctor" ? "Doctor" : "Police"}, close your eyes.`;
 }
 
@@ -30,9 +77,12 @@ export function wasLine(name: string, role: Role): string {
 }
 
 /** The morning: who's gone, as a short story, and what they were. */
-export function morningLines(died: { name: string; role: Role; story: string } | null): string[] {
-  if (!died) return [DAWN, NOBODY_DIED];
-  return [DAWN, tell(died.story, died.name), wasLine(died.name, died.role)];
+export function morningLines(
+  died: { name: string; role: Role; story: string } | null,
+  script: NightScript = NIGHTS[0],
+): string[] {
+  if (!died) return [script.dawn, NOBODY_DIED];
+  return [script.dawn, tell(died.story, died.name), wasLine(died.name, died.role)];
 }
 
 export function dayLine(minutes: number): string {

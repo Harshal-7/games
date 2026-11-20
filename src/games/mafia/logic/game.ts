@@ -31,7 +31,7 @@ export const ROOM_KEY = "games:mafia:room:v1";
 /* ---------- The night's clock ---------- */
 
 /** "Night falls. Everyone, close your eyes." Then a moment to put the phone down. */
-export const DUSK_MS = 6_000;
+export const DUSK_MS = 8_000;
 /**
  * Every role's turn takes at least this long, plus a random bit, however fast its tap:
  * the timing gives nothing away, and a role that's out is called with the same wait.

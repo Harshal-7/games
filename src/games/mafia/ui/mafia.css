@@ -353,6 +353,10 @@
   line-height: 1.15;
   text-wrap: balance;
 }
+.maf-sky-line.is-long {
+  max-width: 19ch;
+  font-size: 28px;
+}
 .maf-sky-note {
   max-width: 32ch;
   margin: 18px 0 0;

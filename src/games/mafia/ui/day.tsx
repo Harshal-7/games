@@ -16,7 +16,7 @@ import {
   type Game,
   type Room,
 } from "../logic/game";
-import { STORIES, tell } from "../logic/script";
+import { nightScript, STORIES, tell } from "../logic/script";
 import { actAndSay, Foot, Head, namesOf, nightNotes, ShownFace, Table } from "./parts";
 import { act } from "./use-room";
 
@@ -43,7 +43,7 @@ export function Morning({ room, game }: { room: Room; game: Game }) {
       <Head chip={`Day ${game.round}`} label="Morning" />
       <div className="party-stage">
         <SunMark />
-        <h2 className="party-title maf-wake">Everyone, wake up.</h2>
+        <h2 className="party-title maf-wake">{nightScript(game.number, game.round).dawn}</h2>
         {died ? (
           <>
             <p className="card maf-story">{tell(log?.story ?? STORIES[0], names[died])}</p>

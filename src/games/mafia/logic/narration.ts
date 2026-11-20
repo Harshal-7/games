@@ -2,9 +2,9 @@ import { lastNight, votedOut, winnerOf, type Room } from "./game";
 import {
   callLine,
   dayLine,
-  DUSK,
   END_LINES,
   morningLines,
+  nightScript,
   NOBODY_OUT,
   outLines,
   STORIES,
@@ -25,21 +25,22 @@ export function narration(room: Room): Narration | null {
   if (!game) return null;
   const name = (id: string) => room.players.find((p) => p.id === id)?.name ?? "Someone";
   const at = `${game.number}:${game.round}`;
+  const script = nightScript(game.number, game.round);
   switch (game.stage) {
     case "deal":
       return null;
     case "night": {
       const night = game.night;
       if (!night || night.step === "ready") return null;
-      if (night.step === "dusk") return { key: `${at}:dusk`, lines: [DUSK] };
-      return { key: `${at}:${night.step}:${night.phase}`, lines: [callLine(night.step, night.phase)] };
+      if (night.step === "dusk") return { key: `${at}:dusk`, lines: [script.dusk] };
+      return { key: `${at}:${night.step}:${night.phase}`, lines: [callLine(night.step, night.phase, script)] };
     }
     case "morning": {
       const log = lastNight(game);
       const died = log?.died
         ? { name: name(log.died), role: game.roles[log.died], story: log.story ?? STORIES[0] }
         : null;
-      return { key: `${at}:morning`, lines: morningLines(died) };
+      return { key: `${at}:morning`, lines: morningLines(died, script) };
     }
     case "day":
       return { key: `${at}:day`, lines: [dayLine(room.options.talk)] };
