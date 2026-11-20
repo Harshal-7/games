@@ -56,12 +56,15 @@
   border-top: 1px solid var(--line);
 }
 
-/* Big screens: the site's frame (1184px, 48px sides). Reset moves up into the top bar
-   and the blurb sits beside the title, so the header and its parts become grid items. */
+/* Big screens: the site's frame, the same as every page (1184px border to border, 48px
+   sides, so 1088px inside), with Look at 420px and the game's card taking the rest, as
+   the WebSettings board. Reset moves up into the top bar and the blurb sits beside the
+   title, so the header and its parts become grid items. */
 @media (min-width: 860px) {
   .page.is-settings {
     max-width: 1184px;
     padding: 0 48px 48px;
+    box-sizing: border-box;
   }
   .settings {
     display: grid;
