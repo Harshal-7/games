@@ -26,7 +26,7 @@ describe("parseSettings", () => {
   });
 
   it("keeps valid choices", () => {
-    const saved = { rev: 3, theme: "mela", matchPhone: true, knightsTour: ktSaved };
+    const saved = { rev: 3, theme: "sunrise", matchPhone: true, knightsTour: ktSaved };
     expect(parseSettings(saved)).toEqual(saved);
   });
 
@@ -124,7 +124,7 @@ describe("start-up script", () => {
       { rev: 3, theme: "night-drive", matchPhone: true, knightsTour: { board: "stone" } },
       // A table that's gone (the first set of colours): each game's own.
       { rev: 3, theme: "haldi", matchPhone: false },
-      { rev: 3, theme: "notebook", matchPhone: "yes" },
+      { rev: 3, theme: "lamplight", matchPhone: "yes" },
       { rev: 3, theme: "neon", matchPhone: false, mode: "light" },
       { rev: 3, theme: 7, mode: "light" },
       [],

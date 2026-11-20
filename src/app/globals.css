@@ -145,23 +145,27 @@ html[data-tone="light"] {
   --page-line: rgb(34 28 21 / 0.16);
   --track: rgb(34 28 21 / 0.12);
 }
-/* Graph paper, for working out who the imposter is. Its red cards stand out on it. */
-[data-table="notebook"] {
-  --page: #dde8f1;
+/* Warm cream with a soft red-wine wash from the top, like a lamp over the table, for
+   Imposter. A gradient, no pattern. --page is the top colour, for the address bar. */
+[data-table="lamplight"] {
+  --page: #f3e3da;
   --page-texture:
-    linear-gradient(rgb(47 95 150 / 0.14) 1px, transparent 1px) 0 0 / 22px 22px,
-    linear-gradient(90deg, rgb(47 95 150 / 0.14) 1px, transparent 1px) 0 0 / 22px 22px;
-  --page-deep: #cfdde9;
+    radial-gradient(ellipse 75% 420px at 50% 0, rgb(180 42 34 / 0.14), transparent) 0 0 / 100% 840px no-repeat,
+    linear-gradient(#f3e3da, #f7efe6) 0 0 / 100% 100% no-repeat;
+  --page-deep: #efe0d4;
   --on-page: #221c15;
-  --on-page-muted: #45505b;
+  --on-page-muted: #5e4943;
   --page-line: rgb(34 28 21 / 0.16);
   --track: rgb(34 28 21 / 0.12);
 }
-/* Confetti on festival yellow, for Patakha. */
-[data-table="mela"] {
-  --page: #f9e3a1;
-  --page-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84'%3E%3Cg opacity='.4'%3E%3Crect x='10' y='8' width='3.5' height='10' rx='1.75' fill='%23f08c1a' transform='rotate(28 11.75 13)'/%3E%3Crect x='52' y='14' width='3.5' height='10' rx='1.75' fill='%23b42a22' transform='rotate(-38 53.75 19)'/%3E%3Crect x='66' y='52' width='3.5' height='10' rx='1.75' fill='%230e7479' transform='rotate(72 67.75 57)'/%3E%3Crect x='24' y='58' width='3.5' height='10' rx='1.75' fill='%233456b8' transform='rotate(-12 25.75 63)'/%3E%3Ccircle cx='38' cy='36' r='2.2' fill='%23f08c1a'/%3E%3Ccircle cx='76' cy='30' r='1.8' fill='%233456b8'/%3E%3Ccircle cx='8' cy='42' r='1.8' fill='%230e7479'/%3E%3Ccircle cx='54' cy='76' r='1.8' fill='%23b42a22'/%3E%3C/g%3E%3C/svg%3E");
-  --page-deep: #f1d68a;
+/* Warm cream with a soft orange glow rising from the bottom of the page, for Patakha.
+   A gradient, no pattern. */
+[data-table="sunrise"] {
+  --page: #f8efe0;
+  --page-texture:
+    radial-gradient(ellipse 90% 380px at 50% 100%, rgb(240 120 40 / 0.26), transparent) 0 100% / 100% 760px no-repeat,
+    linear-gradient(#f8efe0, #f6e6cf) 0 0 / 100% 100% no-repeat;
+  --page-deep: #f3dcc0;
   --on-page: #221c15;
   --on-page-muted: #5c4a2e;
   --page-line: rgb(34 28 21 / 0.16);

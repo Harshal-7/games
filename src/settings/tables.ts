@@ -14,8 +14,8 @@ export const TABLES = [
   { id: "night-drive", label: "Night drive", tone: "dark", page: "#262b4a", deep: "#171a2f", text: "#f1ecdf", muted: "#c4c7d8" },
   { id: "stage", label: "Stage", tone: "dark", page: "#2a1733", deep: "#211129", text: "#f4ece0", muted: "#d3c3cf" },
   { id: "daylight", label: "Daylight", tone: "light", page: "#efe6d3", deep: "#e7dcc5", text: "#221c15", muted: "#5a4f3f" },
-  { id: "notebook", label: "Notebook", tone: "light", page: "#dde8f1", deep: "#cfdde9", text: "#221c15", muted: "#45505b" },
-  { id: "mela", label: "Mela", tone: "light", page: "#f9e3a1", deep: "#f1d68a", text: "#221c15", muted: "#5c4a2e" },
+  { id: "lamplight", label: "Lamplight", tone: "light", page: "#f3e3da", deep: "#efe0d4", text: "#221c15", muted: "#5e4943" },
+  { id: "sunrise", label: "Sunrise", tone: "light", page: "#f8efe0", deep: "#f3dcc0", text: "#221c15", muted: "#5c4a2e" },
 ] as const;
 
 export type Table = (typeof TABLES)[number];
@@ -28,9 +28,9 @@ export const SITE_TABLE: TableId = "felt";
 /** Every game's own table. A new game adds its line here. */
 export const GAME_TABLES: Record<GameSlug, TableId> = {
   "knights-tour": "felt",
-  imposter: "notebook",
+  imposter: "lamplight",
   mafia: "midnight",
-  patakha: "mela",
+  patakha: "sunrise",
   "highway-bingo": "night-drive",
   ulta: "stage",
   "finger-picker": "felt",

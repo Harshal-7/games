@@ -252,15 +252,15 @@
   background: var(--on-page);
   opacity: 0.7;
 }
-/* Each game's own: a strip of every game's table (felt, notebook, midnight, mela,
-   night drive, stage). */
+/* Each game's own: a strip of every game's table (felt, lamplight,
+   midnight, sunrise, night drive, stage). */
 .theme-art.is-own {
   background: linear-gradient(
     90deg,
     #1e4a38 0 16.6%,
-    #dde8f1 16.6% 33.3%,
+    #ecd0c6 16.6% 33.3%,
     #172340 33.3% 50%,
-    #f9e3a1 50% 66.6%,
+    #f6dcbd 50% 66.6%,
     #262b4a 66.6% 83.3%,
     #2a1733 83.3% 100%
   );
