@@ -200,9 +200,21 @@
   color: var(--on-pick);
 }
 
-/* Themes: as many tiles to a row as fit (three on phones, four on big screens). */
-.tiles.is-themes {
-  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+/* Themes: three to a row in a phone's card, with Each game's own two wide so its name
+   fits on one line; four to a row in a wider card, as the WebSettings board. */
+.settings-look {
+  container: look / inline-size;
+}
+.tiles.is-themes > :first-child {
+  grid-column: span 2;
+}
+@container look (min-width: 370px) {
+  .tiles.is-themes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .tiles.is-themes > :first-child {
+    grid-column: auto;
+  }
 }
 
 /* Each table in its own colours, whatever the page wears: the tile's data-table block
