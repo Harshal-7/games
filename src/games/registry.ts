@@ -9,6 +9,8 @@ import { MafiaThumb } from "./mafia/ui/thumb";
 import { MarbleSolitaireBestBadge } from "./marble-solitaire/ui/best-badge";
 import { MarbleSolitaireThumb } from "./marble-solitaire/ui/thumb";
 import { PatakhaThumb } from "./patakha/ui/thumb";
+import { RangoliBadge } from "./rangoli/ui/badge";
+import { RangoliThumb } from "./rangoli/ui/thumb";
 import { GAME_NAMES, type GameSlug } from "./slugs";
 import { UltaThumb } from "./ulta/ui/thumb";
 
@@ -84,6 +86,14 @@ export const GAMES: GameEntry[] = [
     blurb: "Sing a line, a teammate copies it backwards, and the team guesses the song.",
     detail: "4+ in two teams · one phone",
     Thumb: UltaThumb,
+  },
+  {
+    slug: "rangoli",
+    name: GAME_NAMES.rangoli,
+    blurb: "Draw each pattern in one go: every line once, never twice.",
+    detail: "1 player · 30 patterns",
+    Thumb: RangoliThumb,
+    Badge: RangoliBadge,
   },
   {
     slug: "marble-solitaire",

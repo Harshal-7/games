@@ -4,6 +4,8 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useId, type ReactNode } from "react";
 
 import { setOptions as setPickerOptions, useOptions as usePickerOptions } from "@/games/finger-picker/ui/use-options";
+import { lineSound } from "@/games/rangoli/ui/sounds";
+import { setOptions as setRangoliOptions, useOptions as useRangoliOptions } from "@/games/rangoli/ui/stores";
 import { BOARD_STYLES, PIECE_STYLES } from "@/games/knights-tour/styles";
 import { Board } from "@/games/knights-tour/ui/board";
 import { cue } from "@/games/knights-tour/ui/feedback";
@@ -48,6 +50,7 @@ const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
   patakha: PatakhaNote,
   "highway-bingo": HighwayBingoNote,
   ulta: UltaNote,
+  rangoli: RangoliSection,
   "finger-picker": FingerPickerSection,
   "marble-solitaire": MarbleSolitaireSection,
 };
@@ -241,6 +244,29 @@ function FingerPickerSection() {
             on={sound}
             onToggle={() => setPickerOptions({ sound: !sound })}
           />
+        </div>
+      </Field>
+    </section>
+  );
+}
+
+/** Rangoli has no setup screen, so its Sound switch lives here. */
+function RangoliSection() {
+  const { sound } = useRangoliOptions();
+  const id = useId();
+  function toggle() {
+    setRangoliOptions({ sound: !sound });
+    // Let people hear what they just switched on.
+    if (!sound) lineSound(1, 4);
+  }
+  return (
+    <section className="card section settings-game" data-game="rangoli" aria-labelledby={id}>
+      <h2 className="tape is-game" id={id}>
+        Rangoli in one line
+      </h2>
+      <Field label="Options" group>
+        <div className="switches">
+          <SwitchRow label="Sound and vibration" detail="A soft note for each line, a tune at the end" on={sound} onToggle={toggle} />
         </div>
       </Field>
     </section>

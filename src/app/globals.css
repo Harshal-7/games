@@ -50,6 +50,15 @@
   --teal: #0e7479;
   --teal-deep: #0a5f63;
   --teal-soft: #cfe7e4;
+  /* Rangoli is rangoli pink: cream text on it (4.9:1); pink text on cream uses
+     --rani-deep. Its powder colours add saffron, leaf green and jamun purple to the
+     games' own; each is at least 3:1 on the cream cards, for lines drawn on them. */
+  --rani: #c8216b;
+  --rani-deep: #a3154f;
+  --rani-soft: #f8d9e4;
+  --saffron: #c9590a;
+  --leaf: #2f7d32;
+  --jamun: #7b3fa0;
   /* Marble solitaire is marble violet: cream text on it (5.9:1), and violet text on
      cream passes too (5.7:1). */
   --violet: #7048b0;
@@ -78,6 +87,7 @@ html[data-tone="light"] {
   --marigold-soft: #fce6c9;
   --milestone-soft: #fdf0c0;
   --teal-soft: #d5ece9;
+  --rani-soft: #fae0e9;
   --violet-soft: #e8dff4;
 
   color-scheme: light;
@@ -266,6 +276,21 @@ html[data-tone="light"] {
   --on-game: var(--on-red);
   --pick: var(--teal);
   --on-pick: var(--on-red);
+}
+[data-game="rangoli"] {
+  --game: var(--rani);
+  --game-deep: var(--rani-deep);
+  --game-soft: var(--rani-soft);
+  --on-game: var(--on-red);
+  --pick: var(--rani);
+  --on-pick: var(--on-red);
+  /* The powder colours a pattern's lines are traced in (a line's tone picks one). */
+  --powder-0: var(--rani);
+  --powder-1: var(--saffron);
+  --powder-2: var(--teal);
+  --powder-3: var(--leaf);
+  --powder-4: var(--night);
+  --powder-5: var(--jamun);
 }
 /* Marble solitaire: marble violet, and the glass of its marbles (lit from the top left,
    with a cool shine). The marbles are a real object on the table, so they don't change
