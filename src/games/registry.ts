@@ -6,6 +6,8 @@ import { ImposterThumb } from "./imposter/ui/thumb";
 import { KnightsTourBestBadge } from "./knights-tour/ui/best-badge";
 import { KnightsTourThumb } from "./knights-tour/ui/thumb";
 import { MafiaThumb } from "./mafia/ui/thumb";
+import { MarbleSolitaireBestBadge } from "./marble-solitaire/ui/best-badge";
+import { MarbleSolitaireThumb } from "./marble-solitaire/ui/thumb";
 import { PatakhaThumb } from "./patakha/ui/thumb";
 import { RangoliBadge } from "./rangoli/ui/badge";
 import { RangoliThumb } from "./rangoli/ui/thumb";
@@ -92,5 +94,13 @@ export const GAMES: GameEntry[] = [
     detail: "1 player · 30 patterns",
     Thumb: RangoliThumb,
     Badge: RangoliBadge,
+  },
+  {
+    slug: "marble-solitaire",
+    name: GAME_NAMES["marble-solitaire"],
+    blurb: "Jump marbles over each other until only one is left.",
+    detail: "1 player · 3 boards",
+    Thumb: MarbleSolitaireThumb,
+    Badge: MarbleSolitaireBestBadge,
   },
 ];

@@ -12,6 +12,7 @@ export const GAME_NAMES = {
   ulta: "Ulta",
   rangoli: "Rangoli in one line",
   "finger-picker": "Finger picker",
+  "marble-solitaire": "Marble solitaire",
 } as const;
 
 export type GameSlug = keyof typeof GAME_NAMES;

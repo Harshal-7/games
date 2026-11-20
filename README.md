@@ -13,6 +13,7 @@ lives in its own folder and has its own page, and the home page lists them all.
 | Ulta | `/ulta` | Party game for one phone: sing a line, a teammate copies it backwards, and the team guesses the song. |
 | Rangoli in one line | `/rangoli` | Draw a rangoli pattern in one line: every line once, never twice. 30 hand-made patterns, and endless mirrored ones. |
 | Finger picker | `/finger-picker` | A tool for any game: fingers on the screen, and the phone picks one, makes teams or puts everyone in order. |
+| Marble solitaire | `/marble-solitaire` | Jump marbles over each other until one is left, on the triangle, the English cross or the European board. |
 
 ## Run it
 
@@ -63,6 +64,9 @@ src/
     finger-picker/
       logic/              the fingers and the countdown, fair picks, teams and order, with tests
       ui/                 the touch area, its drawing, and the link the party setups show
+    marble-solitaire/
+      logic/              the boards and jumps, the solver, its pagoda functions and book, with tests
+      ui/                 the wooden board and its marbles, the play screen, the cards, the sounds
 ```
 
 ### Shared parts for party games
@@ -139,8 +143,9 @@ in two columns once the card is 500px wide.
 From 860px wide every page sits in one frame (`.page` in `globals.css`): 1184px at most
 with 48px either side, so the top bar and the content of every page line up. Party setups
 use the shared layout above, play screens a centred 520px stage, Home has its cards two by
-two under a big "Games.", and Knight's Tour has the board (up to 600px, never taller than
-the window) on the left with everything else beside it.
+two under a big "Games.", and the single-player games (Knight's Tour, Rangoli, Marble
+solitaire) have the board (up to 600px, never taller than the window) on the left with
+everything else beside it.
 
 ## The look
 
@@ -151,11 +156,11 @@ Design 4, "Game Night + Sticker": green felt, cream cards, a wooden board, Fraun
 titles, DM Sans for reading and DM Mono for numbers.
 
 - **Tables.** The page is a table colour, and each game sits on its own: Felt (Knight's
-  Tour, Home and Settings), Midnight (Mafia, a starry sky), Night drive (Highway Bingo,
-  a road at dusk), Stage (Ulta, velvet curtains under a spotlight), Lamplight (Imposter,
-  cream with a soft red-wine wash from the top) and Sunrise (Patakha and Rangoli, cream
-  with an orange glow from the bottom), plus Daylight, paper and ink. Only the page changes;
-  cards, buttons and the game's colour stay the same.
+  Tour, Marble solitaire, Home and Settings), Midnight (Mafia, a starry sky), Night drive
+  (Highway Bingo, a road at dusk), Stage (Ulta, velvet curtains under a spotlight),
+  Lamplight (Imposter, cream with a soft red-wine wash from the top) and Sunrise (Patakha
+  and Rangoli, cream with an orange glow from the bottom), plus Daylight, paper and ink.
+  Only the page changes; cards, buttons and the game's colour stay the same.
   - `src/settings/tables.ts` lists the tables and every game's own (`GAME_TABLES`).
     Each table is a `[data-table="<id>"]` block in `globals.css` (page colour and
     texture, `--page-deep` for trays, text, muted text, lines, timer tracks). A test
@@ -239,6 +244,44 @@ plays with none.
   switch is in Settings, since it has no setup screen: a tick (and a buzz on Android) each
   second of the count, and a chime for the pick. iPhones only play sound after a tap, and
   a finger lifting counts as one.
+
+## Marble solitaire notes
+
+- **Boards** (`logic/boards.ts`): Triangle (15 holes, jumps along its three directions),
+  English cross (33) and European (37), with every legal jump and each board's turns and
+  flips. Perfect is one marble in the goal hole, marked with a faint ring: the centre of
+  the cross, the triangle's top (where it starts empty), and on the European board the
+  hole opposite the start, since no single empty hole there can end in the centre.
+- **Solver** (`logic/solver.ts`): depth first on a bit-board (two 32-bit words), trying
+  the jumps that leave the fewest lonely marbles first. It gives up on a position early
+  three ways: a memo of dead positions, stored in their smallest mirror image; the
+  position class (three colourings whose count parities never change, so the last marble
+  can only end on some holes); and pagoda functions, Conway's ψ^distance for each target
+  hole plus six per board and target in `logic/pagodas.ts`. Those six were found once with
+  a small linear program over sampled dead positions; a test checks each one, and its
+  mirror images, against every jump. To add a board, find its own the same way or leave
+  it out (the triangle needs none).
+- **Budgets and restarts** (`logic/analysis.ts`): every search stops after a step budget.
+  A search that runs long starts over in Luby's rhythm (1 1 2 1 1 2 4 …) with near-equal
+  jumps shuffled, which beats one long search that took a wrong turn early; the dead memo
+  carries over, so each try picks up where the last left off. A book line per board
+  (`logic/book.ts`, checked by a test) covers the start, where searching is hardest, so
+  Watch it solve and Hint never search there. Answers are remembered per position, and the
+  position after an answered one is free.
+- **On the page** (`ui/use-analysis.ts`): after each jump the position is worked out in
+  short slices in the background, so the page never freezes. When one marble is out of
+  reach with jumps left, a small card takes the place of Undo, Hint and Restart, with Back
+  to the last move it could still be reached from. When the budget runs out the card stays
+  quiet and Hint shows any legal jump. Early European positions often run out; mid and late
+  games settle at once.
+- **Saves**: the game in progress is `games:marble-solitaire:game:v1` (every jump is
+  replayed on load, so a broken save is dropped), the best per board (fewest marbles, then
+  Perfect, then fastest; Watch it solve doesn't count) is `…:best:v1`, and the Sound switch
+  (Settings, opened from the game) is `…:options:v1`.
+- **Look**: marble violet on Felt. The board is Knight's Tour's Wood (pinned with
+  `data-kt-board="wood"`), cut to each board's shape (`logic/drawing.ts`). Tap a marble or
+  drag it; the hop is a copy of the marble flying over while the jumped one pops off, and
+  under reduced motion marbles just appear and go.
 
 ## Knight's Tour notes
 

@@ -1,0 +1,736 @@
+/* Marble solitaire. The wood is Knight's Tour's Wood board style (board-styles.css,
+   pinned with data-kt-board on the board), the marbles' glass is in the game's block in
+   globals.css, and everything else is the shared tokens. Laid out like Knight's Tour:
+   one column on phones, the board on the left on big screens. */
+
+.ms {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "intro" "boards" "status" "board" "actions" "best";
+}
+.ms-intro {
+  grid-area: intro;
+}
+.ms-boards {
+  grid-area: boards;
+  margin-top: 16px;
+}
+.ms-status {
+  grid-area: status;
+  margin-top: 14px;
+}
+.ms-board-area {
+  grid-area: board;
+  margin-top: 14px;
+}
+.ms-actions {
+  grid-area: actions;
+  margin-top: 16px;
+}
+.ms-best {
+  grid-area: best;
+  margin-top: 14px;
+}
+
+/* A tablet or a narrow laptop window: keep the board small enough that it and its
+   buttons fit. Phones use the whole width and scroll. */
+@media (min-width: 600px) {
+  .ms-boards,
+  .ms-status,
+  .ms-board-area,
+  .ms-actions {
+    max-width: max(300px, calc(100svh - 450px));
+  }
+}
+
+/* ---------- The board picker ---------- */
+
+.seg.ms-boards {
+  display: grid;
+}
+.seg.ms-boards button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 0 4px;
+}
+
+/* ---------- Status card ---------- */
+
+.ms-status {
+  display: grid;
+  gap: 8px;
+  padding: 10px 14px 12px;
+}
+.ms-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 28px;
+}
+.ms-status-text {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ms-status-text svg {
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: -2px;
+}
+/* "21 marbles left": the number in Fraunces italic. */
+.ms-status-num {
+  font-family: var(--display);
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+.ms-time {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--num);
+  font-size: 19px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.ms-time svg {
+  color: var(--muted);
+}
+.ms-progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--inset);
+}
+.ms-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--game);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ink) 25%, transparent);
+  transition: width 0.25s ease;
+}
+
+/* ---------- The board ---------- */
+
+/* Every hole sits in a square cell (a button); what's in it is sized from the cell.
+   The wood is an SVG cut to the board's shape behind them. */
+.ms-board {
+  position: relative;
+  container-type: inline-size;
+  width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+.ms-wood {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.25)) drop-shadow(0 12px 14px rgb(0 0 0 / 0.45));
+}
+.ms-rim {
+  fill: var(--board-frame);
+  stroke: var(--board-frame);
+  stroke-linejoin: round;
+  stroke-width: 0.34;
+}
+.ms-slab {
+  fill: var(--sq-light);
+  stroke: var(--sq-light);
+  stroke-linejoin: round;
+  stroke-width: 0.14;
+}
+
+.ms-cell {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+.ms-cell > * {
+  grid-area: 1 / 1;
+}
+.ms-cell.is-pressable {
+  cursor: pointer;
+}
+.ms-cell:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: -2px;
+}
+.ms-board[data-locked] .ms-cell {
+  cursor: default;
+}
+
+/* A hole drilled in the wood. */
+.ms-hole {
+  width: 44%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 38%,
+    color-mix(in oklab, var(--board-frame) 55%, var(--ink)) 0,
+    var(--board-frame) 72%
+  );
+  box-shadow:
+    inset 0 2px 3px rgb(0 0 0 / 0.55),
+    0 1px 0 color-mix(in oklab, var(--sq-light) 60%, var(--card));
+}
+
+/* The goal hole for a Perfect: a ring scored in the wood. */
+.ms-goal {
+  width: 64%;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  border: 1.5px solid color-mix(in oklab, var(--board-frame) 75%, transparent);
+  border-radius: 50%;
+}
+
+/* Holes the picked marble can jump to glow in the game's colour, edged in ink. */
+.ms-ring {
+  width: 74%;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  border: clamp(2.5px, 1.1cqi, 4px) solid var(--game);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1.5px var(--ink),
+    inset 0 0 0 1.5px var(--ink),
+    0 0 12px 2px var(--marble-glow);
+  pointer-events: none;
+  animation: ms-ring-in 0.18s ease-out;
+}
+/* A hint: the marble to move gets a ring around it, and both pulse. */
+.ms-ring.is-around {
+  z-index: 3;
+  width: 98%;
+}
+.ms-ring.is-hint {
+  animation: ms-pulse 1.1s ease-in-out infinite;
+}
+
+/* A glass marble, lit from the top left, with a shine. */
+.ms-marble {
+  position: relative;
+  z-index: 2;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 34% 30%,
+    var(--marble-shine) 0,
+    var(--marble-shine) 7%,
+    var(--marble-light) 24%,
+    var(--game) 55%,
+    var(--marble-dark) 100%
+  );
+  box-shadow:
+    0 3px 4px color-mix(in oklab, var(--ink) 45%, transparent),
+    inset -2px -3px 5px color-mix(in oklab, var(--marble-dark) 40%, transparent);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  pointer-events: none;
+}
+.ms-marble::after {
+  content: "";
+  position: absolute;
+  top: 15%;
+  left: 22%;
+  width: 26%;
+  height: 17%;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--marble-shine) 85%, transparent);
+  transform: rotate(-30deg);
+}
+@media (hover: hover) {
+  .ms-board:not([data-locked]) .ms-cell.is-pressable:hover .ms-marble:not(.is-picked) {
+    transform: translateY(-2%) scale(1.04);
+  }
+}
+/* Picked: lifted off the board, ringed in cream and ink. */
+.ms-marble.is-picked {
+  transform: translateY(-6%) scale(1.08);
+  box-shadow:
+    0 0 0 2.5px var(--card),
+    0 0 0 5px var(--ink),
+    0 9px 10px color-mix(in oklab, var(--ink) 45%, transparent);
+}
+/* Following a finger: no easing, and above every other marble. */
+.ms-marble.is-dragged {
+  z-index: 5;
+  transform: translate(var(--drag-x), var(--drag-y)) scale(1.12);
+  transition: none;
+}
+.ms-board[data-dragging] {
+  cursor: grabbing;
+}
+
+/* A hop: a copy of the marble arcs from its hole to the landing hole (bigger at the top,
+   as if it came up off the board), the real one shows once it lands, and the jumped
+   marble pops off as it's passed. */
+.ms-flyer {
+  position: absolute;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: ms-hop var(--hop) cubic-bezier(0.35, 0.1, 0.35, 1) both;
+}
+.ms-flyer .ms-marble {
+  box-shadow: 0 12px 14px color-mix(in oklab, var(--ink) 35%, transparent);
+}
+.ms-marble.is-landing {
+  visibility: hidden;
+}
+.ms-marble.is-popping {
+  animation: ms-pop calc(var(--hop) * 0.65) ease-in calc(var(--hop) * 0.35) both;
+}
+
+@keyframes ms-hop {
+  from {
+    transform: translate(0, 0) scale(1.08);
+  }
+  50% {
+    transform: translate(calc(var(--dx) * 50%), calc(var(--dy) * 50%)) scale(1.32);
+  }
+  to {
+    transform: translate(calc(var(--dx) * 100%), calc(var(--dy) * 100%)) scale(1);
+  }
+}
+@keyframes ms-pop {
+  35% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+@keyframes ms-ring-in {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+@keyframes ms-pulse {
+  0%,
+  100% {
+    transform: scale(0.88);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---------- Under the board ---------- */
+
+.ms-controls {
+  display: grid;
+  gap: 12px;
+}
+/* Undo and Hint share the row; Restart is a round button at the end. */
+.ms-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 56px;
+  gap: 10px;
+}
+.ms-tools .btn {
+  padding: 0 14px;
+}
+.ms-tools .ms-restart,
+.ms-reach-actions .ms-restart {
+  padding: 0;
+}
+/* Restart is only an icon on phones; big screens show its name (aria-label has it). */
+.ms-restart-label {
+  display: none;
+}
+/* The hint says "step back": Undo turns violet and pings. */
+.ms-tools .btn.is-nudged {
+  position: relative;
+  background: var(--game);
+  color: var(--on-game);
+}
+.ms-tools .btn.is-nudged:hover:not(:disabled) {
+  background: var(--game-deep);
+}
+.ms-tools .btn.is-nudged::after {
+  content: "";
+  position: absolute;
+  inset: -2.5px;
+  border-radius: inherit;
+  animation: ms-nudge 1.1s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes ms-nudge {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--game) 75%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 9px color-mix(in oklab, var(--game) 0%, transparent);
+  }
+}
+.btn.ms-solve {
+  gap: 10px;
+}
+
+/* One marble out of reach: a small card in the tools' place. */
+.ms-reach {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px 14px;
+  animation: ms-rise 0.3s cubic-bezier(0.3, 1.2, 0.5, 1) both;
+}
+.ms-reach h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.ms-reach p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.ms-reach-actions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 48px;
+  gap: 8px;
+}
+.ms-reach-actions.is-two {
+  grid-template-columns: minmax(0, 1fr) 48px;
+}
+.ms-reach-actions .btn {
+  padding: 0 12px;
+}
+
+/* ---------- Result card (takes the buttons' place when no jump is left) ---------- */
+
+.ms-result {
+  display: grid;
+  gap: 14px;
+  padding: 14px 16px 16px;
+  animation: ms-rise 0.3s cubic-bezier(0.3, 1.2, 0.5, 1) both;
+}
+.ms-result.is-left {
+  gap: 12px;
+}
+.ms-result-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ms-result-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--game);
+  color: var(--on-game);
+  box-shadow: 0 0 0 2.5px var(--ink);
+}
+.ms-result h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.ms-result p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+.ms-result-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+.ms-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 9px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.ms-tag.is-best {
+  background: var(--game);
+  color: var(--on-game);
+}
+.ms-result-actions {
+  display: flex;
+  gap: 10px;
+}
+.ms-result-actions > .btn {
+  flex: 1 1 0;
+  min-height: 52px;
+  padding: 0 14px;
+}
+.ms-num {
+  font-family: var(--num);
+  font-weight: 500;
+}
+.btn.ms-result-main {
+  width: 100%;
+  font-size: 19px;
+}
+.ms-result-more {
+  display: flex;
+  gap: 10px;
+}
+.ms-result-more > .btn {
+  flex: 1 1 0;
+  padding: 0 14px;
+}
+
+@keyframes ms-rise {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+
+/* ---------- Best result ---------- */
+
+.ms-best {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.ms-best-time {
+  color: var(--fg);
+  font-family: var(--num);
+  font-variant-numeric: tabular-nums;
+}
+/* A small violet medal. */
+.ms-medal {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 3px dotted var(--on-game);
+  border-radius: 50%;
+  background: var(--game);
+}
+
+/* ---------- Less motion ---------- */
+
+/* No hops, pops, pulses or lifts: marbles just appear and go. */
+@media (prefers-reduced-motion: reduce) {
+  .ms-flyer,
+  .ms-marble.is-popping {
+    display: none;
+  }
+  .ms-marble.is-landing {
+    visibility: visible;
+  }
+  .ms-marble,
+  .ms-progress span {
+    transition: none;
+  }
+  .ms-ring,
+  .ms-ring.is-hint,
+  .ms-reach,
+  .ms-result,
+  .ms-tools .btn.is-nudged::after {
+    animation: none;
+  }
+}
+
+/* ---------- Big screens ---------- */
+
+@media (min-width: 860px) and (min-height: 480px) {
+  /* As the WebMarble board: the board on the left, as big as the window allows (up to
+     600px, from the shared frame in globals.css); the title, the board picker, the
+     progress card with the best result in it, and the buttons on the right. */
+  .ms {
+    grid-template-columns: var(--frame-board) minmax(0, 1fr);
+    grid-template-rows: repeat(4, auto) 1fr;
+    grid-template-areas:
+      "board intro"
+      "board boards"
+      "board status"
+      "board actions"
+      "board .";
+    align-items: start;
+    column-gap: var(--frame-gap);
+    min-height: var(--frame-board);
+  }
+  .ms-boards,
+  .ms-status,
+  .ms-board-area,
+  .ms-actions {
+    max-width: none;
+  }
+  .ms-board-area {
+    margin-top: 0;
+  }
+  .ms .game-title {
+    font-size: 52px;
+    line-height: 1;
+  }
+  .ms .game-blurb {
+    margin-top: 10px;
+    font-size: 16.5px;
+    line-height: 1.5;
+  }
+  .ms-boards,
+  .ms-status,
+  .ms-actions {
+    margin-top: 20px;
+  }
+  .seg.ms-boards button {
+    height: 46px;
+  }
+
+  /* The progress card: the count and the clock bigger, a thicker bar, and the best
+     result along its bottom (the line sits in the card's grid area). */
+  .ms-status {
+    gap: 12px;
+    padding: 18px 20px 50px;
+  }
+  .ms-status-text {
+    font-size: 16px;
+  }
+  .ms-status-num {
+    font-size: 26px;
+  }
+  .ms-time {
+    font-size: 24px;
+  }
+  .ms-progress {
+    height: 10px;
+  }
+  .ms-best {
+    --fg: var(--ink);
+    --muted: var(--ink-muted);
+    z-index: 1;
+    grid-area: status;
+    align-self: end;
+    margin: 0 0 18px;
+    padding: 0 20px;
+  }
+
+  /* Undo, Hint and Restart in one row of equal buttons, all with their names. */
+  .ms-tools {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .ms-tools .btn {
+    min-height: 48px;
+  }
+  .ms-tools .ms-restart {
+    padding: 0 14px;
+  }
+  .ms-restart-label {
+    display: inline;
+  }
+  .btn.ms-solve {
+    min-height: 58px;
+    font-size: 22px;
+  }
+}
+
+/* Big but short windows (down to 480px tall): the side column tightens up, and while a
+   card replaces the buttons the blurb steps aside to make room. */
+@media (min-width: 860px) and (min-height: 480px) and (max-height: 600px) {
+  .ms .game-title {
+    font-size: 30px;
+  }
+  .ms .game-blurb {
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .ms:not([data-panel="controls"]) .game-blurb {
+    display: none;
+  }
+  .ms-boards {
+    margin-top: 12px;
+  }
+  .seg.ms-boards button {
+    height: 40px;
+  }
+  .ms-status {
+    margin-top: 10px;
+    padding: 7px 14px 34px;
+    gap: 6px;
+  }
+  .ms-actions {
+    margin-top: 12px;
+  }
+  .ms-controls {
+    gap: 10px;
+  }
+  .ms-tools .btn {
+    min-height: 40px;
+  }
+  .btn.ms-solve {
+    min-height: 46px;
+    font-size: 19px;
+  }
+  .ms-best {
+    margin: 0 0 8px;
+    padding: 0 14px;
+  }
+  .ms-result,
+  .ms-reach {
+    gap: 10px;
+    padding: 12px 14px 14px;
+  }
+  .ms-result h2 {
+    font-size: 19px;
+  }
+  .ms-result p {
+    margin-top: 2px;
+    font-size: 14px;
+  }
+  .ms-result-actions > .btn,
+  .btn.ms-result-main {
+    min-height: 44px;
+  }
+  .ms-result-more > .btn {
+    min-height: 40px;
+  }
+}

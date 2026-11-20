@@ -59,6 +59,11 @@
   --saffron: #c9590a;
   --leaf: #2f7d32;
   --jamun: #7b3fa0;
+  /* Marble solitaire is marble violet: cream text on it (5.9:1), and violet text on
+     cream passes too (5.7:1). */
+  --violet: #7048b0;
+  --violet-deep: #5a3794;
+  --violet-soft: #e3d9f2;
 
   --radius: 16px;
   --radius-sm: 12px;
@@ -83,6 +88,7 @@ html[data-tone="light"] {
   --milestone-soft: #fdf0c0;
   --teal-soft: #d5ece9;
   --rani-soft: #fae0e9;
+  --violet-soft: #e8dff4;
 
   color-scheme: light;
 }
@@ -285,6 +291,21 @@ html[data-tone="light"] {
   --powder-3: var(--leaf);
   --powder-4: var(--night);
   --powder-5: var(--jamun);
+}
+/* Marble solitaire: marble violet, and the glass of its marbles (lit from the top left,
+   with a cool shine). The marbles are a real object on the table, so they don't change
+   with the table. */
+[data-game="marble-solitaire"] {
+  --game: var(--violet);
+  --game-deep: var(--violet-deep);
+  --game-soft: var(--violet-soft);
+  --on-game: var(--on-red);
+  --pick: var(--violet);
+  --on-pick: var(--on-red);
+  --marble-shine: #fbf6ff;
+  --marble-light: #c6b0ec;
+  --marble-dark: #33195a;
+  --marble-glow: rgb(176 140 232 / 0.55);
 }
 /* The Finger picker is a site-wide tool: the site's cream and ink. Its fingers wear the
    games' own colours (the first four are also the team colours), then cream and the soft
