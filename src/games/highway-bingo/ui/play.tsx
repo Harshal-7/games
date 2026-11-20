@@ -10,8 +10,7 @@ import { deal, progress, type Progress } from "../logic/card";
 import { readCode } from "../logic/code";
 import { marksOf, seatName, standings, type Game, type Room } from "../logic/room";
 import { BingoCard } from "./bingo-card";
-import { CheckCard } from "./check";
-import { CheckCardIcon } from "./marks";
+import { ShareIcon } from "./marks";
 import { bingoSound, stampSound, unstampSound } from "./sounds";
 import { act } from "./use-room";
 
@@ -25,13 +24,8 @@ export function Play({ room, game }: { room: Room; game: Game }) {
   }, [game.code, game.seats]);
   const stand = standings(room);
   const [fresh, setFresh] = useState<{ seat: number; cell: number } | null>(null);
-  const [checking, setChecking] = useState<number | null>(null);
   const [ending, setEnding] = useState(false);
   if (!code) return null;
-
-  if (checking !== null) {
-    return <CheckCard code={game.code} seat={checking} onSeat={setChecking} onDone={() => setChecking(null)} />;
-  }
 
   const winners = stand.filter((s) => s.won);
   const full = game.goal === "full";
@@ -66,9 +60,9 @@ export function Play({ room, game }: { room: Room; game: Game }) {
               <span className="hb-code-chip-code">{game.code}</span>
               <span className="hb-code-chip-seat">Seat {game.seats[0]}</span>
             </button>
-            <button type="button" className="btn hb-small" onClick={() => setChecking(game.seats[0] === 1 ? 2 : 1)}>
-              <CheckCardIcon width={16} height={16} />
-              Check a card
+            <button type="button" className="btn hb-small" onClick={() => act({ type: "share", on: true })}>
+              <ShareIcon width={16} height={16} />
+              Invite
             </button>
           </>
         ) : sides ? (
@@ -165,7 +159,7 @@ function Win({ game, seat, full }: { game: Game; seat: number; full: boolean }) 
             <b className="hb-win-code">
               {game.code} · Seat {seat}
             </b>
-            <span>Show this to check.</span>
+            <span>Show everyone your screen.</span>
           </>
         ) : game.mode === "sides" ? (
           <>

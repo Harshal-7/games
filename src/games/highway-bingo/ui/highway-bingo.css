@@ -474,6 +474,23 @@ html[data-mode="light"] [data-game="highway-bingo"] .btn-primary:not(:disabled) 
   font-size: 16px;
   line-height: 1.45;
 }
+.hb-share-link {
+  display: grid;
+  gap: 8px;
+}
+.hb-share-link .btn {
+  min-height: 52px;
+}
+/* No share sheet and no clipboard (plain http): the link, to copy by hand. */
+.hb-share-url {
+  margin: 0 4px;
+  color: var(--fg);
+  font-family: var(--num);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  -webkit-user-select: all;
+  user-select: all;
+}
 
 /* ---------- Playing ---------- */
 
@@ -846,7 +863,4 @@ button.hb-cell:active {
 .hb-foot .confirm {
   width: 100%;
   box-sizing: border-box;
-}
-.hb-check-done {
-  margin-top: 4px;
 }

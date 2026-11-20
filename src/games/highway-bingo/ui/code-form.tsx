@@ -16,14 +16,17 @@ const PROBLEMS = {
 /** Join a game, or check someone's card: a code and a seat number. */
 export function CodeForm({
   purpose,
+  code = "",
   onCancel,
   onDone,
 }: {
   purpose: "join" | "check";
+  /** Filled in already, from a join link. */
+  code?: string;
   onCancel: () => void;
   onDone: (code: string, seat: number) => void;
 }) {
-  const [typed, setTyped] = useState("");
+  const [typed, setTyped] = useState(code);
   const [seat, setSeat] = useState(purpose === "join" ? 2 : 1);
   const [tried, setTried] = useState(false);
   const codeId = useId();

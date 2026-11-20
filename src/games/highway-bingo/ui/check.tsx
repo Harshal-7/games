@@ -28,22 +28,20 @@ export function CheckCard({
     <div className="hb-check">
       <header className="hb-form-head">
         <h1 className="game-title hb-screen-title">Check a card</h1>
+        <button type="button" className="btn hb-small" onClick={onDone}>
+          Done
+        </button>
       </header>
       <p className="game-blurb hb-form-blurb">Same squares as their screen? Then it&apos;s their real card.</p>
 
       <div className="hb-check-head">
         <span className="hb-code-chip is-still">
           <span className="hb-code-chip-code">{code}</span>
-          <span className="hb-code-chip-seat">Seat {seat}</span>
         </span>
         <SeatStepper value={seat} onChange={onSeat} label="Seat" />
       </div>
 
       <BingoCard card={card} marks={[]} label={`Seat ${seat}'s card, ${code}`} />
-
-      <button type="button" className="btn btn-primary btn-big hb-check-done" onClick={onDone}>
-        Done
-      </button>
     </div>
   );
 }

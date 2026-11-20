@@ -79,6 +79,13 @@ export const CheckCardIcon = (p: P) => (
   </Mark>
 );
 
+/** A box with an arrow up: Share. */
+export const ShareIcon = (p: P) => (
+  <Mark {...p}>
+    <path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" />
+  </Mark>
+);
+
 /** An arrow: Join. */
 export const JoinIcon = (p: P) => (
   <Mark {...p}>

@@ -259,8 +259,12 @@ plays with none.
   no repeats, and the free middle on 5×5. Labels are 2–4 words, no word over 9 letters, so a
   square never breaks mid-word on a small phone.
 - **Seats** are 1 to 20; whoever starts is seat 1. It runs on trust: anyone can type any seat,
-  and two phones on the same seat get the same card. Check a card opens any seat's card from the
-  code to check a Bingo! claim.
+  and two phones on the same seat get the same card. Check a card (on the setup screen) opens any
+  seat's card from the code to check a Bingo! claim.
+- **Join links.** The code screen (or Invite on the card) shares `/highway-bingo?join=CODE` through
+  the phone's share sheet, or copies it. Opening it brings up Join with the code filled in, then
+  takes `?join=` off the address so a reload doesn't ask again. The offline worker ignores the
+  query, so a link opens with no signal on a phone that has opened the game before.
 - **Saves.** `games:highway-bingo:room:v1` keeps the options, the game on screen and the marks of
   the last 30 cards, per code and seat, so a reload, or joining the same code and seat again,
   brings them back. Leaving through "‹ Games" ends the game (asking first once a square is marked)

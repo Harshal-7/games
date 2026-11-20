@@ -1,7 +1,11 @@
 "use client";
 
+import { useState } from "react";
+
 import { readCode } from "../logic/code";
 import type { Game } from "../logic/room";
+import { joinLink } from "./join-link";
+import { ShareIcon } from "./marks";
 import { act } from "./use-room";
 
 /** The code, big, for the car to copy: own phones only, on the phone that started (or any phone, from its card). */
@@ -26,12 +30,52 @@ export function Share({ game, started }: { game: Game; started: boolean }) {
       </div>
 
       <p className="hb-share-how">
-        Everyone else taps <b>Join</b> and types this code, with a seat number: 2, 3, 4…
+        Send everyone the link, or they tap <b>Join</b> and type this code. Each picks a seat: 2, 3, 4…
       </p>
+
+      <ShareLink code={game.code} />
 
       <button type="button" className="btn btn-primary btn-big" onClick={() => act({ type: "share", on: false })}>
         {started ? "Back to my card" : "Show my card"}
       </button>
+    </div>
+  );
+}
+
+/**
+ * Sends the join link through the phone's share sheet (WhatsApp and so on), or copies it
+ * where there's no share sheet. Opening the link fills in the code on the Join screen.
+ */
+function ShareLink({ code }: { code: string }) {
+  const [said, setSaid] = useState<"copied" | "failed" | null>(null);
+  const url = joinLink(code);
+
+  async function share() {
+    const text = `Join my Highway Bingo game: ${code}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Highway Bingo", text, url });
+        return;
+      } catch (e) {
+        // Closing the share sheet isn't a failure.
+        if (e instanceof DOMException && e.name === "AbortError") return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setSaid("copied");
+    } catch {
+      setSaid("failed");
+    }
+  }
+
+  return (
+    <div className="hb-share-link">
+      <button type="button" className="btn" onClick={share}>
+        <ShareIcon width={18} height={18} />
+        {said === "copied" ? "Link copied" : "Share link"}
+      </button>
+      {said === "failed" && <p className="hb-share-url">{url}</p>}
     </div>
   );
 }
