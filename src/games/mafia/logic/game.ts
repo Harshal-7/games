@@ -60,6 +60,8 @@ export type Options = {
   tie: Tie;
   /** The narrator reads every line out loud; off, the lines only show. */
   voice: boolean;
+  /** The phone voice picked in Options (its name), or null for the best Indian English one. */
+  voiceName: string | null;
   sound: boolean;
 };
 
@@ -70,6 +72,7 @@ export const DEFAULT_OPTIONS: Options = {
   talk: 3,
   tie: "nobody",
   voice: true,
+  voiceName: null,
   sound: true,
 };
 
@@ -518,6 +521,7 @@ function parseOptions(v: unknown): Options {
     talk: oneOf(TALK_MINUTES, v.talk) ? v.talk : d.talk,
     tie: oneOf(TIES, v.tie) ? v.tie : d.tie,
     voice: bool(v.voice, d.voice),
+    voiceName: isString(v.voiceName) ? v.voiceName : null,
     sound: bool(v.sound, d.sound),
   };
 }

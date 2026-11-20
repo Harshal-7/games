@@ -9,7 +9,7 @@ import { RestartIcon } from "@/ui/icons";
 
 import { startProblem, TALK_MINUTES, type Options as GameOptions, type Room, type Tie } from "../logic/game";
 import { autoMafia, LIMITS, MAFIA_CHOICES, mafiaCount, maxMafia } from "../logic/roles";
-import { canSpeak } from "./narrator";
+import { canSpeak, chooseVoice, say, unlock, useVoices } from "./narrator";
 import { act } from "./use-room";
 
 const TIE_LABELS: Record<Tie, { label: string; note: string }> = {
@@ -212,14 +212,60 @@ function Options({ room }: { room: Room }) {
           on={options.voice}
           onToggle={() => set({ voice: !options.voice })}
         />
+        {options.voice && <VoicePicker chosen={options.voiceName} onChoose={(voiceName) => set({ voiceName })} />}
         <SwitchRow
           label="Sound and vibration"
-          detail="A buzz when you hold your card, a chime as night falls, ticks in the last 10 seconds of talking"
+          detail="A buzz when you hold your card, a quiet night sound that hides who leans in to tap, ticks in the last 10 seconds of talking"
           on={options.sound}
           onToggle={() => set({ sound: !options.sound })}
         />
       </div>
     </section>
+  );
+}
+
+/**
+ * Which of the phone's voices narrates: the best Indian English one by default. A phone
+ * with a downloaded Enhanced or Premium voice sounds much better; Hear it plays a line.
+ */
+function VoicePicker({ chosen, onChoose }: { chosen: string | null; onChoose: (name: string | null) => void }) {
+  const voices = useVoices();
+  const id = useId();
+  if (voices.length === 0) return null;
+  const known = chosen !== null && voices.some((v) => v.name === chosen);
+  const hear = () => {
+    chooseVoice(known ? chosen : null);
+    unlock(true);
+    say(`hear:${Date.now()}`, ["Night falls. Everyone, close your eyes."], true);
+  };
+  return (
+    <div className="maf-voice">
+      <label className="switch-label" htmlFor={id}>
+        Voice
+      </label>
+      <div className="maf-voice-row">
+        <select
+          id={id}
+          className="maf-select"
+          value={known ? chosen : ""}
+          onChange={(e) => onChoose(e.target.value || null)}
+        >
+          <option value="">Best on this phone ({voices[0].name})</option>
+          {voices.map((v) => (
+            <option key={`${v.name}-${v.lang}`} value={v.name}>
+              {v.name} · {v.lang.replace("_", "-")}
+            </option>
+          ))}
+        </select>
+        <button type="button" className="btn maf-small" onClick={hear}>
+          Hear it
+        </button>
+      </div>
+      <p className="switch-detail">
+        Sounds robotic? Download a better English (India) voice in your phone&apos;s settings (on iPhones: Accessibility,
+        Spoken Content, Voices), then pick it here.
+      </p>
+    </div>
   );
 }
 

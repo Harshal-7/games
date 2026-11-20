@@ -163,6 +163,35 @@
   border-top: 1.5px dashed var(--line);
 }
 
+/* The narrator's voice: a native select dressed as an outlined pill, and Hear it. */
+.maf-voice {
+  padding: 4px 0 12px;
+}
+.maf-voice-row {
+  display: flex;
+  gap: 10px;
+  margin: 8px 0 6px;
+}
+.maf-select {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 14px;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--inset);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px; /* 16px stops iPhones zooming in on focus */
+  text-overflow: ellipsis;
+}
+.maf-voice-row .btn {
+  flex: none;
+}
+.maf-voice + .switch-row {
+  border-top: 1px solid var(--line);
+}
+
 /* How to play: an outlined row; open, the rules in a reading card under it. */
 .maf-rules > summary {
   display: flex;

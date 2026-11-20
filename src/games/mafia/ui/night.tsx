@@ -10,6 +10,7 @@ import { isOut, reduce, RESULT_MS, roleOut, targets, type Action, type Game, typ
 import { narration } from "../logic/narration";
 import { ROLE_NAMES, type NightRole } from "../logic/roles";
 import { useUnlocked } from "./narrator";
+import { startNightSound, stopNightSound } from "./night-sound";
 import { actAndSay, Foot, Head, namesOf, nightNotes } from "./parts";
 import { act } from "./use-room";
 
@@ -98,6 +99,14 @@ function Sky({ room, game, night }: { room: Room; game: Game; night: Night }) {
   const now = useClock();
   const names = namesOf(room);
   const line = narration(room);
+
+  // A quiet night under the narrator, with the Sound switch.
+  const { sound } = room.options;
+  useEffect(() => {
+    if (!sound) return;
+    startNightSound();
+    return stopNightSound;
+  }, [sound]);
 
   // The clock moves the night on: every turn ends on its own time, not on the tap.
   useEffect(() => {

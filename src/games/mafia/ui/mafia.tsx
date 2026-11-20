@@ -10,7 +10,7 @@ import { Morning, Talk, Verdict, VoteScreen } from "./day";
 import { Deal } from "./deal";
 import { End } from "./end";
 import { Lobby } from "./lobby";
-import { say, useUnlocked } from "./narrator";
+import { chooseVoice, say, useUnlocked } from "./narrator";
 import { NightScreen } from "./night";
 import { chime } from "./parts";
 import { useRoom } from "./use-room";
@@ -63,6 +63,8 @@ let chimed: string | null = null;
  */
 function useNarrator(room: Room, hydrated: boolean): void {
   const unlocked = useUnlocked();
+  const { voiceName } = room.options;
+  useEffect(() => chooseVoice(voiceName), [voiceName]);
   const line = narration(room);
   const key = line?.key ?? null;
   const tell = useEffectEvent(() => {

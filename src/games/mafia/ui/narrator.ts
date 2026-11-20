@@ -3,11 +3,12 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * The narrator: reads lines out loud with the phone's own voice (speechSynthesis), in
- * English (India) when the phone has that voice and the default one otherwise. Phones
- * only let a page speak once someone has tapped it (iPhones need the first line to come
- * straight from a tap), so every main button calls `unlock()` first. Until then, after a
- * reload, the night waits for a tap on Carry on.
+ * The narrator: reads lines out loud with the phone's own voices (speechSynthesis). It
+ * picks the best English (India) voice the phone has (a downloaded Enhanced or Premium
+ * one beats the built-in), unless the room chose one in Options. Phones only let a page
+ * speak once someone has tapped it (iPhones need the first line to come straight from a
+ * tap), so every main button calls `unlock()` first. Until then, after a reload, the
+ * night waits for a tap on Carry on.
  */
 
 function synth(): SpeechSynthesis | null {
@@ -16,14 +17,78 @@ function synth(): SpeechSynthesis | null {
 
 const lang = (voice: SpeechSynthesisVoice) => voice.lang.replace("_", "-").toLowerCase();
 
+/** macOS's joke voices (Bells, Zarvox…): never a narrator. */
+const NOVELTY =
+  /^(albert|bad news|bahh|bells|boing|bubbles|cellos|fred|good news|jester|junior|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|grandma|grandpa|rocko|kathy)\b/i;
+
+/** How good a narrator a voice is likely to be: Indian English first, then the nicer kinds. */
+function score(voice: SpeechSynthesisVoice): number {
+  const id = `${voice.name} ${voice.voiceURI}`.toLowerCase();
+  let points = lang(voice) === "en-in" ? 100 : 0;
+  if (id.includes("premium")) points += 40;
+  if (id.includes("enhanced")) points += 30;
+  if (/^(aman|tara|isha|veena|neel|kiyara)\b/.test(voice.name.toLowerCase())) points += 20;
+  if (id.includes("google")) points += 10;
+  if (voice.localService) points += 5;
+  // The old built-in Indian voice on Apple devices: fine, but the last choice among them.
+  if (voice.name.toLowerCase().startsWith("rishi")) points -= 15;
+  return points;
+}
+
 /**
- * English (India) if there is one. Offline, only a voice on the phone itself works: some
- * browsers list voices that need the internet.
+ * The phone's English voices that can narrate, best first. Offline, only voices on the
+ * phone itself work: some browsers list voices that need the internet.
  */
-function pickVoice(s: SpeechSynthesis): SpeechSynthesisVoice | null {
-  const indian = s.getVoices().filter((v) => lang(v) === "en-in");
+export function narratorVoices(voices: readonly SpeechSynthesisVoice[]): SpeechSynthesisVoice[] {
   const offline = typeof navigator !== "undefined" && navigator.onLine === false;
-  return indian.find((v) => v.localService) ?? (offline ? null : (indian[0] ?? null));
+  return voices
+    .filter((v) => lang(v).startsWith("en") && !NOVELTY.test(v.name) && (v.localService || !offline))
+    .sort((a, b) => score(b) - score(a) || a.name.localeCompare(b.name));
+}
+
+/** The voice the room picked in Options (its name), or null for the best one. */
+let chosen: string | null = null;
+export function chooseVoice(name: string | null): void {
+  chosen = name;
+}
+
+function pickVoice(s: SpeechSynthesis): SpeechSynthesisVoice | null {
+  const voices = narratorVoices(s.getVoices());
+  return voices.find((v) => v.name === chosen) ?? voices.find((v) => lang(v) === "en-in") ?? null;
+}
+
+/* ---------- The phone's voices, for the chooser ---------- */
+
+let voiceList: SpeechSynthesisVoice[] = [];
+const voiceListeners = new Set<() => void>();
+
+function updateVoices(): void {
+  const s = synth();
+  voiceList = s ? narratorVoices(s.getVoices()) : [];
+  for (const listener of voiceListeners) listener();
+}
+
+function subscribeVoices(onChange: () => void): () => void {
+  voiceListeners.add(onChange);
+  if (voiceListeners.size === 1) {
+    synth()?.addEventListener("voiceschanged", updateVoices);
+    updateVoices();
+  }
+  return () => {
+    voiceListeners.delete(onChange);
+    if (voiceListeners.size === 0) synth()?.removeEventListener("voiceschanged", updateVoices);
+  };
+}
+
+const NO_VOICES: SpeechSynthesisVoice[] = [];
+
+/** The phone's narrator voices, best first. Browsers load them late, so this updates. */
+export function useVoices(): SpeechSynthesisVoice[] {
+  return useSyncExternalStore(
+    subscribeVoices,
+    () => voiceList,
+    () => NO_VOICES,
+  );
 }
 
 /* ---------- Unlocking: once per page, from a tap ---------- */
