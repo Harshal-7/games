@@ -336,8 +336,10 @@ body {
   box-shadow: none;
   cursor: not-allowed;
 }
-/* A picked pill (a vote, a toggle): the game's colour. */
-.btn[aria-pressed="true"] {
+/* A picked pill (a vote, a toggle): the game's colour, hovered or not (phones keep
+   :hover after a tap, which would otherwise hide the pick). */
+.btn[aria-pressed="true"],
+.btn[aria-pressed="true"]:hover:not(:disabled) {
   background: var(--pick);
   color: var(--on-pick);
 }
