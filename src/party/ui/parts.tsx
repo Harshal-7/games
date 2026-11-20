@@ -12,9 +12,10 @@ export function PlayHead({ round, label }: { round: number; label: string }) {
   );
 }
 
-/** A name in big type. Long names step down a size so they fit a phone. */
+/** A name in big type. Long names step down a size or two so they fit a phone in one piece. */
 export function BigName({ name }: { name: string }) {
-  return <h2 className={name.length > 9 ? "party-big-name is-long" : "party-big-name"}>{name}</h2>;
+  const size = name.length > 13 ? " is-long is-longer" : name.length > 9 ? " is-long" : "";
+  return <h2 className={`party-big-name${size}`}>{name}</h2>;
 }
 
 /**
