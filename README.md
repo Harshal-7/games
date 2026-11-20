@@ -60,7 +60,7 @@ callbacks), never a game's own types, and Imposter shows each one in use.
 | `useClock`, `useHydrated` | `ui/use-clock.ts`, `ui/use-hydrated.ts` | A clock that ticks four times a second; whether the browser has loaded |
 | `wakeAudio`, `buzzOpen`, `tick`, `timeUp` | `ui/sounds.ts` | Party sounds, on top of `src/ui/sound.ts` |
 | `Roster` | `ui/roster.tsx` | The player list on a setup screen: Quick start, add, rename in place, remove |
-| `HoldCard`, `Face` | `ui/hold-card.tsx` | The hold-to-see secret card, and a face-up card's lines |
+| `HoldCard`, `Face`, `useHold` | `ui/hold-card.tsx` | The hold-to-see secret card, a face-up card's lines, and its hold for a game that opens the card from a button too |
 | `RingTimer` | `ui/ring-timer.tsx` | The ring timer with Pause and +30 sec |
 | `Vote` | `ui/vote.tsx` | Point on three, tap who got the most fingers |
 | `PlayHead`, `BigName`, `Stamp` | `ui/parts.tsx` | The round chip, a name in big type, a rubber stamp |
@@ -179,8 +179,9 @@ plays with none.
   with the same wait, so the timing gives nothing away. The screen ticks the reducer with
   `Date.now()`; nothing counts intervals. Each role's screen starts clean, so the Doctor
   and the Police never see the Mafia's pick.
-- **The narrator** (`ui/narrator.ts`) is the phone's own voice (`speechSynthesis`):
-  English (India) when the phone has it, and offline only a voice on the phone itself.
+- **The narrator** (`ui/narrator.ts`) is the phone's own voice (`speechSynthesis`): the
+  best English (India) voice on the phone (a downloaded Enhanced or Premium one first),
+  or the one picked in Options with Hear it. Offline, only voices on the phone itself.
   What it says at each moment comes from `logic/narration.ts`, keyed so nothing is said
   twice. Phones only speak after a tap, so the night starts from one, and after a reload
   mid-night Carry on says the last line again with a fresh wait. On iPhones the page asks
@@ -188,5 +189,9 @@ plays with none.
 - **The screen stays on** (Screen Wake Lock, https only) from the first night to the last
   vote.
 - **Fair roles.** One fair-pick ledger per role, booked once everyone has seen their card.
-- **Words** (`logic/script.ts`): the narrator's lines and 40 morning stories with a
-  `{name}` slot. No story repeats in a room until they've all been told.
+- **Words** (`logic/script.ts`): four night scenes taken in turn (the classic night, a
+  power cut, the monsoon, the night after the match), each still calling every role to
+  open and close their eyes by name, and 40 morning stories with a `{name}` slot. No
+  story repeats in a room until they've all been told.
+- **Night sound** (`ui/night-sound.ts`): a soft hush and the odd cricket in Web Audio,
+  under the Sound switch, to cover the sound of someone leaning in to tap.
