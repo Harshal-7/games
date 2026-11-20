@@ -17,14 +17,12 @@ import {
   type Room,
 } from "../logic/game";
 import { STORIES, tell } from "../logic/script";
-import { unlock } from "./narrator";
 import { actAndSay, Foot, Head, namesOf, nightNotes, ShownFace, Table } from "./parts";
 import { act } from "./use-room";
 
-/** Someone has won: on to the end, every card face up. */
-function finish(): void {
-  unlock();
-  act({ type: "finish" });
+/** A main button's tap: the action, and the next screen's lines said from the tap itself. */
+function go(room: Room, action: Action): void {
+  actAndSay(room, action, reduce(room, action));
 }
 
 /** The morning: who the Mafia got, as a story, and what they were. Or nobody. */
@@ -35,10 +33,9 @@ export function Morning({ room, game }: { room: Room; game: Game }) {
   const winner = winnerOf(game);
 
   const startDay = () => {
-    unlock();
     // The tap that starts the clock also wakes the audio for its ticks later (iPhones).
     if (room.options.sound) wakeAudio();
-    act({ type: "day", now: Date.now() });
+    go(room, { type: "day", now: Date.now() });
   };
 
   return (
@@ -61,7 +58,7 @@ export function Morning({ room, game }: { room: Room; game: Game }) {
         <button
           type="button"
           className="btn btn-primary btn-big maf-go"
-          onClick={winner ? finish : startDay}
+          onClick={winner ? () => go(room, { type: "finish" }) : startDay}
         >
           {winner ? "See who won" : "Start the day"}
         </button>
@@ -93,10 +90,7 @@ export function Talk({ room, game }: { room: Room; game: Game }) {
         <button
           type="button"
           className="btn btn-primary btn-big maf-go"
-          onClick={() => {
-            unlock();
-            act({ type: "vote" });
-          }}
+          onClick={() => go(room, { type: "vote" })}
         >
           Time to vote
         </button>
@@ -111,10 +105,7 @@ export function Talk({ room, game }: { room: Room; game: Game }) {
 export function VoteScreen({ room, game }: { room: Room; game: Game }) {
   const names = namesOf(room);
   const again = room.options.tie === "again" && game.ties === 0;
-  const vote = (id: string | null) => {
-    unlock();
-    act({ type: "vote-out", id });
-  };
+  const vote = (id: string | null) => go(room, { type: "vote-out", id });
 
   return (
     <div className="party-play">
@@ -148,9 +139,8 @@ export function Verdict({ room, game }: { room: Room; game: Game }) {
   const winner = winnerOf(game);
 
   const nextNight = () => {
-    const action: Action = { type: "nightfall", now: Date.now() };
     if (room.options.sound) nightNotes();
-    actAndSay(room, action, reduce(room, action));
+    go(room, { type: "nightfall", now: Date.now() });
   };
 
   return (
@@ -174,7 +164,7 @@ export function Verdict({ room, game }: { room: Room; game: Game }) {
         <button
           type="button"
           className="btn btn-primary btn-big maf-go"
-          onClick={winner ? finish : nextNight}
+          onClick={winner ? () => go(room, { type: "finish" }) : nextNight}
         >
           {winner ? "See who won" : `Start night ${game.round + 1}`}
         </button>
