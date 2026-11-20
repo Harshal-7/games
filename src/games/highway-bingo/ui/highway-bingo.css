@@ -463,9 +463,18 @@ html[data-mode="light"] [data-game="highway-bingo"] .btn-primary:not(:disabled) 
 .hb-play.is-sides {
   max-width: none;
 }
-/* Two cards side by side get the whole width, even on a phone held sideways. */
-.page.is-party:has(.hb-play.is-sides) {
-  max-width: 1040px;
+/* Two cards side by side get the whole width, even on a phone held sideways. From 860px
+   the page is the shared frame (globals.css), wide enough already. */
+@media (max-width: 859px) {
+  .page.is-party:has(.hb-play.is-sides) {
+    max-width: 1040px;
+  }
+}
+/* Big screens: one card is the same centred stage as other party games' play screens. */
+@media (min-width: 860px) {
+  .hb-play {
+    max-width: 520px;
+  }
 }
 .hb-play-head {
   display: flex;
