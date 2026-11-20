@@ -1,0 +1,866 @@
+/* Highway Bingo in design 4: cream cards on the felt, milestone yellow for the game's own
+   parts. Built on the shared tokens and parts in globals.css (.btn, .btn-primary, .seg,
+   .card, .tape, .switch, .confirm) and src/party/ui/party.css; everything here is
+   prefixed hb- so it can't touch other games. Yellow is never text on cream (1.5:1): text
+   on it is ink, and yellow-family text on cream is --milestone-ink. It's played in a
+   moving car, so squares and buttons are big. */
+
+.hb-loading {
+  min-height: 60vh;
+}
+
+/* Smaller outlined pills: Cancel, Check a card, End game. */
+.btn.hb-small {
+  gap: 6px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+/* Yellow on daylight's paper is faint (1.3:1), so the main button gets an ink edge there. */
+html[data-mode="light"] [data-game="highway-bingo"] .btn-primary:not(:disabled) {
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    0 3px 0 rgb(0 0 0 / 0.35);
+}
+
+/* ---------- The milestone drawing ---------- */
+
+.hb-milestone {
+  display: block;
+  flex: none;
+  overflow: visible;
+}
+.hb-milestone-body {
+  fill: var(--card);
+}
+.hb-milestone-top {
+  fill: var(--milestone);
+}
+.hb-milestone-edge,
+.hb-milestone-ground {
+  fill: none;
+  stroke: var(--ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4.5;
+}
+.hb-milestone-ground {
+  stroke-width: 5;
+}
+.hb-milestone-top-text,
+.hb-milestone-text {
+  fill: var(--ink);
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 800;
+}
+.hb-milestone-text {
+  font-family: var(--num);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.hb-milestone-text.is-big {
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 700;
+}
+
+/* ---------- Lobby ---------- */
+
+/* Phones: one column. Wide screens: two. */
+.hb-lobby {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+@media (min-width: 860px) {
+  .hb-lobby {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas:
+      "intro intro"
+      "own options"
+      "one rules";
+    gap: 32px;
+    align-items: start;
+  }
+  .hb-intro {
+    grid-area: intro;
+  }
+  .hb-own {
+    grid-area: own;
+  }
+  .hb-one {
+    grid-area: one;
+  }
+  .hb-options {
+    grid-area: options;
+  }
+  .hb-rules {
+    grid-area: rules;
+  }
+}
+
+/* The yellow title card: dotted like a road sign's paint, the milestone, a cream plate. */
+.hb-title-card {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 400px;
+  height: 92px;
+  margin: 10px 4px 0;
+  padding: 0 14px 0 10px;
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  background:
+    radial-gradient(rgb(255 255 255 / 0.32) 1.2px, transparent 1.7px) 0 0 / 11px 11px,
+    var(--milestone);
+  box-shadow:
+    inset 0 0 0 6px var(--milestone),
+    inset 0 0 0 7.5px var(--ink),
+    var(--shadow);
+  rotate: -0.8deg;
+}
+.hb-title-stone {
+  width: 68px;
+  margin-top: -26px;
+}
+/* On the yellow card the milestone's top is cream-edged so it doesn't vanish. */
+.hb-title-stone .hb-milestone-top {
+  fill: var(--milestone-soft);
+}
+.hb-title-stone .hb-milestone-ground {
+  display: none;
+}
+.hb-title-plate {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 8px 12px 9px;
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow:
+    0 0 0 2px var(--milestone),
+    0 0 0 3.5px var(--ink);
+}
+.hb-title-name {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: clamp(25px, 7.4vw, 31px);
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+.hb-title-meta {
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.hb-blurb {
+  max-width: 46ch;
+  margin: 14px 4px 0;
+}
+
+/* "Driver? Call it out, someone else taps." */
+.hb-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 14px 4px 0;
+  padding: 8px 14px 8px 10px;
+  border: 1.5px dashed var(--muted);
+  border-radius: 999px;
+  color: var(--fg);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.hb-note svg {
+  flex: none;
+}
+
+.hb-section-text {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.hb-own-actions {
+  display: grid;
+  gap: 14px;
+}
+.hb-own-more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.hb-own-more .btn {
+  flex: 1 1 140px;
+  min-height: 48px;
+}
+
+/* One phone: two big choices, outlined like every button you tap. */
+.hb-one-choices {
+  display: grid;
+  gap: 12px;
+}
+.hb-choice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 14px 10px 10px;
+  box-sizing: border-box;
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  box-shadow: 3px 3px 0 var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    background-color 0.15s ease;
+}
+.hb-choice:hover {
+  background: color-mix(in oklab, var(--card) 90%, var(--ink));
+}
+.hb-choice:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.hb-choice-art {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--milestone);
+  color: var(--ink);
+  font-size: 20px;
+  letter-spacing: -0.1em;
+}
+.hb-choice-text {
+  display: grid;
+  gap: 2px;
+}
+.hb-choice-text b {
+  font-family: var(--display);
+  font-size: 19px;
+  line-height: 1.15;
+}
+.hb-choice-text span {
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+/* Options */
+.hb-seg {
+  display: grid;
+  width: 100%;
+}
+.hb-seg button {
+  flex-direction: column;
+  gap: 0;
+  height: 56px;
+  min-width: 0;
+  font-size: 17px;
+  line-height: 1.15;
+}
+.hb-seg-note {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.hb-field-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.hb-field-note.is-problem {
+  color: var(--red-deep);
+  font-weight: 600;
+}
+.hb-switches {
+  margin-top: 14px;
+}
+
+/* How to play */
+.hb-rules > summary {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px 0 20px;
+  list-style: none;
+}
+.hb-rules > summary::-webkit-details-marker {
+  display: none;
+}
+.hb-rules-chevron {
+  transition: rotate 0.2s ease;
+}
+.hb-rules[open] .hb-rules-chevron {
+  rotate: 180deg;
+}
+.hb-rules-body {
+  margin-top: 14px;
+  padding: 16px 18px 18px;
+}
+.hb-rules-body ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 22px;
+  font-size: 15px;
+  line-height: 1.45;
+  list-style: decimal;
+}
+.hb-rules-body li::marker {
+  color: var(--muted);
+  font-family: var(--num);
+  font-size: 13px;
+}
+.hb-rules-body p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* ---------- Join, Check a card, the code ---------- */
+
+.hb-form,
+.hb-check,
+.hb-share {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.hb-form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+.hb-screen-title {
+  font-size: clamp(28px, 8vw, 34px);
+}
+.hb-form-blurb {
+  margin: -8px 0 0;
+}
+.hb-form-card {
+  margin-top: 12px;
+}
+.hb-code-input {
+  width: 100%;
+  height: 64px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--inset);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.hb-code-input::placeholder {
+  color: var(--ink-muted);
+  opacity: 0.4;
+}
+.hb-code-input:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
+}
+.hb-code-input[aria-invalid="true"] {
+  border-color: var(--red-deep);
+}
+.hb-seat-field {
+  margin-top: 22px;
+}
+.hb-stepper {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.icon-btn.hb-step {
+  width: 56px;
+  height: 56px;
+}
+.hb-seat-num {
+  min-width: 64px;
+  color: var(--fg);
+  font-family: var(--num);
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+}
+
+/* Check a card: the code chip and the seat side by side. */
+.hb-check-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+}
+.hb-check-head .hb-seat-field {
+  margin: 0;
+}
+.hb-check-head .field-label {
+  color: var(--fg);
+}
+.hb-check-head .hb-stepper {
+  gap: 12px;
+}
+.hb-check-head .icon-btn.hb-step {
+  width: 48px;
+  height: 48px;
+}
+.hb-check-head .hb-seat-num {
+  min-width: 44px;
+  font-size: 30px;
+}
+
+/* The code, big enough to read from the back seat. */
+.hb-code-card {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 22px 16px 20px;
+  text-align: center;
+}
+.hb-code {
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: clamp(44px, 14vw, 60px);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.hb-code-meta {
+  color: var(--ink-muted);
+  font-size: 15px;
+}
+.hb-share-how {
+  margin: 0 4px;
+  color: var(--fg);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.hb-share-link {
+  display: grid;
+  gap: 8px;
+}
+.hb-share-link .btn {
+  min-height: 52px;
+}
+/* No share sheet and no clipboard (plain http): the link, to copy by hand. */
+.hb-share-url {
+  margin: 0 4px;
+  color: var(--fg);
+  font-family: var(--num);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  -webkit-user-select: all;
+  user-select: all;
+}
+
+/* ---------- Playing ---------- */
+
+.hb-play {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 540px;
+  margin: 0 auto;
+}
+.hb-play.is-sides {
+  max-width: none;
+}
+/* Two cards side by side get the whole width, even on a phone held sideways. */
+.page.is-party:has(.hb-play.is-sides) {
+  max-width: 1040px;
+}
+.hb-play-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.hb-play-title {
+  margin: 0;
+  color: var(--fg);
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* The code and seat: tap to show the code big. */
+.hb-code-chip {
+  display: inline-flex;
+  align-items: stretch;
+  height: 44px;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+}
+button.hb-code-chip:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.hb-code-chip-code,
+.hb-code-chip-seat {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  font-family: var(--num);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.hb-code-chip-code {
+  background: var(--milestone);
+}
+.hb-code-chip-seat {
+  border-left: 2.5px solid var(--ink);
+  font-family: var(--body);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* Left against right: tabs on a phone held upright, both cards side by side wider. */
+.hb-side-tabs {
+  display: grid;
+  width: 100%;
+}
+.hb-side-tabs button {
+  height: 48px;
+  font-size: 16px;
+}
+.hb-tab-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--inset);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 13px;
+}
+.hb-sheets {
+  display: grid;
+  gap: 24px;
+}
+.hb-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.hb-play.is-sides .hb-sheet:not(.is-shown) {
+  display: none;
+}
+.hb-sheet-name {
+  margin: 0;
+  color: var(--fg);
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+}
+@media (min-width: 760px) {
+  .hb-play.is-sides .hb-sheets {
+    grid-template-columns: 1fr 1fr;
+  }
+  .hb-play.is-sides .hb-sheet:not(.is-shown) {
+    display: flex;
+  }
+  .hb-side-tabs {
+    display: none;
+  }
+}
+
+/* The card: a cream sheet with an ink edge, almost the phone's full width. Its type is
+   sized by the card's own width (cqi), so two cards side by side shrink with it. */
+.hb-card {
+  --pad: 5px;
+  position: relative;
+  container-type: inline-size;
+  margin: 0 -12px;
+  padding: var(--pad);
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+@media (min-width: 560px) {
+  .hb-card {
+    margin: 0;
+  }
+}
+.hb-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--n), minmax(0, 1fr));
+  aspect-ratio: 1 / var(--tall);
+}
+.hb-card.is-5 {
+  --n: 5;
+}
+.hb-card.is-4 {
+  --n: 4;
+}
+
+/* A square. Its outer margin keeps the grid's tracks equal, so the line drawn through a
+   finished line lands on the squares' centres. */
+.hb-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  min-height: 0;
+  margin: 2.5px;
+  padding: 3px 2px;
+  box-sizing: border-box;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  text-align: center;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+button.hb-cell {
+  cursor: pointer;
+}
+button.hb-cell:active {
+  background: var(--inset);
+}
+.hb-cell[aria-pressed="true"],
+.hb-cell[aria-pressed="true"]:active {
+  background: var(--pick);
+}
+.hb-cell.is-lit {
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+.hb-emoji {
+  position: relative;
+  font-size: clamp(17px, 7.2cqi, 32px);
+  line-height: 1;
+}
+.is-4 .hb-emoji {
+  font-size: clamp(24px, 9.6cqi, 42px);
+}
+.hb-label {
+  max-width: 100%;
+  font-size: clamp(9px, 3.2cqi, 14px);
+  font-weight: 700;
+  line-height: 1.1;
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+/* A long word ("Watermelon") steps down a little so it breaks less often. */
+.hb-label.is-long {
+  font-size: clamp(8.5px, 2.95cqi, 13px);
+}
+.is-4 .hb-label,
+.is-4 .hb-label.is-long {
+  font-size: clamp(11px, 4.1cqi, 17px);
+}
+
+/* The stamp: an ink ring knocked on around the emoji. */
+.hb-stamp {
+  position: absolute;
+  inset: -0.2em;
+  border: 0.09em solid var(--ink);
+  border-radius: 50%;
+  rotate: -12deg;
+  pointer-events: none;
+}
+.hb-stamp::after {
+  content: "";
+  position: absolute;
+  right: -0.12em;
+  bottom: -0.04em;
+  width: 0.36em;
+  height: 0.36em;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.hb-stamp.is-landing {
+  animation: hb-stamp 0.22s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+@keyframes hb-stamp {
+  0% {
+    opacity: 0;
+    scale: 1.7;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* The free middle: ink, with a little milestone in yellow. */
+.hb-cell.is-free {
+  background: var(--ink);
+  color: var(--milestone);
+}
+.hb-free-stone {
+  width: 42%;
+  max-width: 30px;
+}
+.hb-free-stone .hb-milestone-body {
+  fill: var(--card);
+}
+.hb-free-stone .hb-milestone-edge {
+  stroke: var(--milestone);
+  stroke-width: 7;
+}
+.hb-free-stone .hb-milestone-ground {
+  display: none;
+}
+.hb-free-text {
+  font-family: var(--num);
+  font-size: clamp(9px, 3.1cqi, 13px);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* A finished line: a marker stroke through it, cream under ink so it reads on yellow. */
+.hb-lines {
+  position: absolute;
+  inset: var(--pad);
+  width: calc(100% - 2 * var(--pad));
+  height: calc(100% - 2 * var(--pad));
+  overflow: visible;
+  pointer-events: none;
+}
+.hb-line path {
+  fill: none;
+  stroke-linecap: round;
+}
+.hb-line-under {
+  stroke: var(--card);
+  stroke-width: 0.22;
+}
+.hb-line-ink {
+  stroke: var(--ink);
+  stroke-width: 0.11;
+}
+.hb-line.is-drawing path {
+  stroke-dasharray: 1;
+  animation: hb-draw 0.6s ease-out both;
+}
+@keyframes hb-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* The bingo, over the card. */
+.hb-win {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.party-stamp.hb-win-stamp {
+  flex: none;
+  padding: 6px 12px;
+  background: var(--milestone);
+  color: var(--ink);
+  font-size: 24px;
+}
+.hb-win-text {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.hb-win-text b {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.hb-win-text .hb-win-code {
+  font-family: var(--num);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.hb-win-text span {
+  color: var(--ink-muted);
+}
+.hb-status {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  text-align: center;
+}
+.hb-foot {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+.hb-foot .confirm {
+  width: 100%;
+  box-sizing: border-box;
+}

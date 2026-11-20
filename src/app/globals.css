@@ -50,6 +50,16 @@
   --marigold-deep: #db7a0e;
   --marigold-ink: #9e4b05;
   --marigold-soft: #fbe0bc;
+  /* Highway Bingo is milestone yellow, like the top of a highway milestone: never text on
+     cream (1.5:1). Text on it is ink; yellow-family text on cream uses --milestone-ink. */
+  --milestone: #f5c400;
+  --milestone-deep: #e0b000;
+  --milestone-ink: #755500;
+  --milestone-soft: #fbedb0;
+  /* Ulta is peacock teal: cream text on it (5:1); teal text on cream uses --teal-deep. */
+  --teal: #0e7479;
+  --teal-deep: #0a5f63;
+  --teal-soft: #cfe7e4;
 
   --radius: 16px;
   --radius-sm: 12px;
@@ -78,6 +88,8 @@ html[data-mode="light"] {
   --shadow: 0 1px 0 rgb(34 28 21 / 0.1), 0 12px 24px -14px rgb(34 28 21 / 0.45);
   --red-soft: #f6dcd3;
   --marigold-soft: #fce6c9;
+  --milestone-soft: #fdf0c0;
+  --teal-soft: #d5ece9;
 
   color-scheme: light;
 }
@@ -154,6 +166,22 @@ html[data-mode="light"] {
   --on-game: var(--ink);
   --pick: var(--marigold);
   --on-pick: var(--ink);
+}
+[data-game="highway-bingo"] {
+  --game: var(--milestone);
+  --game-deep: var(--milestone-deep);
+  --game-soft: var(--milestone-soft);
+  --on-game: var(--ink);
+  --pick: var(--milestone);
+  --on-pick: var(--ink);
+}
+[data-game="ulta"] {
+  --game: var(--teal);
+  --game-deep: var(--teal-deep);
+  --game-soft: var(--teal-soft);
+  --on-game: var(--on-red);
+  --pick: var(--teal);
+  --on-pick: var(--on-red);
 }
 
 @theme inline {
