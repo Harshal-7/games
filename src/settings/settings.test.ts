@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_SETTINGS, parseSettings, SETTINGS_SCRIPT, THEME_COLORS } from "./settings";
+import { DEFAULT_SETTINGS, parseSettings, SETTINGS_SCRIPT, TABLE_COLORS, TABLE_TONES } from "./settings";
+import { tableFor } from "./tables";
 
 const ktSaved = {
   board: "slate",
@@ -17,19 +18,37 @@ describe("parseSettings", () => {
   it("falls back to the defaults for missing or broken values", () => {
     expect(parseSettings(null)).toEqual(DEFAULT_SETTINGS);
     expect(parseSettings("dark")).toEqual(DEFAULT_SETTINGS);
-    expect(parseSettings({ mode: "neon", knightsTour: { board: "marble", numbers: "yes", size: 9 } })).toEqual(
-      DEFAULT_SETTINGS,
-    );
+    expect(
+      parseSettings({ theme: "neon", matchPhone: "yes", knightsTour: { board: "marble", numbers: "yes", size: 9 } }),
+    ).toEqual(DEFAULT_SETTINGS);
   });
 
   it("keeps valid choices", () => {
-    const saved = { rev: 2, mode: "light", knightsTour: ktSaved };
+    const saved = { rev: 3, theme: "haldi", matchPhone: true, knightsTour: ktSaved };
     expect(parseSettings(saved)).toEqual(saved);
   });
 
-  it("defaults to felt and the wood board", () => {
-    expect(DEFAULT_SETTINGS.mode).toBe("dark");
+  it("defaults to each game's own table, the phone not followed, and the wood board", () => {
+    expect(DEFAULT_SETTINGS.theme).toBe("game");
+    expect(DEFAULT_SETTINGS.matchPhone).toBe(false);
     expect(DEFAULT_SETTINGS.knightsTour.board).toBe("wood");
+  });
+
+  it("moves the old felt, daylight and match my phone looks over", () => {
+    const look = (saved: unknown) => {
+      const { theme, matchPhone } = parseSettings(saved);
+      return { theme, matchPhone };
+    };
+    expect(look({ rev: 2, mode: "dark", knightsTour: ktSaved })).toEqual({ theme: "game", matchPhone: false });
+    expect(look({ rev: 2, mode: "light", knightsTour: ktSaved })).toEqual({ theme: "daylight", matchPhone: false });
+    expect(look({ rev: 2, mode: "system", knightsTour: ktSaved })).toEqual({ theme: "game", matchPhone: true });
+    expect(look({ mode: "neon" })).toEqual({ theme: "game", matchPhone: false });
+    // Already moved: a leftover mode changes nothing.
+    expect(look({ rev: 3, theme: "midnight", matchPhone: false, mode: "system" })).toEqual({
+      theme: "midnight",
+      matchPhone: false,
+    });
+    expect(parseSettings({ rev: 2, mode: "light", knightsTour: ktSaved })).not.toHaveProperty("mode");
   });
 
   it("drops the colour saved before design 4", () => {
@@ -43,8 +62,11 @@ describe("parseSettings", () => {
     expect(parseSettings({ mode: "dark", accent: "ocean", knightsTour: { ...ktSaved, board: "stone" } }).knightsTour.board).toBe(
       "wood",
     );
-    // Picked again after design 4: it stays.
+    // Picked again after design 4, before or after colour themes: it stays.
     expect(parseSettings({ rev: 2, mode: "dark", knightsTour: { ...ktSaved, board: "stone" } }).knightsTour.board).toBe(
+      "stone",
+    );
+    expect(parseSettings({ rev: 3, theme: "game", knightsTour: { ...ktSaved, board: "stone" } }).knightsTour.board).toBe(
       "stone",
     );
     // Other old boards stay as they were.
@@ -53,7 +75,7 @@ describe("parseSettings", () => {
 });
 
 /** Runs the start-up script against a fake page and reports what it put on <html>. */
-function runScript(saved: string | null, phoneIsDark = true) {
+function runScript(saved: string | null, path: string, phoneIsDark: boolean) {
   const attrs: Record<string, string> = {};
   // The page starts without a theme-color meta; the script adds one.
   const metas: Record<string, string>[] = [];
@@ -68,11 +90,12 @@ function runScript(saved: string | null, phoneIsDark = true) {
   };
   const localStorage = { getItem: () => saved };
   const matchMedia = () => ({ matches: phoneIsDark });
-  new Function("document", "localStorage", "window", "matchMedia", SETTINGS_SCRIPT)(
+  new Function("document", "localStorage", "window", "matchMedia", "location", SETTINGS_SCRIPT)(
     document,
     localStorage,
     { matchMedia },
     matchMedia,
+    { pathname: path },
   );
   expect(metas).toHaveLength(1);
   expect(metas[0].name).toBe("theme-color");
@@ -84,24 +107,42 @@ describe("start-up script", () => {
     expect(() => new Function(SETTINGS_SCRIPT)).not.toThrow();
   });
 
-  it("does what parseSettings does for the theme and board", () => {
-    const cases: [unknown, boolean][] = [
-      [null, true],
-      [{ mode: "light", knightsTour: { board: "slate" } }, true],
-      [{ mode: "system", knightsTour: { board: "stone" } }, false],
-      [{ rev: 2, mode: "system", knightsTour: { board: "stone" } }, true],
-      [{ mode: "dark", accent: "plum", knightsTour: { board: "tournament" } }, true],
-      [{ mode: "neon", knightsTour: { board: "marble" } }, true],
-      ["not json {", true],
+  it("does what parseSettings and tableFor do for the table and board", () => {
+    const saves: unknown[] = [
+      null,
+      "not json {",
+      { mode: "light", knightsTour: { board: "slate" } },
+      { mode: "system", knightsTour: { board: "stone" } },
+      { rev: 2, mode: "system", knightsTour: { board: "stone" } },
+      { rev: 2, mode: "dark", knightsTour: { board: "tournament" } },
+      { mode: "dark", accent: "plum", knightsTour: { board: "tournament" } },
+      { mode: "neon", knightsTour: { board: "marble" } },
+      { rev: 3, theme: "game", matchPhone: false },
+      { rev: 3, theme: "game", matchPhone: true },
+      { rev: 3, theme: "asphalt", matchPhone: true, knightsTour: { board: "stone" } },
+      { rev: 3, theme: "blush", matchPhone: "yes" },
+      { rev: 3, theme: "neon", matchPhone: false, mode: "light" },
+      { rev: 3, theme: 7, mode: "light" },
+      [],
     ];
-    for (const [saved, phoneIsDark] of cases) {
-      const raw = typeof saved === "string" ? saved : JSON.stringify(saved);
-      const { attrs, colorScheme, themeColor } = runScript(raw, phoneIsDark);
-      const parsed = parseSettings(typeof saved === "string" ? null : saved);
-      const mode = parsed.mode === "system" ? (phoneIsDark ? "dark" : "light") : parsed.mode;
-      expect(attrs).toEqual({ "data-mode": mode, "data-kt-board": parsed.knightsTour.board });
-      expect(colorScheme).toBe(mode);
-      expect(themeColor).toBe(THEME_COLORS[mode]);
+    const paths = ["/", "/settings", "/imposter", "/mafia/", "/patakha", "/highway-bingo", "/knights-tour", "/hasOwnProperty"];
+    for (const saved of saves) {
+      for (const path of paths) {
+        for (const phoneIsDark of [true, false]) {
+          const raw = typeof saved === "string" ? saved : JSON.stringify(saved);
+          const { attrs, colorScheme, themeColor } = runScript(raw, path, phoneIsDark);
+          const parsed = parseSettings(typeof saved === "string" ? null : saved);
+          const table = tableFor(parsed, path, !phoneIsDark);
+          const tone = TABLE_TONES[table];
+          expect(attrs, `${raw} on ${path}`).toEqual({
+            "data-table": table,
+            "data-tone": tone,
+            "data-kt-board": parsed.knightsTour.board,
+          });
+          expect(colorScheme).toBe(tone);
+          expect(themeColor).toBe(TABLE_COLORS[table]);
+        }
+      }
     }
   });
 });

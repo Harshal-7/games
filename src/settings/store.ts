@@ -2,7 +2,8 @@
 
 import { useSyncExternalStore } from "react";
 
-import { DEFAULT_SETTINGS, parseSettings, SETTINGS_KEY, THEME_COLORS, type Settings } from "./settings";
+import { DEFAULT_SETTINGS, parseSettings, SETTINGS_KEY, TABLE_COLORS, TABLE_TONES, type Settings } from "./settings";
+import { tableFor } from "./tables";
 
 let current: Settings | undefined;
 const listeners = new Set<() => void>();
@@ -49,17 +50,21 @@ export function reloadSettings(): void {
   for (const listener of listeners) listener();
 }
 
-/** Puts the theme and board style on <html>, like the start-up script. */
-export function applySettings(settings: Settings): void {
+/** Whether the phone (or laptop) is set to light mode. */
+export const phoneIsLight = () => !window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+/**
+ * Puts the page's table and the board style on <html>, like the start-up script. The
+ * table depends on the page, so a client-side move to another page applies it again
+ * with the new path.
+ */
+export function applySettings(settings: Settings, path = location.pathname): void {
   const root = document.documentElement;
-  const mode =
-    settings.mode === "system"
-      ? window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"
-      : settings.mode;
-  root.setAttribute("data-mode", mode);
-  root.style.colorScheme = mode;
+  const table = tableFor(settings, path, phoneIsLight());
+  const tone = TABLE_TONES[table];
+  root.setAttribute("data-table", table);
+  root.setAttribute("data-tone", tone);
+  root.style.colorScheme = tone;
   // The start-up script made this meta; make it again if something removed it.
   let meta = document.querySelector('meta[name="theme-color"]');
   if (!meta) {
@@ -67,6 +72,6 @@ export function applySettings(settings: Settings): void {
     meta.setAttribute("name", "theme-color");
     document.head.appendChild(meta);
   }
-  meta.setAttribute("content", THEME_COLORS[mode]);
+  meta.setAttribute("content", TABLE_COLORS[table]);
   root.setAttribute("data-kt-board", settings.knightsTour.board);
 }

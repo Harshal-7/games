@@ -1,28 +1,18 @@
 @import "tailwindcss";
 
 /*
- * Design 4, "Game Night + Sticker". Felt (a green card table) is the default look and
- * lives on :root, so the first paint is already right; html[data-mode="light"] repaints
- * the same names as daylight (paper and ink). The settings script in the layout sets
- * data-mode before the first paint.
+ * Design 4, "Game Night + Sticker": cream cards on a table. The table is the page: Felt
+ * (a green card table) is the default and lives on :root, so the server's paint is
+ * already right. html[data-table="<id>"] repaints the page for the other tables, and
+ * html[data-tone="light"] gives light tables daylight's cards and shadows. The settings
+ * script in the layout sets both before the first paint (src/settings/tables.ts says
+ * which page gets which table).
  *
- * Raw colours: the page, the cards and the two game colours. Components use the
- * context names further down (--fg, --muted, --line, --ring) so the same part
- * reads right straight on the page and inside a card.
+ * Raw colours: the cards and the game colours here, the page in the tables below.
+ * Components use the context names further down (--fg, --muted, --line, --ring) so the
+ * same part reads right straight on the page and inside a card.
  */
 :root {
-  --page: #1e4a38;
-  --page-texture:
-    radial-gradient(rgb(255 255 255 / 0.05) 0.8px, transparent 1.3px) 0 0 / 5px 5px,
-    radial-gradient(rgb(0 0 0 / 0.12) 0.8px, transparent 1.3px) 2.5px 2.5px / 5px 5px;
-  /* Solid page colour for trays that sit over scrolling content. */
-  --page-deep: #173b2c;
-  --on-page: #f5ecd9;
-  --on-page-muted: #cdc3aa;
-  --page-line: rgb(245 236 217 / 0.2);
-  /* Timer and progress tracks drawn on the page. */
-  --track: rgb(0 0 0 / 0.28);
-
   --card: #f7f0e1;
   --inset: #ece2cc;
   --ink: #221c15;
@@ -68,15 +58,8 @@
   color-scheme: dark;
 }
 
-html[data-mode="light"] {
-  --page: #efe6d3;
-  --page-texture: radial-gradient(rgb(34 28 21 / 0.07) 0.8px, transparent 1.3px) 0 0 / 5px 5px;
-  --page-deep: #e7dcc5;
-  --on-page: #221c15;
-  --on-page-muted: #5a4f3f;
-  --page-line: rgb(34 28 21 / 0.16);
-  --track: rgb(34 28 21 / 0.12);
-
+/* Light tables (Daylight, Blush, Haldi): brighter cards, softer shadows. */
+html[data-tone="light"] {
   --card: #fffaf0;
   --inset: #f3ead7;
   --card-line: #e0d3b8;
@@ -87,6 +70,92 @@ html[data-mode="light"] {
   --milestone-soft: #fdf0c0;
 
   color-scheme: light;
+}
+
+/* ---------- Tables: the page's colours ---------- */
+
+/* Each table sets the page's names: its colour and texture, a solid deeper shade for
+   trays over scrolling content, text and muted text, lines, and timer tracks.
+   src/settings/tables.ts lists the same colours; a test checks they match and that the
+   text passes 4.5:1. No html in the selector, so a Settings tile can wear a table too. */
+:root,
+[data-table="felt"] {
+  --page: #1e4a38;
+  --page-texture:
+    radial-gradient(rgb(255 255 255 / 0.05) 0.8px, transparent 1.3px) 0 0 / 5px 5px,
+    radial-gradient(rgb(0 0 0 / 0.12) 0.8px, transparent 1.3px) 2.5px 2.5px / 5px 5px;
+  --page-deep: #173b2c;
+  --on-page: #f5ecd9;
+  --on-page-muted: #cdc3aa;
+  --page-line: rgb(245 236 217 / 0.2);
+  --track: rgb(0 0 0 / 0.28);
+}
+/* A night sky with faint stars, for Mafia. */
+[data-table="midnight"] {
+  --page: #172340;
+  --page-texture:
+    radial-gradient(rgb(255 255 255 / 0.35) 0.8px, transparent 1.4px) 0 0 / 34px 34px,
+    radial-gradient(rgb(255 255 255 / 0.18) 0.7px, transparent 1.2px) 17px 13px / 34px 34px;
+  --page-deep: #111a31;
+  --on-page: #f1ecdf;
+  --on-page-muted: #c5c7d4;
+  --page-line: rgb(241 236 223 / 0.2);
+  --track: rgb(0 0 0 / 0.3);
+}
+/* The road, grey and grainy, for Highway Bingo. */
+[data-table="asphalt"] {
+  --page: #2d3236;
+  --page-texture:
+    radial-gradient(rgb(255 255 255 / 0.07) 0.7px, transparent 1.2px) 0 0 / 4px 4px,
+    radial-gradient(rgb(0 0 0 / 0.18) 0.7px, transparent 1.2px) 2px 2px / 4px 4px;
+  --page-deep: #23272a;
+  --on-page: #f2efe8;
+  --on-page-muted: #c8c6c0;
+  --page-line: rgb(242 239 232 / 0.2);
+  --track: rgb(0 0 0 / 0.3);
+}
+/* A warm black, like a recording booth, for Ulta. Too dark for a black track, so its
+   tracks are a light veil. */
+[data-table="studio"] {
+  --page: #221d1b;
+  --page-texture:
+    radial-gradient(rgb(255 255 255 / 0.04) 0.8px, transparent 1.3px) 0 0 / 5px 5px,
+    radial-gradient(rgb(0 0 0 / 0.12) 0.8px, transparent 1.3px) 2.5px 2.5px / 5px 5px;
+  --page-deep: #191513;
+  --on-page: #f3ebdd;
+  --on-page-muted: #cbbfae;
+  --page-line: rgb(243 235 221 / 0.2);
+  --track: rgb(255 255 255 / 0.1);
+}
+/* Paper and ink, for bright rooms. */
+[data-table="daylight"] {
+  --page: #efe6d3;
+  --page-texture: radial-gradient(rgb(34 28 21 / 0.07) 0.8px, transparent 1.3px) 0 0 / 5px 5px;
+  --page-deep: #e7dcc5;
+  --on-page: #221c15;
+  --on-page-muted: #5a4f3f;
+  --page-line: rgb(34 28 21 / 0.16);
+  --track: rgb(34 28 21 / 0.12);
+}
+/* Soft rose paper under Imposter's red cards. */
+[data-table="blush"] {
+  --page: #f4ddd6;
+  --page-texture: radial-gradient(rgb(34 28 21 / 0.06) 0.8px, transparent 1.3px) 0 0 / 5px 5px;
+  --page-deep: #ecd0c7;
+  --on-page: #221c15;
+  --on-page-muted: #5e4943;
+  --page-line: rgb(34 28 21 / 0.16);
+  --track: rgb(34 28 21 / 0.12);
+}
+/* Warm turmeric paper, bright and festive, for Patakha. */
+[data-table="haldi"] {
+  --page: #f7e4c6;
+  --page-texture: radial-gradient(rgb(34 28 21 / 0.06) 0.8px, transparent 1.3px) 0 0 / 5px 5px;
+  --page-deep: #efd8b4;
+  --on-page: #221c15;
+  --on-page-muted: #5c4a2e;
+  --page-line: rgb(34 28 21 / 0.16);
+  --track: rgb(34 28 21 / 0.12);
 }
 
 /* ---------- Context: what the colour names mean where you are ---------- */
