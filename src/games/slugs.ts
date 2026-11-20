@@ -8,6 +8,7 @@ export const GAME_NAMES = {
   imposter: "Imposter",
   mafia: "Mafia",
   patakha: "Patakha",
+  "highway-bingo": "Highway Bingo",
 } as const;
 
 export type GameSlug = keyof typeof GAME_NAMES;
