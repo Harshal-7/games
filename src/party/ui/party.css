@@ -407,7 +407,7 @@
   transform: rotateY(180deg);
 }
 
-/* The back: the same TOP SECRET card for everyone. */
+/* The back: the same sealed card for everyone. */
 .party-back {
   --lattice: color-mix(in srgb, var(--on-game) 15%, transparent);
   display: block;
@@ -428,26 +428,39 @@
   background: radial-gradient(var(--on-game) 1.2px, transparent 1.7px) 0 0 / 12px 12px;
   opacity: 0.12;
 }
-.party-back-secret {
+/* Top left: Sealed, or how many times the card has been opened, as a rubber stamp
+   (on the coloured back, so in --on-game), then whose card it is and what to do. */
+.party-back-top {
   position: absolute;
-  top: calc(34 * var(--u));
+  top: calc(30 * var(--u));
   left: calc(24 * var(--u));
-  padding: calc(6 * var(--u)) calc(10 * var(--u));
-  border: calc(3 * var(--u)) solid var(--on-game);
-  border-radius: calc(6 * var(--u));
-  font-family: var(--num);
-  font-size: calc(18 * var(--u));
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  line-height: 1.2;
-  white-space: nowrap;
-  rotate: -9deg;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(8 * var(--u));
+  max-width: calc(236 * var(--u));
+}
+.party-back-stamp {
+  padding: calc(4 * var(--u)) calc(12 * var(--u));
+  border: calc(3 * var(--u)) solid currentColor;
+  border-radius: calc(8 * var(--u));
+  font-family: var(--display);
+  font-size: calc(22 * var(--u));
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.1;
+  rotate: -6deg;
+}
+.party-back-stamp[data-opened] {
+  font-size: calc(20 * var(--u));
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 .party-back-for {
-  position: absolute;
-  top: calc(94 * var(--u));
-  left: calc(28 * var(--u));
-  max-width: calc(240 * var(--u));
+  max-width: 100%;
+  margin-top: calc(6 * var(--u));
   overflow: hidden;
   font-family: var(--num);
   font-size: calc(13 * var(--u));
@@ -456,6 +469,11 @@
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
+}
+.party-back-hint {
+  font-size: calc(14 * var(--u));
+  font-weight: 600;
+  line-height: 1.3;
 }
 /* DON'T PEEK tape across the card, a paler SEALED strip under it. */
 .party-tape {
@@ -488,46 +506,6 @@
   opacity: 0.9;
   box-shadow: 0 2px 5px rgb(0 0 0 / 0.25);
   rotate: 11deg;
-}
-.party-back-note {
-  position: absolute;
-  bottom: calc(30 * var(--u));
-  left: calc(24 * var(--u));
-  display: flex;
-  flex-direction: column;
-  gap: calc(4 * var(--u));
-  max-width: calc(124 * var(--u));
-  font-size: calc(14 * var(--u));
-  font-weight: 600;
-  line-height: 1.3;
-}
-.party-back-title {
-  font-family: var(--display);
-  font-size: calc(26 * var(--u));
-  font-style: italic;
-  font-weight: 700;
-  line-height: 1;
-}
-.party-back-note.is-opened {
-  left: calc(22 * var(--u));
-  align-items: flex-start;
-  gap: calc(8 * var(--u));
-  max-width: calc(170 * var(--u));
-}
-/* "Opened" in a rubber stamp, on the coloured back so in --on-game. */
-.party-back-stamp {
-  display: inline-flex;
-  align-items: center;
-  padding: calc(4 * var(--u)) calc(12 * var(--u));
-  border: calc(3 * var(--u)) solid currentColor;
-  border-radius: calc(8 * var(--u));
-  font-family: var(--display);
-  font-size: calc(20 * var(--u));
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  line-height: 1.1;
-  text-transform: uppercase;
-  rotate: -8deg;
 }
 /* The wax seal: where to hold. */
 .party-wax {
