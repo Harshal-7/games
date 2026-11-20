@@ -1,0 +1,772 @@
+/* Mafia in design 4: cream cards on the felt, night blue for the game's own parts, and a
+   night sky for the night itself. Built on the shared tokens and parts in globals.css
+   (.btn, .btn-primary, .seg, .card, .tape, .switch, .confirm) and the party parts in
+   src/party/ui/party.css (play screens, the secret card, ring timer, vote, player list);
+   everything here is prefixed maf- so it can't touch other games. Blue text on cream is
+   always --night-deep; text on blue is --on-night. */
+
+/* Nothing until the saved room has loaded. */
+.maf-loading {
+  min-height: 60vh;
+}
+
+/* Smaller outlined pills: New room, Reset, the deal's foot. */
+.btn.maf-small {
+  gap: 6px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+/* ---------- Setup: title card, players, options ---------- */
+
+/* Phones: one column of flex items, so the sticky start tray can travel the whole page. */
+.maf-lobby {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+@media (min-width: 860px) {
+  .maf-lobby {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+      "intro intro"
+      "players options"
+      "start options"
+      "rules options";
+    gap: 28px 32px;
+    align-items: start;
+  }
+  .maf-intro {
+    grid-area: intro;
+  }
+  .maf-players {
+    grid-area: players;
+  }
+  .maf-options {
+    grid-area: options;
+  }
+  .maf-rules {
+    grid-area: rules;
+  }
+  .maf-start {
+    grid-area: start;
+  }
+}
+
+/* The night-blue "Mafia" title card: a starry sky with a cream name plate and a moon. */
+.maf-title-card {
+  --stars:
+    radial-gradient(var(--on-night) 0.9px, transparent 1.4px) 0 0 / 23px 19px,
+    radial-gradient(var(--on-night) 0.7px, transparent 1.2px) 11px 9px / 31px 27px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 380px;
+  height: 84px;
+  margin: 10px 4px 0;
+  border-radius: var(--radius);
+  background: var(--stars), var(--night);
+  box-shadow:
+    inset 0 0 0 6px var(--night),
+    inset 0 0 0 7.5px var(--on-night),
+    var(--shadow);
+  rotate: -0.8deg;
+}
+.maf-title-mark {
+  position: absolute;
+  top: 11px;
+  left: 14px;
+  fill: var(--on-night);
+}
+.maf-title-mark.is-turned {
+  top: auto;
+  right: 14px;
+  bottom: 11px;
+  left: auto;
+}
+.maf-title-plate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 34px 9px;
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow:
+    0 0 0 2px var(--night),
+    0 0 0 3.5px var(--on-night);
+}
+.maf-title-name {
+  margin: 0;
+  color: var(--night-deep);
+  font-family: var(--display);
+  font-size: 38px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+.maf-title-meta {
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.maf-blurb {
+  max-width: 44ch;
+  margin: 12px 4px 0;
+}
+
+.maf-new-room {
+  position: absolute;
+  top: -22px;
+  right: 14px;
+}
+.maf-players > .confirm {
+  margin: 4px 0 16px;
+}
+.maf-players-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.maf-field + .maf-field,
+.maf-field + .maf-switches {
+  margin-top: 20px;
+}
+.maf-field .seg {
+  display: grid;
+  width: 100%;
+}
+.maf-field .seg button {
+  min-width: 0;
+  padding: 0 4px;
+}
+.maf-field .switches {
+  margin-top: -6px;
+}
+.maf-field-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.maf-switches {
+  margin-top: 22px;
+  padding-top: 5px;
+  border-top: 1.5px dashed var(--line);
+}
+
+/* The narrator's voice: a native select dressed as an outlined pill, and Hear it. */
+.maf-voice {
+  padding: 4px 0 12px;
+}
+.maf-voice-row {
+  display: flex;
+  gap: 10px;
+  margin: 8px 0 6px;
+}
+.maf-select {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 14px;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--inset);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px; /* 16px stops iPhones zooming in on focus */
+  text-overflow: ellipsis;
+}
+.maf-voice-row .btn {
+  flex: none;
+}
+.maf-voice + .switch-row {
+  border-top: 1px solid var(--line);
+}
+
+/* How to play: an outlined row; open, the rules in a reading card under it. */
+.maf-rules > summary {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px 0 20px;
+  list-style: none;
+}
+.maf-rules > summary::-webkit-details-marker {
+  display: none;
+}
+.maf-rules-chevron {
+  transition: rotate 0.2s ease;
+}
+.maf-rules[open] .maf-rules-chevron {
+  rotate: 180deg;
+}
+.maf-rules-body {
+  margin-top: 14px;
+  padding: 16px 18px 18px;
+}
+.maf-rules-body ol {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 22px;
+  font-size: 15px;
+  line-height: 1.45;
+  list-style: decimal;
+}
+.maf-rules-body li::marker {
+  color: var(--muted);
+  font-family: var(--num);
+  font-size: 13px;
+}
+.maf-rules-body p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* Start: stuck to the bottom on phones, on a solid tray. The page's bottom padding goes under it. */
+.maf-start {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  gap: 10px;
+  margin: 0 -20px -48px;
+  padding: 12px 20px 20px;
+  border-top: 1px solid var(--edge);
+  background: var(--page-deep);
+  box-shadow: 0 -12px 22px -14px rgb(0 0 0 / 0.55);
+}
+.maf-start-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+@media (min-width: 640px) {
+  .maf-start {
+    border: 1px solid var(--edge);
+    border-bottom: 0;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+}
+@media (min-width: 860px) {
+  .maf-start {
+    position: static;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+  }
+}
+
+/* ---------- The deal ---------- */
+
+/* Every deal screen keeps the card screen's height, with the main button in one fixed
+   slot near the bottom and a row under it for Go back, so handing the phone on never
+   moves the button you tap next. */
+.party-stage.maf-deal {
+  justify-content: flex-start;
+  min-height: calc(var(--card-w) * 4 / 3 + 172px);
+  padding-bottom: 0;
+}
+.maf-deal-body {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.maf-deal-main {
+  width: 100%;
+  min-height: 56px;
+  margin-top: 20px;
+}
+.maf-deal-under {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+}
+
+.maf-pass-mark {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  background: var(--night-soft);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  rotate: -8deg;
+}
+.maf-pass-kicker {
+  margin: 28px 0 0;
+  color: var(--muted);
+  font-size: 18px;
+  font-weight: 600;
+}
+.maf-pass .party-help {
+  max-width: 290px;
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.maf-card-kicker {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+/* On a Mafia card: who else is Mafia, in ink, between the role and its line. */
+.maf-face-team {
+  font-size: calc(16 * var(--u, 1px));
+  font-weight: 700;
+  line-height: 1.3;
+}
+.party-face.is-held:has(.maf-face-team) {
+  --face-gap: calc(9 * var(--u));
+}
+
+/* ---------- The night ---------- */
+
+.maf-ready .party-help + .party-help {
+  margin-top: 8px;
+}
+.maf-moon {
+  fill: var(--fg);
+  rotate: -10deg;
+}
+.maf-ready .party-title {
+  margin-top: 18px;
+}
+.maf-night-go {
+  margin-top: 28px;
+}
+
+/* The night sky: the same deep blue in felt and daylight, cream type, a moon-coloured main
+   button. The phone lies face up in the middle, so it's dark and easy to read from a seat. */
+.maf-sky {
+  --sky: #152043;
+  --moon: #f3dc94;
+  --fg: #f5ecd9;
+  --muted: #b8c2df;
+  --line: rgb(245 236 217 / 0.2);
+  --ring: #f5ecd9;
+  --game: var(--moon);
+  --game-deep: #e8cd78;
+  --on-game: var(--ink);
+  --pick: var(--moon);
+  --on-pick: var(--ink);
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  padding: 30px 18px;
+  border-radius: var(--radius);
+  background:
+    radial-gradient(rgb(245 236 217 / 0.55) 0.9px, transparent 1.5px) 0 0 / 37px 31px,
+    radial-gradient(rgb(245 236 217 / 0.35) 0.7px, transparent 1.3px) 17px 13px / 53px 47px,
+    var(--sky);
+  color: var(--fg);
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.maf-sky-line {
+  max-width: 16ch;
+  margin: 0;
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.maf-sky-line.is-long {
+  max-width: 19ch;
+  font-size: 28px;
+}
+.maf-sky-note {
+  max-width: 32ch;
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.maf-sky-done {
+  margin: 22px 0 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+.maf-sky-paused .btn-big {
+  margin-top: 26px;
+}
+/* Names to pick, in the sky: cream pills, the picked one moon-coloured. */
+.maf-picks {
+  margin-top: 22px;
+}
+.maf-picks .btn.party-pick {
+  min-height: 50px;
+  font-size: 17px;
+}
+.maf-confirm {
+  margin-top: 22px;
+}
+/* The Police's answer, in big type, for three seconds. */
+.maf-answer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.maf-answer-name {
+  color: var(--muted);
+  font-size: 22px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.maf-answer-word {
+  color: var(--moon);
+  font-family: var(--display);
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* ---------- Morning, day, vote, verdict ---------- */
+
+.maf-sun {
+  fill: none;
+  stroke: var(--fg);
+  stroke-linecap: round;
+  stroke-width: 3.5;
+}
+.maf-sun circle {
+  fill: var(--fg);
+}
+.maf-wake {
+  margin-top: 10px;
+}
+/* The morning's story, in a reading card. */
+.maf-story {
+  width: min(100%, 340px);
+  margin: 22px 0 0;
+  padding: 16px 20px;
+  box-sizing: border-box;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.45;
+  text-wrap: pretty;
+  rotate: -1deg;
+}
+.maf-story.is-quiet {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 700;
+}
+/* A card turned face up for everyone: who they were, stamped Out. */
+.maf-shown {
+  height: 170px;
+}
+.maf-shown .party-face-kicker {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.maf-shown-stamp {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  padding: 2px 10px;
+  background: var(--card);
+  color: var(--night-deep);
+  font-size: 18px;
+  rotate: 10deg;
+}
+.maf-verdict-title {
+  overflow-wrap: anywhere;
+}
+.maf-go {
+  margin-top: 26px;
+}
+
+/* Everyone at the table: still in, or out with their role face up. */
+.maf-table {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.maf-seat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 600;
+}
+.maf-seat[data-out] {
+  border-style: dashed;
+  color: var(--muted);
+}
+.maf-seat[data-out] .maf-seat-name {
+  text-decoration: line-through;
+}
+.maf-seat-role {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.maf-vote-note {
+  align-self: center;
+  margin-top: 18px;
+}
+.maf-vote-more {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 12px;
+  margin-top: 10px;
+}
+.maf-vote-more > .btn {
+  flex: 1 1 150px;
+}
+
+/* ---------- The end ---------- */
+
+.maf-result-head {
+  padding-top: 24px;
+}
+.maf-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.maf-badge[data-winner="mafia"] {
+  border-color: transparent;
+  background: var(--night);
+  color: var(--on-night);
+}
+.maf-headline {
+  margin: 10px 0 0;
+  font-family: var(--display);
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.maf-result-head .party-help {
+  max-width: none;
+  margin-top: 6px;
+}
+
+/* Every card face up, small: three to a row on a phone. Mafia cards in night blue. */
+.maf-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 14px 10px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.maf-cards li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.maf-cards li:nth-child(odd) .party-face {
+  rotate: -2deg;
+}
+.maf-cards li:nth-child(even) .party-face {
+  rotate: 2deg;
+}
+.party-face.maf-mini {
+  --face-word: 18px;
+  --face-gap: 6px;
+  --face-pad: 10px 6px;
+  --face-round: 12px;
+  --face-frame: 5px;
+  --face-pip: 6px;
+  --face-pip-at: 12px;
+  width: 100%;
+  max-width: 108px;
+  height: 116px;
+}
+.party-face.maf-mini[data-role="mafia"] {
+  color: var(--night-deep);
+  box-shadow:
+    inset 0 0 0 var(--face-frame) var(--card),
+    inset 0 0 0 calc(var(--face-frame) + 2px) var(--night),
+    var(--shadow);
+}
+.maf-mini-when {
+  color: var(--ink-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.maf-mini-name {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.maf-log,
+.maf-scores {
+  margin-top: 26px;
+  padding: 14px 18px 12px;
+}
+.maf-log h3 {
+  margin: 0 0 8px;
+}
+.maf-log ol {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.45;
+  list-style: none;
+}
+.maf-scores {
+  padding-bottom: 6px;
+}
+.maf-scores-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ink);
+}
+.maf-scores-head h3 {
+  margin: 0;
+}
+.maf-scores-head span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.maf-scores ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.maf-scores li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+}
+.maf-scores li + li {
+  border-top: 1px dashed var(--line);
+}
+.maf-rank {
+  flex: none;
+  width: 18px;
+  color: var(--muted);
+  font-family: var(--display);
+  font-size: 17px;
+  font-style: italic;
+}
+.maf-score-name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.maf-turns-chip {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--night-soft);
+  color: var(--night-deep);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.maf-score-end {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+.maf-gain {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--inset);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 13px;
+  font-weight: 500;
+}
+.maf-total {
+  min-width: 22px;
+  font-family: var(--num);
+  font-size: 20px;
+  font-weight: 500;
+  text-align: right;
+}
+
+/* Two answers side by side: outlined, then the solid one. */
+.maf-pair {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+.maf-pair > .btn {
+  flex: 1 1 0;
+  min-height: 52px;
+  padding: 0 12px;
+  white-space: normal;
+}
+.maf-result-go {
+  margin-top: 24px;
+}
