@@ -135,6 +135,9 @@ the window) on the left with everything else beside it.
 
 ## The look
 
+The full design rules for agents and people are in `.claude/skills/games-design/SKILL.md`: read them
+before any UI work.
+
 Design 4, "Game Night + Sticker": green felt, cream cards, a wooden board, Fraunces
 titles, DM Sans for reading and DM Mono for numbers.
 
