@@ -11,6 +11,7 @@ lives in its own folder and has its own page, and the home page lists them all.
 | Patakha | `/patakha` | Party game for one phone: say an answer and pass it on before the hidden fuse runs out. |
 | Highway Bingo | `/highway-bingo` | Bingo cards of Indian road sights, on everyone's own phone with a shared code, or on one phone. |
 | Ulta | `/ulta` | Party game for one phone: sing a line, a teammate copies it backwards, and the team guesses the song. |
+| Rangoli in one line | `/rangoli` | Draw a rangoli pattern in one line: every line once, never twice. 30 hand-made patterns, and endless mirrored ones. |
 | Finger picker | `/finger-picker` | A tool for any game: fingers on the screen, and the phone picks one, makes teams or puts everyone in order. |
 
 ## Run it
@@ -55,6 +56,10 @@ src/
     ulta/
       logic/              reversing and evening out recordings, the song list, the turns, with tests
       ui/                 setup and teams, the mic button, the turn screens; recordings kept in memory
+    rangoli/
+      logic/              patterns and the 30 hand-made ones, the Euler solver, the Endless
+                          generator, finger tracking, with tests
+      ui/                 the pattern list, the floor and its drawing, the cards, the Home card art
     finger-picker/
       logic/              the fingers and the countdown, fair picks, teams and order, with tests
       ui/                 the touch area, its drawing, and the link the party setups show
@@ -148,8 +153,8 @@ titles, DM Sans for reading and DM Mono for numbers.
 - **Tables.** The page is a table colour, and each game sits on its own: Felt (Knight's
   Tour, Home and Settings), Midnight (Mafia, a starry sky), Night drive (Highway Bingo,
   a road at dusk), Stage (Ulta, velvet curtains under a spotlight), Lamplight (Imposter,
-  cream with a soft red-wine wash from the top) and Sunrise (Patakha, cream with an
-  orange glow from the bottom), plus Daylight, paper and ink. Only the page changes;
+  cream with a soft red-wine wash from the top) and Sunrise (Patakha and Rangoli, cream
+  with an orange glow from the bottom), plus Daylight, paper and ink. Only the page changes;
   cards, buttons and the game's colour stay the same.
   - `src/settings/tables.ts` lists the tables and every game's own (`GAME_TABLES`).
     Each table is a `[data-table="<id>"]` block in `globals.css` (page colour and
@@ -396,3 +401,39 @@ plays with none.
   now plus some English and regional hits; titles only, no lyrics or music, no anthems or devotional
   songs. "Suggest one" shows the song on the hold-to-see card, and none repeats in a room until the list
   runs out.
+
+## Rangoli notes
+
+- **Patterns** (`logic/pattern.ts`) are dots joined by straight lines and circular arcs, in a
+  box from -50 to 50. A line's `bend` is how far its middle sits off the straight line, as a
+  share of its length (0.5 is a half circle; positive bulges to the left of a→b on screen), and
+  its `tone` is one of six powder colours (`--powder-0` to `--powder-5`). Two arcs between the
+  same dots make a petal.
+- **The packs** (`logic/packs/`): Easy, Medium and Hard, ten each, drawn in code with the small
+  kit in `logic/draw.ts`. `logic/check.ts` says what a finger can draw: connected, 0 or 2 dots
+  where an odd number of lines meet, dots apart, lines clear of other dots and leaving each dot
+  in different directions, and no line crossing another except at a dot (so the finished
+  pattern's shapes can fill in). A test runs every pattern through it. Pattern ids are where
+  best times are saved: never rename one.
+- **The solver** (`logic/solver.ts`) is exact, with no search and no step budget: the lines left
+  can be drawn from the pen if they hang together and have no odd dots, or two with the pen on
+  one (Euler). Hint takes a line after which that still holds (Fleury's rule: no bridge while
+  there's another way); Stuck shows as soon as it doesn't; "Back to line n" finds the last line
+  it still held after. Watch it solve steps back out of a dead end, then follows Hint.
+- **Endless** (`logic/generator.ts`): loops (petals, rings, squares, diamonds) placed on a grid of
+  5×5, 7×7 or 9×9 dots and mirrored eight ways, so every dot stays even and the pattern ends
+  where it started. Pieces that would cross a line are skipped, and lines a new piece would draw
+  twice cancel out. The same size and seed always give the same pattern, so a saved drawing
+  keeps just those.
+- **Drawing** (`ui/floor.tsx`, `logic/follow.ts`): an SVG floor with Pointer Events and
+  `touch-action: none`. A finger goes down on a dot (22px around it); a line is drawn when the
+  finger reaches its far dot having stayed close to it, and the line it stayed closest to wins
+  when two join the same dots. Lifting the finger keeps every line; putting it back on the pink
+  dot carries on. Nothing above the floor changes height while a finger is down, so the floor
+  never moves under it.
+- **The finish** (`logic/faces.ts`): the shapes between the lines are found by walking round
+  each face of the drawing, and fill with soft colour when the last line is in.
+- **Saves**: `games:rangoli:play:v1` keeps the screen, the tab and a drawing per pattern (the
+  last 12), so opening another pattern never loses one; `games:rangoli:progress:v1` keeps a
+  tick and a best time per pattern, and Endless counts per size. Runs Watch it solve helped
+  don't count. The Sound switch is in Settings (`games:rangoli:options:v1`).
