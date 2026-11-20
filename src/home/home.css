@@ -528,6 +528,10 @@
   .game-thumb-cracker {
     width: 90px;
   }
+  .game-thumb-mic,
+  .game-thumb-milestone {
+    width: 74px;
+  }
   .game-list > li:last-child {
     grid-column: 1 / -1;
   }
