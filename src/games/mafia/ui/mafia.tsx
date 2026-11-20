@@ -3,6 +3,7 @@
 import { useEffect, useEffectEvent } from "react";
 
 import { useHydrated } from "@/party/ui/use-hydrated";
+import { useLeaveGuard } from "@/ui/leave-guard";
 
 import type { Room } from "../logic/game";
 import { narration } from "../logic/narration";
@@ -13,7 +14,7 @@ import { Lobby } from "./lobby";
 import { chooseVoice, preloadClips, say, useUnlocked } from "./narrator";
 import { NightScreen } from "./night";
 import { chime } from "./parts";
-import { useRoom } from "./use-room";
+import { act, useRoom } from "./use-room";
 import { useWakeLock } from "./wake-lock";
 
 import "@/party/ui/party.css";
@@ -24,6 +25,11 @@ export function Mafia() {
   const room = useRoom();
   const hydrated = useHydrated();
   const game = room.game;
+  useLeaveGuard("mafia", {
+    ask: game !== null || room.played > 0,
+    detail: "This game ends here, and its scores are cleared. Your players stay for next time.",
+    end: () => act({ type: "new-room" }),
+  });
   // The screen stays on from the first night to the last vote.
   useWakeLock(hydrated && game !== null && game.stage !== "deal" && game.stage !== "end");
   useNarrator(room, hydrated);

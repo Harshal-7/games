@@ -7,6 +7,7 @@ import { updateSettings, useSettings } from "@/settings/store";
 import { Confirm } from "@/ui/confirm";
 import { count, formatDuration } from "@/ui/format";
 import { BulbIcon, CheckIcon, ClockIcon, PlayIcon, RestartIcon, StopIcon, UndoIcon } from "@/ui/icons";
+import { useLeaveGuard } from "@/ui/leave-guard";
 
 import { nextSolveStep } from "../logic/autoplay";
 import { isClosedTour, SIZES, type Size } from "../logic/board";
@@ -132,6 +133,13 @@ export function KnightsTour() {
     setSolving(false);
     setPending({ kind: "resize", size: next });
   }
+
+  // Leaving through "‹ Games" clears the board; a tour under way asks first.
+  useLeaveGuard("knights-tour", {
+    ask: inProgress,
+    detail: "Your tour so far will be cleared.",
+    end: restart,
+  });
 
   function hint() {
     if (solving) return;
