@@ -27,6 +27,13 @@
   height: auto;
   overflow: visible;
 }
+/* Marigold on a light table's paper is faint (under 2:1), so the main button gets an ink
+   edge there, as Highway Bingo's does. */
+html[data-tone="light"] [data-game="patakha"] .btn-primary:not(:disabled) {
+  box-shadow:
+    inset 0 0 0 2.5px var(--ink),
+    0 3px 0 rgb(0 0 0 / 0.35);
+}
 html[data-tone="light"] .pk-cracker {
   --spark: var(--marigold-deep);
   --spark-core: #ffe08a;

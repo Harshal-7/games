@@ -43,8 +43,8 @@ already exist. Don't invent new visual styles, and don't iterate on looks in cod
 
 **Colour**
 - **Tables** (the page colour), from `src/settings/tables.ts` and `[data-table]` in `globals.css`:
-  - Dark: Felt (Knight's Tour, Home, Settings), Midnight (Mafia), Asphalt (Highway Bingo), Studio (Ulta).
-  - Light: Daylight, Blush (Imposter), Haldi (Patakha). Light tables set `html[data-tone="light"]` and
+  - Dark: Felt (Knight's Tour, Home, Settings), Midnight (Mafia), Dhaba (Highway Bingo), Stage (Ulta).
+  - Light: Daylight, Notebook (Imposter), Mela (Patakha). Light tables set `html[data-tone="light"]` and
     use daylight's cards and shadows.
   - Only the page changes between tables; cards, buttons and the game's colour stay the same. Every screen
     must work on every table.

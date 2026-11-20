@@ -11,11 +11,11 @@ import type { GameSlug } from "@/games/slugs";
 export const TABLES = [
   { id: "felt", label: "Felt", tone: "dark", page: "#1e4a38", deep: "#173b2c", text: "#f5ecd9", muted: "#cdc3aa" },
   { id: "midnight", label: "Midnight", tone: "dark", page: "#172340", deep: "#111a31", text: "#f1ecdf", muted: "#c5c7d4" },
-  { id: "asphalt", label: "Asphalt", tone: "dark", page: "#2d3236", deep: "#23272a", text: "#f2efe8", muted: "#c8c6c0" },
-  { id: "studio", label: "Studio", tone: "dark", page: "#221d1b", deep: "#191513", text: "#f3ebdd", muted: "#cbbfae" },
+  { id: "dhaba", label: "Dhaba", tone: "dark", page: "#7a3422", deep: "#692b1b", text: "#f8ecdc", muted: "#e8cdb8" },
+  { id: "stage", label: "Stage", tone: "dark", page: "#2a1733", deep: "#211129", text: "#f4ece0", muted: "#d3c3cf" },
   { id: "daylight", label: "Daylight", tone: "light", page: "#efe6d3", deep: "#e7dcc5", text: "#221c15", muted: "#5a4f3f" },
-  { id: "blush", label: "Blush", tone: "light", page: "#f4ddd6", deep: "#ecd0c7", text: "#221c15", muted: "#5e4943" },
-  { id: "haldi", label: "Haldi", tone: "light", page: "#f7e4c6", deep: "#efd8b4", text: "#221c15", muted: "#5c4a2e" },
+  { id: "notebook", label: "Notebook", tone: "light", page: "#dde8f1", deep: "#cfdde9", text: "#221c15", muted: "#45505b" },
+  { id: "mela", label: "Mela", tone: "light", page: "#f9e3a1", deep: "#f1d68a", text: "#221c15", muted: "#5c4a2e" },
 ] as const;
 
 export type Table = (typeof TABLES)[number];
@@ -28,11 +28,11 @@ export const SITE_TABLE: TableId = "felt";
 /** Every game's own table. A new game adds its line here. */
 export const GAME_TABLES: Record<GameSlug, TableId> = {
   "knights-tour": "felt",
-  imposter: "blush",
+  imposter: "notebook",
   mafia: "midnight",
-  patakha: "haldi",
-  "highway-bingo": "asphalt",
-  ulta: "studio",
+  patakha: "mela",
+  "highway-bingo": "dhaba",
+  ulta: "stage",
   "finger-picker": "felt",
 };
 

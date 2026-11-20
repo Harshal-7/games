@@ -252,17 +252,17 @@
   background: var(--on-page);
   opacity: 0.7;
 }
-/* Each game's own: a strip of every game's table (felt, blush, midnight, haldi,
-   asphalt, studio). */
+/* Each game's own: a strip of every game's table (felt, notebook, midnight, mela, dhaba,
+   stage). */
 .theme-art.is-own {
   background: linear-gradient(
     90deg,
     #1e4a38 0 16.6%,
-    #f4ddd6 16.6% 33.3%,
+    #dde8f1 16.6% 33.3%,
     #172340 33.3% 50%,
-    #f7e4c6 50% 66.6%,
-    #2d3236 66.6% 83.3%,
-    #221d1b 83.3% 100%
+    #f9e3a1 50% 66.6%,
+    #7a3422 66.6% 83.3%,
+    #2a1733 83.3% 100%
   );
 }
 .theme-art.is-own::before {
