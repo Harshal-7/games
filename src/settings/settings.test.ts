@@ -125,7 +125,7 @@ describe("start-up script", () => {
       { rev: 3, theme: 7, mode: "light" },
       [],
     ];
-    const paths = ["/", "/settings", "/imposter", "/mafia/", "/patakha", "/highway-bingo", "/knights-tour", "/hasOwnProperty"];
+    const paths = ["/", "/settings", "/imposter", "/mafia/", "/patakha", "/highway-bingo", "/ulta", "/knights-tour", "/hasOwnProperty"];
     for (const saved of saves) {
       for (const path of paths) {
         for (const phoneIsDark of [true, false]) {
