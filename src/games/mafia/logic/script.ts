@@ -1,6 +1,6 @@
 import { randomItem, type Rng } from "@/party/logic/random";
 
-import { roleAfterWas, type NightRole, type Role } from "./roles";
+import { roleAfterWas, ROLE_NAMES, type NightRole, type Role } from "./roles";
 
 /**
  * Everything the narrator says. Every line is spoken (when the voice is on) and shown
@@ -99,6 +99,34 @@ export const STORIES: readonly string[] = [
   "{name} hung the washing out at midnight and flew off with a bedsheet.",
   "{name} told the Mafia their dal was a bit too watery.",
 ];
+
+/**
+ * One night for the log at the end: "Night 1: the Mafia went for Rohan, the Doctor saved
+ * Rohan, the Police checked Priya (Mafia). Nobody was out." A Doctor or Police who was
+ * already out shows as nobody saved or checked; one not in the game isn't mentioned.
+ */
+export function nightLogLine(
+  night: { round: number; kill: string | null; save: string | null; check: string | null; died: string | null },
+  name: (id: string) => string,
+  isMafia: (id: string) => boolean,
+  cast: { doctor: boolean; police: boolean },
+): string {
+  const parts = [night.kill ? `the Mafia went for ${name(night.kill)}` : "the Mafia picked nobody"];
+  if (cast.doctor) parts.push(night.save ? `the Doctor saved ${name(night.save)}` : "nobody was saved");
+  if (cast.police) {
+    parts.push(
+      night.check ? `the Police checked ${name(night.check)} (${isMafia(night.check) ? "Mafia" : "not Mafia"})` : "nobody was checked",
+    );
+  }
+  const after = night.died ? `${name(night.died)} was out.` : "Nobody was out.";
+  return `Night ${night.round}: ${listNames(parts)}. ${after}`;
+}
+
+/** "Day 2: Aman was voted out (Villager)." or "Day 2: a tie, nobody was out." */
+export function dayLogLine(round: number, out: { name: string; role: Role } | null): string {
+  if (!out) return `Day ${round}: a tie, nobody was out.`;
+  return `Day ${round}: ${out.name} was voted out (${ROLE_NAMES[out.role]}).`;
+}
 
 /** Fills in the player: "{name} went out for chai…" → "Rohan went out for chai…". */
 export function tell(story: string, name: string): string {

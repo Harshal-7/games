@@ -22,6 +22,7 @@ import {
   type Action,
   type Room,
 } from "./game";
+import { narration } from "./narration";
 import type { Role } from "./roles";
 import { STORIES } from "./script";
 
@@ -443,5 +444,34 @@ describe("saving", () => {
     // Missing newer fields fall back to their defaults.
     const { told: _told, ledgers: _ledgers, ...older } = room;
     expect(parseRoom(JSON.stringify(older))).toMatchObject({ told: [], ledgers: { mafia: {}, doctor: {}, police: {} } });
+  });
+});
+
+describe("the narrator", () => {
+  it("says each moment of the night once, by its own key", () => {
+    let room = game(SEVEN);
+    expect(narration(room)).toBeNull();
+    room = reduce(room, { type: "nightfall", now: 0 });
+    expect(narration(room)).toEqual({ key: "1:1:dusk", lines: ["Night falls. Everyone, close your eyes."] });
+    const [called, t] = tickUntil(room, 0, onStep("mafia"));
+    room = called;
+    expect(narration(room)).toEqual({ key: "1:1:mafia:open", lines: ["Mafia, open your eyes and pick someone."] });
+    room = reduce(room, { type: "pick", id: "p4", now: t });
+    [room] = tickUntil(room, t, (r) => r.game?.night?.phase === "close");
+    expect(narration(room)).toEqual({ key: "1:1:mafia:close", lines: ["Mafia, close your eyes."] });
+  });
+
+  it("tells the morning, the vote and the verdict with names and roles", () => {
+    let room = playNight(game(SEVEN), { kill: "p4", save: "p5", check: "p0" });
+    const [wake, story, was] = narration(room)!.lines;
+    expect(wake).toBe("Everyone, wake up.");
+    expect(story).toContain("P4");
+    expect(was).toBe("P4 was a Villager.");
+    room = run(room, { type: "day", now: 0 }, { type: "vote" });
+    expect(narration(room)?.key).toBe("1:1:vote:0");
+    room = reduce(room, { type: "vote-out", id: "p0" });
+    expect(narration(room)?.lines).toEqual(["P0 is out.", "P0 was Mafia."]);
+    const saved = playNight(game(SEVEN), { kill: "p4", save: "p4", check: "p0" });
+    expect(narration(saved)?.lines).toEqual(["Everyone, wake up.", "Nobody died last night."]);
   });
 });

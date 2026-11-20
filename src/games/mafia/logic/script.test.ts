@@ -2,7 +2,18 @@ import { describe, expect, it } from "vitest";
 
 import { seeded } from "@/party/logic/random";
 
-import { callLine, dayLine, listNames, morningLines, outLines, pickStory, STORIES, tell } from "./script";
+import {
+  callLine,
+  dayLine,
+  dayLogLine,
+  listNames,
+  morningLines,
+  nightLogLine,
+  outLines,
+  pickStory,
+  STORIES,
+  tell,
+} from "./script";
 
 describe("morning stories", () => {
   it("has 30+ stories, no duplicates, each with a {name} slot and short enough to read at a glance", () => {
@@ -61,5 +72,32 @@ describe("the narrator", () => {
     expect(outLines("Dev", "doctor")[1]).toBe("Dev was the Doctor.");
     expect(dayLine(3)).toContain("You have 3 minutes.");
     expect(listNames(["Riya", "Aman", "Dev"])).toBe("Riya, Aman and Dev");
+  });
+});
+
+describe("the night log", () => {
+  const name = (id: string) => ({ r: "Rohan", p: "Priya", a: "Aman" })[id] ?? id;
+  const isMafia = (id: string) => id === "p";
+
+  it("tells each night like the brief's example", () => {
+    const night = { round: 1, kill: "r", save: "r", check: "p", died: null };
+    expect(nightLogLine(night, name, isMafia, { doctor: true, police: true })).toBe(
+      "Night 1: the Mafia went for Rohan, the Doctor saved Rohan and the Police checked Priya (Mafia). Nobody was out.",
+    );
+  });
+
+  it("covers a Doctor or Police who is out, and leaves out roles not in the game", () => {
+    const night = { round: 3, kill: "a", save: null, check: null, died: "a" };
+    expect(nightLogLine(night, name, isMafia, { doctor: true, police: true })).toBe(
+      "Night 3: the Mafia went for Aman, nobody was saved and nobody was checked. Aman was out.",
+    );
+    expect(nightLogLine(night, name, isMafia, { doctor: false, police: false })).toBe(
+      "Night 3: the Mafia went for Aman. Aman was out.",
+    );
+  });
+
+  it("tells each day", () => {
+    expect(dayLogLine(2, { name: "Aman", role: "villager" })).toBe("Day 2: Aman was voted out (Villager).");
+    expect(dayLogLine(1, null)).toBe("Day 1: a tie, nobody was out.");
   });
 });

@@ -25,6 +25,9 @@ import { pickStory } from "./script";
  * in the middle of the night.
  */
 
+/** Where the room is saved in this browser. */
+export const ROOM_KEY = "games:mafia:room:v1";
+
 /* ---------- The night's clock ---------- */
 
 /** "Night falls. Everyone, close your eyes." Then a moment to put the phone down. */
