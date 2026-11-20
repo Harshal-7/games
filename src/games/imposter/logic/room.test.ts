@@ -8,8 +8,11 @@ import {
   newRoom,
   parseRoom,
   reduce,
+  ringFraction,
   startProblem,
+  tickDue,
   timeLeft,
+  timerTone,
   type Action,
   type Room,
 } from "./room";
@@ -194,6 +197,47 @@ describe("a round", () => {
     const room = run(dealAll(start()), { type: "vote" });
     expect(reduce(room, { type: "accuse", ids: [] })).toBe(room);
     expect(reduce(room, { type: "accuse", ids: room.round!.seats.slice(0, 2) })).toBe(room);
+  });
+});
+
+describe("the talking timer", () => {
+  it("turns red at 30 seconds or less", () => {
+    expect(timerTone(180_000)).toBe("calm");
+    expect(timerTone(30_001)).toBe("calm");
+    expect(timerTone(30_000)).toBe("hurry");
+    expect(timerTone(0)).toBe("hurry");
+  });
+
+  it("draws the ring as a share of the total, never more than full", () => {
+    expect(ringFraction(90_000, 180_000)).toBe(0.5);
+    expect(ringFraction(0, 180_000)).toBe(0);
+    // +30 sec at 2:45 of 3:00 leaves 3:15: the ring stays full.
+    expect(ringFraction(195_000, 180_000)).toBe(1);
+    expect(ringFraction(-5, 180_000)).toBe(0);
+    expect(ringFraction(5_000, 0)).toBe(0);
+  });
+
+  it("ticks once a second from 10 to 1 with the 250 ms clock", () => {
+    const ticks: number[] = [];
+    for (let left = 12_000; left > 0; left -= 250) {
+      const next = Math.max(0, left - 250);
+      if (tickDue(left, next)) ticks.push(Math.ceil(next / 1000));
+    }
+    expect(ticks).toEqual([10, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
+  });
+
+  it("stays quiet when paused, when time goes up and when time runs out", () => {
+    expect(tickDue(5_000, 5_000)).toBe(false);
+    expect(tickDue(4_200, 34_200)).toBe(false);
+    expect(tickDue(800, 0)).toBe(false);
+    expect(tickDue(11_000, 10_500)).toBe(false);
+  });
+
+  it("ticks only once when a background tab wakes several seconds later", () => {
+    expect(tickDue(15_000, 3_400)).toBe(true);
+    // Still 0:04, then on to 0:03 as usual.
+    expect(tickDue(3_400, 3_150)).toBe(false);
+    expect(tickDue(3_150, 2_900)).toBe(true);
   });
 });
 

@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 
+import { CheckIcon } from "@/ui/icons";
+
 import { cryptoRandom } from "../logic/random";
 import { startProblem, verdict, type Room, type Round } from "../logic/room";
-import { Answer, listNames, namesOf } from "./parts";
+import { Face, imposterFace, listNames, namesOf, PlayHead, Stamp, wordFace } from "./parts";
 import { act } from "./use-room";
 
-/** The table points, someone taps the suspect(s). */
+/** The table points, someone taps the suspect(s). Never shows the word or the imposters. */
 export function Vote({ room, round }: { room: Room; round: Round }) {
   const [picked, setPicked] = useState<string[]>([]);
   const names = namesOf(room);
@@ -17,38 +19,33 @@ export function Vote({ room, round }: { room: Room; round: Round }) {
 
   return (
     <div className="imp-play">
-      <div className="imp-play-head">
-        <span>Round {round.number}</span>
-        <span>Vote</span>
-      </div>
-      <div className="imp-screen">
+      <PlayHead round={round.number} label="Vote" />
+      <div className="imp-stage is-left">
         <h2 className="imp-title">{k === 1 ? "Who's the imposter?" : `Who are the ${k} imposters?`}</h2>
         <p className="imp-help">
           Count to three and everyone points at once. Tap the {k === 1 ? "player" : `${k} players`} with the most
           fingers on them.
         </p>
-        <div className="imp-suspects" role="group" aria-label="Suspects">
-          {round.seats.map((id) => (
-            <button
-              key={id}
-              type="button"
-              className="imp-suspect"
-              aria-pressed={picked.includes(id)}
-              onClick={() => toggle(id)}
-            >
-              {names[id]}
-            </button>
-          ))}
+        <div className="imp-picks" role="group" aria-label="Suspects">
+          {round.seats.map((id) => {
+            const on = picked.includes(id);
+            return (
+              <button key={id} type="button" className="btn imp-pick" aria-pressed={on} onClick={() => toggle(id)}>
+                {on && <CheckIcon width={18} height={18} strokeWidth={3} />}
+                <span>{names[id]}</span>
+              </button>
+            );
+          })}
         </div>
         <button
           type="button"
-          className="btn btn-primary imp-big"
+          className="btn btn-primary btn-big imp-reveal-go"
           disabled={picked.length !== k}
           onClick={() => act({ type: "accuse", ids: picked })}
         >
-          {picked.length === k ? `Reveal` : k === 1 ? "Pick a player" : `Pick ${k - picked.length} more`}
+          {picked.length === k ? "Reveal" : k === 1 ? "Pick a player" : `Pick ${k - picked.length} more`}
         </button>
-        <button type="button" className="btn btn-quiet" onClick={() => act({ type: "talk" })}>
+        <button type="button" className="btn imp-keep-talking" onClick={() => act({ type: "talk" })}>
           Keep talking
         </button>
       </div>
@@ -65,13 +62,14 @@ export function Guess({ room, round }: { room: Room; round: Round }) {
 
   return (
     <div className="imp-play">
-      <div className="imp-play-head">
-        <span>Round {round.number}</span>
-        <span>Last chance</span>
-      </div>
-      <div className="imp-screen">
-        <span className="imp-badge">Caught</span>
-        <h2 className="imp-title">
+      <PlayHead round={round.number} label="Last chance" />
+      <div className="imp-stage">
+        <div className="card imp-case">
+          <span className="label">Case file · Round {round.number}</span>
+          <span className={who.length > 9 ? "imp-case-name is-long" : "imp-case-name"}>{who}</span>
+          <Stamp className="imp-case-stamp">Caught!</Stamp>
+        </div>
+        <h2 className="imp-title imp-guess-title">
           {who} {one ? "was the imposter" : "were the imposters"}
         </h2>
         {!shown ? (
@@ -79,15 +77,22 @@ export function Guess({ room, round }: { room: Room; round: Round }) {
             <p className="imp-help">
               One last chance to steal the round: {who}, say your guess for the word out loud. Then show it.
             </p>
-            <button type="button" className="btn btn-primary imp-big" onClick={() => setShown(true)}>
+            <button type="button" className="btn btn-primary btn-big imp-show-go" onClick={() => setShown(true)}>
               Show the word
             </button>
           </>
         ) : (
           <>
-            <Answer round={round} names={names} />
-            <p className="imp-help">Did {one ? "they" : "any of them"} get it?</p>
-            <div className="imp-row imp-row-fill">
+            <div className="imp-face is-wide">
+              <Face {...wordFace(round)} />
+            </div>
+            {room.options.clue === "hint" && (
+              <p className="imp-hint-line">
+                Their hint: <strong>{round.hint}</strong>
+              </p>
+            )}
+            <p className="imp-ask">Did {one ? "they" : "any of them"} get it?</p>
+            <div className="imp-pair">
               <button type="button" className="btn" onClick={() => act({ type: "guess", correct: false })}>
                 No, missed it
               </button>
@@ -102,7 +107,7 @@ export function Guess({ room, round }: { room: Room; round: Round }) {
   );
 }
 
-/** Who won, the answer, points and the next round. */
+/** Who won, both sides of the cards, points and the next round. */
 export function Result({ room, round }: { room: Room; round: Round }) {
   const names = namesOf(room);
   const { winner, how } = verdict(round);
@@ -120,57 +125,90 @@ export function Result({ room, round }: { room: Room; round: Round }) {
         ? `Caught, but ${one ? "guessed" : "they guessed"} the word.`
         : `You voted for ${listNames(wrong)}, who ${wrong.length === 1 ? "wasn't" : "weren't"} the imposter.`;
 
-  // Highest score first; ties keep seating order.
+  // Highest score first; ties keep seating order and share a place (1, 2, 2, 4).
   const table = round.seats
     .map((id, seat) => ({ id, seat, score: room.scores[id] ?? 0 }))
     .sort((a, b) => b.score - a.score || a.seat - b.seat);
+  const place = (score: number) => table.findIndex((row) => row.score === score) + 1;
   const problem = startProblem(room);
 
   return (
     <div className="imp-play">
-      <div className="imp-play-head">
-        <span>Round {round.number}</span>
-        <span>Result</span>
-      </div>
-      <div className="imp-screen imp-result" data-winner={winner}>
-        <span className="imp-badge">{winner === "crew" ? "Crew" : one ? "Imposter" : "Imposters"}</span>
-        <h2 className="imp-title">{headline}</h2>
+      <PlayHead round={round.number} label="Result" />
+      <div className="imp-result-head">
+        <span className="imp-badge" data-winner={winner}>
+          {winner === "crew" ? "Crew" : one ? "Imposter" : "Imposters"}
+        </span>
+        <h2 className="imp-headline">{headline}</h2>
         <p className="imp-help">{detail}</p>
-        <Answer round={round} names={names} />
+      </div>
 
-        <ol className="imp-scores" aria-label="Scores">
+      <div className="imp-reveal" role="group" aria-label="The cards">
+        <figure>
+          <div className="imp-face is-small">
+            <Face {...wordFace(round)} />
+          </div>
+          <figcaption>The word</figcaption>
+        </figure>
+        {round.imposters.map((id) => (
+          <figure key={id}>
+            <div className="imp-face is-small">
+              <Face {...imposterFace(round, room.options.clue)} />
+              {round.accused.includes(id) && <Stamp className="imp-card-stamp">Caught!</Stamp>}
+            </div>
+            <figcaption>{names[id]}&apos;s card</figcaption>
+          </figure>
+        ))}
+      </div>
+
+      <section className="card imp-scores" aria-labelledby="imp-scores-title">
+        <div className="imp-scores-head">
+          <h3 className="label" id="imp-scores-title">
+            Scores
+          </h3>
+          <span>
+            after {room.played} {room.played === 1 ? "round" : "rounds"}
+          </span>
+        </div>
+        <ol>
           {table.map(({ id, score }) => {
             const gained = round.points[id] ?? 0;
             const turns = room.ledger[id]?.taken ?? 0;
             return (
               <li key={id}>
-                <span className="imp-scores-name">
-                  {names[id]}
-                  {turns > 0 && <span className="imp-scores-turns">imposter {turns}×</span>}
+                <span className="imp-rank" aria-hidden="true">
+                  {place(score)}
                 </span>
-                {gained > 0 && <span className="imp-gain">+{gained}</span>}
-                <span className="imp-scores-total">{score}</span>
+                <span className="imp-score-name">{names[id]}</span>
+                {turns > 0 && <span className="imp-turns-chip">imposter {turns}×</span>}
+                <span className="imp-score-end">
+                  {gained > 0 && <span className="imp-gain">+{gained}</span>}
+                  <span className="imp-total">
+                    {score}
+                    <span className="imp-visually-hidden"> points</span>
+                  </span>
+                </span>
               </li>
             );
           })}
         </ol>
+      </section>
 
-        <div className="imp-row imp-row-fill">
-          <button type="button" className="btn" onClick={() => act({ type: "lobby" })}>
-            Players &amp; options
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={problem !== null}
-            onClick={() => {
-              act({ type: "lobby" });
-              act({ type: "start", rng: cryptoRandom });
-            }}
-          >
-            Next round
-          </button>
-        </div>
+      <div className="imp-pair imp-result-go">
+        <button type="button" className="btn" onClick={() => act({ type: "lobby" })}>
+          Players &amp; options
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={problem !== null}
+          onClick={() => {
+            act({ type: "lobby" });
+            act({ type: "start", rng: cryptoRandom });
+          }}
+        >
+          Next round
+        </button>
       </div>
     </div>
   );

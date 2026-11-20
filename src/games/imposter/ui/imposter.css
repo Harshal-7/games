@@ -1,12 +1,7 @@
-/* Imposter. Uses the shared colour tokens from globals.css; everything here is
-   prefixed imp- so it can't touch the other games. */
-
-:root {
-  --imp-bad: #c8372d;
-}
-html[data-mode="dark"] {
-  --imp-bad: #ff7b6e;
-}
+/* Imposter in design 4: cream cards on the felt, red for the game's own parts. Built on
+   the shared tokens and parts in globals.css (.btn, .btn-primary, .seg, .card, .tape,
+   .switch, .confirm); everything here is prefixed imp- so it can't touch other games.
+   Red text on cream is always --red-deep; text on red is --on-red. */
 
 /* ---------- Page frame: scrolls like a normal page ---------- */
 
@@ -32,32 +27,33 @@ html[data-mode="dark"] {
   white-space: nowrap;
 }
 
-/* ---------- Lobby ---------- */
+/* A main button that isn't ready yet is a dashed slot. On the felt it takes the page's
+   muted colour: inside .btn, --muted is the cream controls' ink-muted. */
+.imp-lobby .btn-primary:disabled,
+.imp-play .btn-primary:disabled {
+  border-color: var(--on-page-muted);
+  color: var(--on-page-muted);
+}
 
+/* Smaller outlined pills: New room, Clear, the deal's foot. */
+.btn.imp-small {
+  gap: 6px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+/* ---------- Setup: title card, players, options ---------- */
+
+/* Phones: one column. A column of flex items, not a grid, so the sticky start tray can
+   travel the whole page (a grid item can't leave its own grid area). */
 .imp-lobby {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "intro" "players" "options" "rules" "start";
-  gap: 16px;
-}
-.imp-intro {
-  grid-area: intro;
-  padding-bottom: 4px;
-}
-.imp-players {
-  grid-area: players;
-}
-.imp-options {
-  grid-area: options;
-}
-.imp-rules {
-  grid-area: rules;
-}
-.imp-start {
-  grid-area: start;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 @media (min-width: 860px) {
   .imp-lobby {
+    display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
     grid-template-rows: auto auto auto 1fr;
     grid-template-areas:
@@ -65,349 +61,456 @@ html[data-mode="dark"] {
       "players options"
       "start options"
       "rules options";
-    column-gap: 32px;
-    row-gap: 20px;
+    gap: 28px 32px;
     align-items: start;
+  }
+  .imp-intro {
+    grid-area: intro;
+  }
+  .imp-players {
+    grid-area: players;
+  }
+  .imp-options {
+    grid-area: options;
+  }
+  .imp-rules {
+    grid-area: rules;
+  }
+  .imp-start {
+    grid-area: start;
   }
 }
 
-.imp-panel {
-  padding: 20px 22px 22px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: var(--surface);
-}
-.imp-panel-head {
+/* The red "Imposter" title card: the card back's lattice with a cream name plate. */
+.imp-title-card {
+  --lattice: color-mix(in srgb, var(--on-red) 17%, transparent);
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 28px;
+  justify-content: center;
+  max-width: 380px;
+  height: 84px;
+  margin: 10px 4px 0;
+  border-radius: var(--radius);
+  background:
+    repeating-linear-gradient(45deg, var(--lattice) 0 1.5px, transparent 1.5px 9px),
+    repeating-linear-gradient(-45deg, var(--lattice) 0 1.5px, transparent 1.5px 9px),
+    var(--red);
+  box-shadow:
+    inset 0 0 0 6px var(--red),
+    inset 0 0 0 7.5px var(--on-red),
+    var(--shadow);
+  rotate: -0.8deg;
 }
-.imp-panel-head h2 {
+.imp-title-mark {
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  color: var(--on-red);
+  font-family: var(--display);
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+.imp-title-mark.is-turned {
+  top: auto;
+  right: 16px;
+  bottom: 10px;
+  left: auto;
+  rotate: 180deg;
+}
+.imp-title-plate {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-.imp-count {
-  padding: 1px 8px;
+  gap: 3px;
+  padding: 8px 30px 9px;
   border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--fg);
-  font-size: 12px;
-  letter-spacing: 0;
-  font-variant-numeric: tabular-nums;
+  background: var(--card);
+  box-shadow:
+    0 0 0 2px var(--red),
+    0 0 0 3.5px var(--on-red);
 }
-
-.imp-small {
-  height: 34px;
-  padding: 0 10px;
-  font-size: 14px;
+.imp-title-name {
+  margin: 0;
+  color: var(--red-deep);
+  font-family: var(--display);
+  font-size: 38px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+.imp-title-meta {
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.imp-blurb {
+  max-width: 44ch;
+  margin: 12px 4px 0;
 }
 
 /* Players */
-.imp-quick {
-  display: grid;
-  gap: 12px;
-  margin-top: 14px;
-  padding: 14px 16px 16px;
-  border: 1px dashed color-mix(in oklab, var(--accent) 50%, var(--line));
-  border-radius: 14px;
-  background: var(--bg);
+.imp-new-room {
+  position: absolute;
+  top: -22px;
+  right: 14px;
 }
-.imp-quick-title {
-  display: block;
-  font-size: 15px;
-  font-weight: 600;
+.imp-players > .confirm {
+  margin: 4px 0 16px;
 }
-.imp-quick-note {
-  display: block;
-  margin-top: 2px;
-  color: var(--muted);
-  font-size: 13.5px;
-}
-.imp-quick-row {
-  display: flex;
-  gap: 8px;
-}
-.imp-quick-row .btn-primary {
-  flex: 1;
-}
-.imp-stepper {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  height: 42px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface);
-}
-.imp-stepper button {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 100%;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--fg);
-  cursor: pointer;
-}
-.imp-stepper button:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-.imp-stepper output {
-  min-width: 24px;
-  font-size: 16px;
-  font-weight: 650;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-}
-.imp-or {
-  margin: 14px 0 0;
-  color: var(--muted);
-  font-size: 13.5px;
-  text-align: center;
-}
+
 .imp-roster {
-  margin: 14px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 0;
   padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--bg);
   list-style: none;
 }
-.imp-player {
+/* A seat pill: seat number, the name (edit in place), points, remove. */
+.imp-seat-pill {
   display: flex;
+  flex: 0 1 auto;
   align-items: center;
-  gap: 8px;
-  padding: 5px 6px 5px 12px;
+  gap: 3px;
+  min-width: 0;
+  max-width: 100%;
+  height: 52px;
+  padding: 0 0 0 6px;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow: 2px 2px 0 var(--ink);
 }
-.imp-player + .imp-player {
-  border-top: 1px solid var(--line);
+.imp-seat-pill:has(.imp-name-input:focus-visible) {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
 }
 .imp-seat {
   display: grid;
   flex: none;
   place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--inset);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 13px;
+  font-weight: 500;
 }
-.imp-name-input {
-  flex: 1;
+/* The field is as wide as the name: a hidden copy of it (data-value) sizes the cell. */
+.imp-name {
+  display: inline-grid;
+  grid-template-columns: minmax(0, max-content);
   min-width: 0;
-  height: 36px;
-  padding: 0 8px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  background: transparent;
-  color: var(--fg);
+  overflow: hidden;
+}
+.imp-name::after,
+.imp-name-input {
+  grid-area: 1 / 1;
+  padding: 0 2px;
   font: inherit;
   font-size: 16px;
-  font-weight: 550;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  font-weight: 700;
 }
-.imp-name-input:hover {
-  border-color: var(--line);
+.imp-name::after {
+  content: attr(data-value) " ";
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  white-space: pre;
+}
+.imp-name-input {
+  width: 100%;
+  min-width: 1ch;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  text-overflow: ellipsis;
 }
 .imp-name-input:focus {
   outline: none;
-  border-color: var(--accent);
-  background: var(--surface);
 }
 .imp-points {
-  min-width: 18px;
-  padding: 2px 8px;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
   border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--red-soft);
+  color: var(--ink);
+  font-family: var(--num);
   font-size: 13px;
-  font-weight: 650;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
+  font-weight: 500;
 }
 .imp-remove {
   display: grid;
   flex: none;
   place-items: center;
   width: 34px;
-  height: 34px;
+  height: 44px;
+  padding: 0;
   border: 0;
-  border-radius: 9px;
+  border-radius: 999px;
   background: transparent;
-  color: var(--muted);
+  color: var(--ink);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
 }
 .imp-remove:hover {
-  background: var(--surface-2);
-  color: var(--fg);
+  color: var(--red-deep);
 }
+
+/* Quick start: no names, just a number of players. */
+.imp-quick-title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.imp-quick-note {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.imp-quick-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+.imp-quick-row .btn-primary {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 14px;
+}
+.imp-stepper {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+}
+.imp-stepper output {
+  width: 32px;
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 22px;
+  font-weight: 500;
+  text-align: center;
+}
+.imp-stepper .icon-btn:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+.imp-or {
+  margin: 20px 0 10px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
 .imp-add {
   display: flex;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 16px;
+}
+.imp-or + .imp-add {
+  margin-top: 0;
 }
 .imp-input {
   flex: 1;
   min-width: 0;
-  height: 42px;
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--bg);
-  color: var(--fg);
+  height: 48px;
+  padding: 0 18px;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--inset);
+  color: var(--ink);
   font: inherit;
   font-size: 16px; /* 16px stops iPhones zooming in on focus */
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .imp-input::placeholder {
-  color: var(--muted);
-}
-.imp-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  color: var(--ink-muted);
 }
 .imp-input[aria-invalid="true"] {
-  border-color: var(--imp-bad);
+  border-color: var(--red);
+}
+.imp-add .btn {
+  min-height: 48px;
 }
 .imp-error {
   margin: 8px 0 0;
-  color: var(--imp-bad);
+  color: var(--red-deep);
   font-size: 14px;
-  font-weight: 550;
+  font-weight: 600;
 }
 
-/* Round options */
-.imp-field {
-  margin-top: 18px;
+/* Options */
+.imp-field + .imp-field,
+.imp-field + .imp-switches {
+  margin-top: 20px;
 }
-.imp-field-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px 16px;
+.imp-field .seg {
+  display: grid;
+  width: 100%;
 }
-.imp-field-head .field-label {
-  margin: 0;
+.imp-field .seg.is-narrow {
+  width: min(100%, 210px);
+}
+.imp-field .seg button {
+  min-width: 0;
+  padding: 0 4px;
 }
 .imp-field-note {
   margin: 8px 0 0;
   color: var(--muted);
-  font-size: 13.5px;
+  font-size: 14px;
+  line-height: 1.4;
 }
-.imp-options .seg button:disabled {
-  opacity: 0.35;
-  cursor: default;
+.imp-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
 }
-.imp-options .seg button:disabled:hover {
+.imp-field-head .field-label {
+  margin: 0;
+}
+.imp-cat-count {
   color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
 }
+
+/* Category chips: on = red-soft with an ink edge, off = dashed and struck through. */
 .imp-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 12px;
 }
 .imp-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 36px;
+  height: 40px;
   padding: 0 12px 0 10px;
-  border: 1px solid var(--line);
+  border: 2px solid var(--ink);
   border-radius: 999px;
-  background: var(--bg);
-  color: var(--muted);
+  background: var(--red-soft);
+  color: var(--ink);
   font: inherit;
   font-size: 14px;
-  font-weight: 550;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 2px 2px 0 var(--ink);
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
 }
-.imp-chip:hover {
-  color: var(--fg);
+.imp-chip:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
 }
-.imp-chip[aria-pressed="true"] {
-  border-color: color-mix(in oklab, var(--accent) 60%, var(--line));
-  background: var(--accent-soft);
-  color: var(--fg);
+.imp-chip[aria-pressed="false"] {
+  border-style: dashed;
+  background: transparent;
+  color: var(--muted);
+  text-decoration: line-through;
+  box-shadow: none;
 }
-.imp-chip span {
+.imp-chip[aria-pressed="false"]:hover {
+  color: var(--ink);
+}
+/* An inline block, so the line through the label skips the emoji. */
+.imp-chip-emoji {
+  display: inline-block;
+}
+.imp-chip[aria-pressed="false"] .imp-chip-emoji {
   filter: grayscale(1);
   opacity: 0.6;
-  transition: filter 0.15s ease, opacity 0.15s ease;
-}
-.imp-chip[aria-pressed="true"] span {
-  filter: none;
-  opacity: 1;
-}
-.imp-switches {
-  margin-top: 20px;
 }
 
-/* How to play */
-.imp-rules summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 15px;
-  font-weight: 600;
-  list-style: none;
-  cursor: pointer;
+.imp-switches {
+  margin-top: 22px;
+  padding-top: 5px;
+  border-top: 1.5px dashed var(--line);
 }
-.imp-rules summary::-webkit-details-marker {
+
+/* How to play: an outlined row; open, the rules in a reading card under it. */
+.imp-rules > summary {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px 0 20px;
+  list-style: none;
+}
+.imp-rules > summary::-webkit-details-marker {
   display: none;
 }
-.imp-rules summary::after {
-  content: "+";
-  color: var(--muted);
-  font-size: 20px;
-  font-weight: 400;
-  line-height: 1;
+.imp-rules-chevron {
+  transition: rotate 0.2s ease;
 }
-.imp-rules[open] summary::after {
-  content: "–";
+.imp-rules[open] .imp-rules-chevron {
+  rotate: 180deg;
 }
-.imp-rules ol {
+.imp-rules-body {
+  margin-top: 14px;
+  padding: 16px 18px 18px;
+}
+.imp-rules-body ol {
   display: grid;
   gap: 6px;
-  margin: 12px 0 0;
-  padding-left: 20px;
-  color: var(--muted);
-  font-size: 14.5px;
+  margin: 0;
+  padding-left: 22px;
+  font-size: 15px;
+  line-height: 1.45;
+  list-style: decimal;
 }
-.imp-rules p {
-  margin: 10px 0 0;
+.imp-rules-body li::marker {
+  color: var(--muted);
+  font-family: var(--num);
+  font-size: 13px;
+}
+.imp-rules-body p {
+  margin: 12px 0 0;
   color: var(--muted);
   font-size: 14px;
+  line-height: 1.45;
 }
 
-/* Start: stuck to the bottom on phones so it's always in reach. */
+/* Start: stuck to the bottom on phones, on a solid tray (a see-through fade would show
+   a band over the felt's texture). The page's bottom padding goes under it. */
 .imp-start {
   position: sticky;
   bottom: 0;
   z-index: 2;
   display: grid;
-  gap: 8px;
-  margin-bottom: -16px;
-  padding: 20px 0 16px;
-  background: linear-gradient(to bottom, transparent, var(--bg) 20px);
+  gap: 10px;
+  margin: 0 -20px -48px;
+  padding: 12px 20px 20px;
+  border-top: 1px solid var(--edge);
+  background: var(--page-deep);
+  box-shadow: 0 -12px 22px -14px rgb(0 0 0 / 0.55);
 }
 .imp-start-note {
   margin: 0;
@@ -415,492 +518,972 @@ html[data-mode="dark"] {
   font-size: 14px;
   text-align: center;
 }
+/* Wider than a phone the page stops growing: a shelf rather than a full-width tray. */
+@media (min-width: 640px) {
+  .imp-start {
+    border: 1px solid var(--edge);
+    border-bottom: 0;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+}
 @media (min-width: 860px) {
   .imp-start {
     position: static;
     margin: 0;
     padding: 0;
+    border: 0;
     background: none;
+    box-shadow: none;
   }
-}
-
-.imp-big {
-  width: 100%;
-  height: 52px;
-  border-radius: 14px;
-  font-size: 16.5px;
 }
 
 /* ---------- Playing a round ---------- */
 
 .imp-play {
-  display: grid;
-  align-content: start;
-  gap: 14px;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-width: 440px;
+  min-height: calc(100dvh - 64px - 48px);
   margin: 0 auto;
 }
-@media (min-height: 640px) {
-  .imp-play {
-    min-height: calc(100dvh - 64px - 64px);
-    align-content: center;
-  }
-}
 
+/* "Round 3" chip on the left, where the round is on the right. */
 .imp-play-head {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  color: var(--muted);
+  gap: 12px;
+  padding-top: 14px;
+}
+.imp-round {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--num);
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.imp-play-label {
+  font-family: var(--num);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-align: right;
   text-transform: uppercase;
 }
 
-/* Who has seen their card */
-.imp-turns {
+/* The middle of a play screen, centred between the head and the foot. */
+.imp-stage {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.imp-turns li {
-  display: inline-flex;
+  flex: 1 0 auto;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 550;
+  justify-content: center;
+  padding: 18px 0;
+  text-align: center;
 }
-.imp-turns li[data-state="done"] {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-.imp-turns li[data-state="now"] {
-  background: var(--fg);
-  color: var(--bg);
+.imp-stage.is-left {
+  align-items: stretch;
+  text-align: left;
 }
 
-.imp-screen {
-  display: grid;
-  justify-items: center;
-  gap: 14px;
-  padding: 28px 20px 22px;
-  border: 1px solid var(--line);
-  border-radius: 24px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
-  text-align: center;
-  animation: imp-rise 0.3s cubic-bezier(0.3, 1.2, 0.5, 1) both;
-}
-.imp-kicker {
-  margin: 0;
+.imp-help {
+  max-width: 34ch;
+  margin: 10px 0 0;
   color: var(--muted);
-  font-size: 14.5px;
-  font-weight: 550;
+  font-size: 15px;
+  line-height: 1.45;
+  text-wrap: pretty;
 }
-.imp-name {
-  margin: -6px 0 0;
-  font-size: clamp(34px, 10vw, 46px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  overflow-wrap: anywhere;
+.imp-stage.is-left .imp-help {
+  max-width: none;
 }
 .imp-title {
   margin: 0;
-  font-size: clamp(24px, 6.5vw, 30px);
-  font-weight: 650;
-  letter-spacing: -0.02em;
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   line-height: 1.15;
   text-wrap: balance;
 }
-.imp-help {
-  max-width: 36ch;
-  margin: 0;
-  color: var(--muted);
-  font-size: 15px;
-  text-wrap: pretty;
+.imp-title.is-big {
+  margin-top: 10px;
+  font-size: 44px;
+  line-height: 1.02;
 }
-.imp-screen .imp-big {
-  margin-top: 4px;
+.imp-big-name {
+  margin: 6px 0 0;
+  font-family: var(--display);
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.imp-big-name.is-long {
+  font-size: 40px;
 }
 
 .imp-foot {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 4px 8px;
+  gap: 10px 12px;
+  padding: 12px 0 4px;
 }
-.imp-row {
+.imp-play > .confirm {
+  margin-top: 12px;
+}
+
+/* Who has seen their card: done (checked), now (outlined), next (dashed). */
+.imp-turns {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
+  gap: 5px;
+  margin: 14px -2px 0;
+  padding: 0;
+  list-style: none;
 }
-.imp-row-fill {
-  width: 100%;
-}
-.imp-row-fill > .btn {
-  flex: 1;
-  height: 48px;
-}
-
-.imp-badge {
-  padding: 4px 12px;
+.imp-turn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1.5px dashed var(--on-page-muted);
   border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  color: var(--on-page-muted);
+  font-size: 13px;
+  font-weight: 600;
 }
-.imp-result[data-winner="imposters"] .imp-badge {
-  background: color-mix(in oklab, var(--imp-bad) 14%, transparent);
-  color: var(--imp-bad);
+.imp-turn[data-state="done"] {
+  border: 1.5px solid transparent;
+  background: var(--track);
+  color: var(--on-page);
+}
+.imp-turn[data-state="now"] {
+  border: 2.5px solid var(--ink);
+  background: var(--card);
+  color: var(--ink);
+  font-weight: 700;
+  box-shadow: 2px 2px 0 var(--ink);
 }
 
-.imp-confirm {
+/* Pass the phone */
+.imp-pass-mark {
   display: grid;
-  gap: 6px;
-  margin-top: 12px;
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--surface);
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  background: var(--red-soft);
+  color: var(--ink);
   box-shadow: var(--shadow);
-  text-align: left;
-  animation: imp-rise 0.25s ease both;
+  rotate: -8deg;
 }
-.imp-confirm strong {
-  font-size: 15.5px;
-}
-.imp-confirm p {
-  margin: 0;
+.imp-pass-kicker {
+  margin: 28px 0 0;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 18px;
+  font-weight: 600;
 }
-.imp-confirm .imp-row {
-  justify-content: flex-end;
-  margin-top: 6px;
+.imp-pass .imp-help {
+  max-width: 290px;
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.imp-pass .btn-big {
+  margin-top: 32px;
+}
+
+.imp-card-kicker {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.imp-after-card {
+  margin-top: 20px;
 }
 
 /* ---------- The secret card ---------- */
 
-/* Held, both cards look the same: one colour, one layout. Only the words differ. */
+/* 288×384 at full size, smaller on short phones. Everything on it is measured in --u
+   (1px at full size), so the whole card scales together. */
 .imp-hold {
-  display: grid;
-  place-items: center;
-  width: min(100%, 290px, max(220px, calc((100dvh - 360px) * 0.75)));
-  aspect-ratio: 3 / 4;
-  padding: 24px 20px;
-  border: 1px solid var(--line);
-  border-radius: 26px;
-  background: var(--bg);
-  color: var(--fg);
+  --card-w: min(288px, calc(100vw - 40px), max(216px, calc((100dvh - 400px) * 0.75)));
+  --u: calc(var(--card-w) / 288);
+  position: relative;
+  display: block;
+  flex: none;
+  width: var(--card-w);
+  height: calc(var(--card-w) * 4 / 3);
+  margin-top: 14px;
+  padding: 0;
+  border: 0;
+  border-radius: calc(22 * var(--u));
+  background: transparent;
+  color: var(--on-red);
   font: inherit;
+  text-align: left;
   cursor: pointer;
+  touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  touch-action: none;
-  transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
-}
-.imp-hold[data-state="sealed"] {
-  border-color: color-mix(in oklab, var(--accent) 45%, var(--line));
-  background:
-    repeating-linear-gradient(135deg, var(--accent-soft) 0 10px, transparent 10px 20px),
-    var(--bg);
-}
-.imp-hold[data-state="opened"] {
-  border-style: dashed;
-  background: var(--surface-2);
+  perspective: 1100px;
+  rotate: -1.5deg;
 }
 .imp-hold[data-state="held"] {
-  border-color: transparent;
-  background: var(--accent);
-  color: var(--accent-fg);
-  transform: scale(0.985);
+  rotate: none;
 }
-.imp-cover,
+/* Holding turns the card face up. Letting go drops the face at once: no turn back. */
+.imp-hold-turn {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-style: preserve-3d;
+}
+.imp-hold[data-state="held"] .imp-hold-turn {
+  transform: rotateY(180deg);
+  transition: transform 0.16s ease-out;
+}
+.imp-back,
+.imp-face.is-held {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: calc(22 * var(--u));
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.imp-face.is-held {
+  transform: rotateY(180deg);
+}
+
+/* The back: the same TOP SECRET card for everyone. */
+.imp-back {
+  --lattice: color-mix(in srgb, var(--on-red) 15%, transparent);
+  display: block;
+  background:
+    repeating-linear-gradient(45deg, var(--lattice) 0 1.5px, transparent 1.5px 10px),
+    repeating-linear-gradient(-45deg, var(--lattice) 0 1.5px, transparent 1.5px 10px),
+    var(--red);
+  color: var(--on-red);
+  box-shadow:
+    inset 0 0 0 calc(9 * var(--u)) var(--red),
+    inset 0 0 0 calc(11 * var(--u)) var(--on-red),
+    var(--shadow);
+}
+.imp-back::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(var(--on-red) 1.2px, transparent 1.7px) 0 0 / 12px 12px;
+  opacity: 0.12;
+}
+.imp-back-secret {
+  position: absolute;
+  top: calc(34 * var(--u));
+  left: calc(24 * var(--u));
+  padding: calc(6 * var(--u)) calc(10 * var(--u));
+  border: calc(3 * var(--u)) solid var(--on-red);
+  border-radius: calc(6 * var(--u));
+  font-family: var(--num);
+  font-size: calc(18 * var(--u));
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  white-space: nowrap;
+  rotate: -9deg;
+}
+.imp-back-for {
+  position: absolute;
+  top: calc(94 * var(--u));
+  left: calc(28 * var(--u));
+  max-width: calc(240 * var(--u));
+  overflow: hidden;
+  font-family: var(--num);
+  font-size: calc(13 * var(--u));
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+/* DON'T PEEK tape across the card, a paler SEALED strip under it. */
+.imp-tape {
+  position: absolute;
+  top: calc(170 * var(--u));
+  left: calc(-56 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(400 * var(--u));
+  height: calc(44 * var(--u));
+  border-block: calc(2 * var(--u)) solid var(--ink);
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: calc(15 * var(--u));
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.3);
+  rotate: -14deg;
+}
+.imp-tape.is-under {
+  top: calc(190 * var(--u));
+  height: calc(30 * var(--u));
+  border-block: 0;
+  background: var(--inset);
+  font-size: calc(12 * var(--u));
+  letter-spacing: 0.16em;
+  opacity: 0.9;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 0.25);
+  rotate: 11deg;
+}
+.imp-back-note {
+  position: absolute;
+  bottom: calc(30 * var(--u));
+  left: calc(24 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--u));
+  max-width: calc(124 * var(--u));
+  font-size: calc(14 * var(--u));
+  font-weight: 600;
+  line-height: 1.3;
+}
+.imp-back-title {
+  font-family: var(--display);
+  font-size: calc(26 * var(--u));
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+.imp-back-note.is-opened {
+  left: calc(22 * var(--u));
+  align-items: flex-start;
+  gap: calc(8 * var(--u));
+  max-width: calc(170 * var(--u));
+}
+/* "Opened" in a rubber stamp, on the red back so in --on-red. */
+.imp-back-stamp {
+  display: inline-flex;
+  align-items: center;
+  padding: calc(4 * var(--u)) calc(12 * var(--u));
+  border: calc(3 * var(--u)) solid currentColor;
+  border-radius: calc(8 * var(--u));
+  font-family: var(--display);
+  font-size: calc(20 * var(--u));
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  rotate: -8deg;
+}
+/* The wax seal: where to hold. */
+.imp-wax {
+  position: absolute;
+  right: calc(22 * var(--u));
+  bottom: calc(26 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: calc(84 * var(--u));
+  height: calc(84 * var(--u));
+  border: calc(5 * var(--u)) dotted var(--red-deep);
+  border-radius: 50%;
+  background: var(--red-deep);
+  color: var(--on-red);
+  font-family: var(--display);
+  font-size: calc(14 * var(--u));
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.1;
+  box-shadow:
+    0 0 0 calc(2 * var(--u)) var(--red-deep),
+    inset 0 0 0 calc(2 * var(--u)) color-mix(in srgb, var(--on-red) 25%, transparent),
+    0 6px 14px -4px rgb(0 0 0 / 0.55);
+  rotate: 8deg;
+}
+.imp-wax svg {
+  width: calc(24 * var(--u));
+  height: calc(24 * var(--u));
+}
+
+/* ---------- Face-up cards ---------- */
+
+/* One face for every card: the hold card held, the word at the guess, the result.
+   Crew and imposter faces share it exactly; no red on either. */
 .imp-face {
-  display: grid;
-  justify-items: center;
-  pointer-events: none;
+  --face-kicker: 12px;
+  --face-word: 44px;
+  --face-note: 15px;
+  --face-gap: 12px;
+  --face-pad: 24px;
+  --face-round: 22px;
+  --face-frame: 9px;
+  --face-pip: 10px;
+  --face-pip-at: 26px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--face-gap);
+  padding: var(--face-pad);
+  box-sizing: border-box;
+  border-radius: var(--face-round);
+  background: var(--card);
+  color: var(--ink);
+  text-align: center;
+  box-shadow:
+    inset 0 0 0 var(--face-frame) var(--card),
+    inset 0 0 0 calc(var(--face-frame) * 7 / 6) var(--card-line),
+    var(--shadow);
 }
-.imp-cover {
-  gap: 4px;
+/* Two pips, top left and bottom right. */
+.imp-face::before,
+.imp-face::after {
+  content: "";
+  position: absolute;
+  top: var(--face-pip-at);
+  left: var(--face-pip-at);
+  width: var(--face-pip);
+  height: var(--face-pip);
+  background: var(--ink);
+  rotate: 45deg;
 }
-.imp-seal {
-  display: grid;
-  place-items: center;
-  width: 64px;
-  height: 64px;
-  margin-bottom: 12px;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-fg);
-  box-shadow: 0 0 0 7px var(--accent-soft);
-}
-.imp-seal.is-broken {
-  background: var(--surface);
-  color: var(--muted);
-  box-shadow: 0 0 0 7px color-mix(in oklab, var(--fg) 6%, transparent);
-}
-.imp-cover-title {
-  font-size: 20px;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-}
-.imp-cover-note {
-  color: var(--muted);
-  font-size: 14px;
-}
-.imp-face {
-  gap: 10px;
+.imp-face::after {
+  top: auto;
+  right: var(--face-pip-at);
+  bottom: var(--face-pip-at);
+  left: auto;
 }
 .imp-face-kicker {
-  font-size: 14px;
-  font-weight: 600;
-  opacity: 0.8;
+  font-family: var(--num);
+  font-size: var(--face-kicker);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  text-transform: uppercase;
 }
 .imp-face-word {
-  font-size: clamp(28px, 9vw, 40px);
-  font-weight: 750;
-  letter-spacing: -0.03em;
+  max-width: 100%;
+  font-family: var(--display);
+  font-size: var(--face-word);
+  font-weight: 700;
   line-height: 1.05;
   overflow-wrap: anywhere;
   text-wrap: balance;
 }
 .imp-face-note {
-  font-size: 15px;
-  opacity: 0.9;
+  color: var(--ink-muted);
+  font-size: var(--face-note);
+  font-weight: 600;
+  line-height: 1.4;
+}
+.imp-face.is-held {
+  --face-kicker: calc(12 * var(--u));
+  --face-word: calc(44 * var(--u));
+  --face-note: calc(15 * var(--u));
+  --face-gap: calc(12 * var(--u));
+  --face-pad: calc(28 * var(--u));
+  --face-round: calc(22 * var(--u));
+  --face-frame: calc(9 * var(--u));
+  --face-pip: calc(10 * var(--u));
+  --face-pip-at: calc(26 * var(--u));
+}
+.imp-face.is-wide {
+  width: min(100%, 300px);
+  height: 200px;
+  margin-top: 20px;
+}
+.imp-face.is-small {
+  --face-kicker: 11px;
+  --face-word: 28px;
+  --face-note: 13.5px;
+  --face-gap: 8px;
+  --face-pad: 16px 12px;
+  --face-round: 18px;
+  --face-frame: 7px;
+  --face-pip: 8px;
+  --face-pip-at: 19.5px;
+  width: 160px;
+  height: 218px;
+}
+
+/* A rubber stamp ("Caught!"): red, and only ever on cream. It drops in once. */
+.imp-stamp {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border: 3px solid currentColor;
+  border-radius: 8px;
+  color: var(--red);
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  rotate: -8deg;
+}
+.imp-stamp.is-dropping {
+  animation: imp-stamp-drop 0.45s 0.15s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+/* Not much bigger than it lands, so even mid-drop it stays inside a phone's width. */
+@keyframes imp-stamp-drop {
+  0% {
+    opacity: 0;
+    scale: 1.5;
+  }
+  65% {
+    opacity: 1;
+    scale: 0.94;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
 }
 
 /* ---------- Talking ---------- */
 
-.imp-timer {
-  display: grid;
-  justify-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 16px 16px 14px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: var(--bg);
-  box-sizing: border-box;
-}
-.imp-timer-time {
-  font-family: var(--font-mono);
-  font-size: 46px;
+.imp-talk-kicker {
+  margin: 0;
+  color: var(--muted);
+  font-size: 17px;
   font-weight: 600;
-  line-height: 1;
+}
+.imp-first {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 100%;
+  margin-top: 4px;
+}
+.imp-first .imp-big-name {
+  min-width: 0;
+  margin: 0;
+  font-size: 60px;
+}
+.imp-first .imp-big-name.is-long {
+  font-size: 40px;
+}
+/* Who talks first: the round "1st" chip. */
+.imp-first-chip {
+  position: relative;
+  top: -12px;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 700;
+  box-shadow: 0 0 0 2.5px var(--red);
+  rotate: -8deg;
+}
+.imp-talk-help {
+  max-width: 334px;
+}
+
+/* The timer: a ring on the table in the page's text colour; in the last 30 seconds
+   red with an edge of the page's colour (red straight on felt is too faint). */
+.imp-ring {
+  position: relative;
+  flex: none;
+  width: 200px;
+  height: 200px;
+  margin-top: 18px;
+}
+.imp-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  rotate: -90deg;
+}
+.imp-ring circle {
+  fill: none;
+}
+.imp-ring-track {
+  stroke: var(--track);
+  stroke-width: 18;
+}
+.imp-ring-edge {
+  stroke: transparent;
+  stroke-width: 24;
+  stroke-linecap: round;
+}
+.imp-ring-arc {
+  stroke: var(--on-page);
+  stroke-width: 16;
+  stroke-linecap: round;
+}
+.imp-ring[data-tone="hurry"] .imp-ring-edge {
+  stroke: var(--on-page);
+}
+.imp-ring[data-tone="hurry"] .imp-ring-arc {
+  stroke: var(--red);
+}
+.imp-ring[data-state="paused"] svg {
+  opacity: 0.55;
+}
+.imp-ring-dial {
+  position: absolute;
+  top: 34px;
+  left: 34px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 132px;
+  height: 132px;
+  box-sizing: border-box;
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.imp-ring-time {
+  font-family: var(--num);
+  font-size: 40px;
+  font-weight: 500;
   letter-spacing: -0.02em;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
 }
-.imp-timer[data-state="paused"] .imp-timer-time {
-  color: var(--muted);
+.imp-ring[data-tone="hurry"] .imp-ring-time,
+.imp-ring[data-state="done"] .imp-ring-label {
+  color: var(--red-deep);
 }
-.imp-timer[data-state="done"] .imp-timer-time {
-  color: var(--accent);
-  font-family: var(--font-sans);
-  font-size: 32px;
-  font-weight: 700;
-  animation: imp-pulse 0.9s ease 3;
+.imp-ring[data-state="paused"] .imp-ring-time {
+  color: var(--ink-muted);
 }
-.imp-timer-bar {
-  width: 100%;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  overflow: hidden;
-}
-.imp-timer-bar span {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  transform-origin: left;
-  transition: transform 0.25s linear;
-}
-
-.imp-log {
-  margin: 0;
-  padding: 10px 14px;
-  border-radius: 14px;
-  background: var(--surface-2);
-  color: var(--muted);
-  font-size: 14px;
-  text-align: center;
-}
-
-/* ---------- Voting and results ---------- */
-
-.imp-suspects {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  width: 100%;
-}
-.imp-suspect {
-  height: 52px;
-  padding: 0 12px;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--bg);
-  color: var(--fg);
-  font: inherit;
-  font-size: 16px;
-  font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
-}
-.imp-suspect:hover {
-  border-color: color-mix(in oklab, var(--fg) 22%, var(--line));
-}
-.imp-suspect:active {
-  transform: scale(0.97);
-}
-.imp-suspect[aria-pressed="true"] {
-  border-color: transparent;
-  background: var(--accent);
-  color: var(--accent-fg);
-}
-
-.imp-answer {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  width: 100%;
-  margin: 0;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--line);
-}
-.imp-answer > div {
-  padding: 10px 14px;
-  background: var(--bg);
-  text-align: left;
-}
-.imp-answer > div:first-child {
-  grid-column: 1 / -1;
-}
-.imp-answer dt {
-  color: var(--muted);
+.imp-ring-label {
+  margin-top: 8px;
+  font-family: var(--num);
   font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.imp-answer dd {
-  margin: 2px 0 0;
-  font-size: 15.5px;
-  font-weight: 600;
-  overflow-wrap: anywhere;
+.imp-timer-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
 }
-.imp-answer dd.imp-answer-category {
-  margin: 0;
+.imp-vote-go {
+  margin-top: 20px;
+}
+/* Who opened their card again: everyone can see it, never what it said. */
+.imp-log {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 14px 0 0;
   color: var(--muted);
   font-size: 14px;
-  font-weight: 500;
+  text-align: left;
 }
-.imp-answer dd.imp-answer-word {
-  font-size: 24px;
+.imp-log svg {
+  flex: none;
+}
+.imp-log strong {
+  color: var(--fg);
   font-weight: 700;
-  letter-spacing: -0.02em;
+}
+
+/* Forgot your word */
+.imp-forgot-mark {
+  color: var(--muted);
+}
+.imp-never-mind {
+  margin-top: 26px;
+}
+
+/* ---------- Voting and the guess ---------- */
+
+.imp-picks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 24px;
+}
+.btn.imp-pick {
+  width: calc(50% - 6px);
+  min-height: 56px;
+  padding: 0 12px;
+  font-size: 18px;
+}
+.imp-pick span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.imp-reveal-go {
+  margin-top: 28px;
+}
+.imp-keep-talking {
+  align-self: center;
+  margin-top: 16px;
+}
+
+/* The case file: who was voted out, stamped "Caught!" under the name, never over it. */
+.imp-case {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: min(100%, 300px);
+  padding: 22px 24px 18px;
+  box-sizing: border-box;
+  text-align: left;
+  rotate: -1.5deg;
+}
+.imp-case-name {
+  max-width: 100%;
+  margin-top: 10px;
+  font-family: var(--display);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+.imp-case-name.is-long {
+  font-size: 34px;
+  line-height: 1.1;
+}
+.imp-case-stamp {
+  align-self: flex-end;
+  margin: -6px -6px 0 0;
+  font-size: 24px;
+}
+.imp-guess-title {
+  margin-top: 26px;
+  font-size: 30px;
+}
+.imp-show-go {
+  margin-top: 30px;
+}
+.imp-hint-line {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.imp-hint-line strong {
+  color: var(--fg);
+  font-weight: 700;
+}
+.imp-ask {
+  margin: 18px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+/* Two answers side by side: outlined, then the solid one. */
+.imp-pair {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: 14px;
+}
+.imp-pair > .btn {
+  flex: 1 1 0;
+  min-height: 52px;
+  padding: 0 12px;
+  white-space: normal;
+}
+
+/* ---------- Result ---------- */
+
+.imp-result-head {
+  padding-top: 24px;
+}
+.imp-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.imp-badge[data-winner="imposters"] {
+  border-color: transparent;
+  background: var(--red);
+  color: var(--on-red);
+}
+.imp-headline {
+  margin: 10px 0 0;
+  font-family: var(--display);
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+.imp-result-head .imp-help {
+  max-width: none;
+  margin-top: 6px;
+}
+
+/* Both sides of the cards, face up: the word and each imposter's card. */
+.imp-reveal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 26px;
+}
+.imp-reveal figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.imp-reveal figure:nth-child(odd) .imp-face {
+  rotate: -4deg;
+}
+.imp-reveal figure:nth-child(even) .imp-face {
+  rotate: 4deg;
+}
+.imp-reveal figcaption {
+  font-size: 14px;
+  font-weight: 600;
+}
+.imp-card-stamp {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  padding: 3px 10px;
+  background: var(--card);
+  font-size: 19px;
+  translate: -50% 0;
+  rotate: -10deg;
 }
 
 .imp-scores {
-  width: 100%;
+  margin-top: 26px;
+  padding: 14px 18px 6px;
+}
+.imp-scores-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ink);
+}
+.imp-scores-head h3 {
+  margin: 0;
+}
+.imp-scores-head span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.imp-scores ol {
   margin: 0;
   padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 16px;
   list-style: none;
-  text-align: left;
 }
 .imp-scores li {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 14px;
+  min-height: 46px;
 }
 .imp-scores li + li {
-  border-top: 1px solid var(--line);
+  border-top: 1px dashed var(--line);
 }
-.imp-scores-name {
-  display: grid;
-  flex: 1;
-  min-width: 0;
-  font-weight: 600;
-}
-.imp-scores-turns {
+.imp-rank {
+  flex: none;
+  width: 18px;
   color: var(--muted);
-  font-size: 12.5px;
-  font-weight: 500;
+  font-family: var(--display);
+  font-size: 17px;
+  font-style: italic;
+}
+.imp-score-name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.imp-turns-chip {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--red-soft);
+  color: var(--red-deep);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.imp-score-end {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
 }
 .imp-gain {
-  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--inset);
+  color: var(--ink);
+  font-family: var(--num);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
 }
-.imp-scores-total {
-  min-width: 24px;
-  font-size: 17px;
-  font-weight: 700;
+.imp-total {
+  min-width: 22px;
+  font-family: var(--num);
+  font-size: 20px;
+  font-weight: 500;
   text-align: right;
-  font-variant-numeric: tabular-nums;
 }
-
-@keyframes imp-rise {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.99);
-  }
-}
-@keyframes imp-pulse {
-  50% {
-    transform: scale(1.06);
-  }
-}
-
-/* ---------- Home page card ---------- */
-
-.imp-thumb {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.imp-thumb-bg {
-  fill: var(--surface-2);
-}
-.imp-thumb-card {
-  fill: var(--surface);
-  stroke: var(--line);
-  stroke-width: 1.5;
-}
-.imp-thumb-line {
-  stroke: var(--line);
-  stroke-width: 3;
-  stroke-linecap: round;
-}
-.imp-thumb-front {
-  fill: var(--accent);
-}
-.imp-thumb-mark {
-  fill: var(--accent-fg);
-  font-family: var(--font-sans);
-  font-size: 32px;
-  font-weight: 750;
+.imp-result-go {
+  margin-top: 24px;
 }
