@@ -146,9 +146,11 @@ Design 4, "Game Night + Sticker": green felt, cream cards, a wooden board, Fraun
 titles, DM Sans for reading and DM Mono for numbers.
 
 - **Tables.** The page is a table colour, and each game sits on its own: Felt (Knight's
-  Tour, Home and Settings), Midnight (Mafia), Asphalt (Highway Bingo), Studio (Ulta),
-  Blush (Imposter) and Haldi (Patakha), plus Daylight, paper and ink. Only the page
-  changes; cards, buttons and the game's colour stay the same.
+  Tour, Home and Settings), Midnight (Mafia, a starry sky), Night drive (Highway Bingo,
+  a road at dusk), Stage (Ulta, velvet curtains under a spotlight), Lamplight (Imposter,
+  cream with a soft red-wine wash from the top) and Sunrise (Patakha, cream with an
+  orange glow from the bottom), plus Daylight, paper and ink. Only the page changes;
+  cards, buttons and the game's colour stay the same.
   - `src/settings/tables.ts` lists the tables and every game's own (`GAME_TABLES`).
     Each table is a `[data-table="<id>"]` block in `globals.css` (page colour and
     texture, `--page-deep` for trays, text, muted text, lines, timer tracks). A test
