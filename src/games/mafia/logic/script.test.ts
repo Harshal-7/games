@@ -1,0 +1,65 @@
+import { describe, expect, it } from "vitest";
+
+import { seeded } from "@/party/logic/random";
+
+import { callLine, dayLine, listNames, morningLines, outLines, pickStory, STORIES, tell } from "./script";
+
+describe("morning stories", () => {
+  it("has 30+ stories, no duplicates, each with a {name} slot and short enough to read at a glance", () => {
+    expect(STORIES.length).toBeGreaterThanOrEqual(30);
+    expect(new Set(STORIES.map((s) => s.toLowerCase())).size).toBe(STORIES.length);
+    for (const story of STORIES) {
+      expect(story).toContain("{name}");
+      expect(story.replaceAll("{name}", "").match(/[{}]/)).toBeNull();
+      expect(story.length).toBeLessThanOrEqual(100);
+      expect(story).toMatch(/[.!?"]$/);
+    }
+  });
+
+  it("keeps it light: nothing gory", () => {
+    const words = /\b(blood|kill|killed|murder|dead|stab|shot|gun|knife|body|corpse)\b/i;
+    for (const story of STORIES) expect(story).not.toMatch(words);
+  });
+
+  it("fills in every {name}", () => {
+    expect(tell("{name} went up to the terrace. The Mafia were looking at {name}.", "Riya")).toBe(
+      "Riya went up to the terrace. The Mafia were looking at Riya.",
+    );
+  });
+
+  it("tells each story once before starting over", () => {
+    const rng = seeded(9);
+    let told: string[] = [];
+    for (let i = 0; i < STORIES.length; i++) {
+      const next = pickStory(told, rng);
+      expect(told).not.toContain(next.story);
+      told = next.told;
+    }
+    expect(new Set(told).size).toBe(STORIES.length);
+    expect(pickStory(told, rng).told).toHaveLength(1);
+    // A story that's since been taken out of the list doesn't block anything.
+    expect(pickStory(["An old story about {name}."], rng).told).toHaveLength(1);
+  });
+});
+
+describe("the narrator", () => {
+  it("calls each role to open and close their eyes", () => {
+    expect(callLine("mafia", "open")).toBe("Mafia, open your eyes and pick someone.");
+    expect(callLine("doctor", "open")).toBe("Doctor, open your eyes. Who do you want to save?");
+    expect(callLine("police", "open")).toBe("Police, open your eyes. Who do you want to check?");
+    expect(callLine("police", "close")).toBe("Police, close your eyes.");
+  });
+
+  it("tells the morning, the day and the vote", () => {
+    expect(morningLines(null)).toEqual(["Everyone, wake up.", "Nobody died last night."]);
+    expect(morningLines({ name: "Rohan", role: "villager", story: STORIES[0] })).toEqual([
+      "Everyone, wake up.",
+      "Rohan went out for chai at 3 a.m. and never came back.",
+      "Rohan was a Villager.",
+    ]);
+    expect(outLines("Priya", "mafia")).toEqual(["Priya is out.", "Priya was Mafia."]);
+    expect(outLines("Dev", "doctor")[1]).toBe("Dev was the Doctor.");
+    expect(dayLine(3)).toContain("You have 3 minutes.");
+    expect(listNames(["Riya", "Aman", "Dev"])).toBe("Riya, Aman and Dev");
+  });
+});
