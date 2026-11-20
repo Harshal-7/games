@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { GAMES } from "@/games/registry";
-import { ArrowUpRightIcon } from "@/ui/icons";
+import { GAMES, TOOLS } from "@/games/registry";
+import { ArrowUpRightIcon, ChevronRightIcon } from "@/ui/icons";
 import { SettingsLink } from "@/ui/settings-link";
 import { AUTHOR, PORTFOLIO_URL } from "@/ui/site";
 
@@ -52,6 +52,26 @@ export default function Home() {
             </div>
           </li>
         </ul>
+
+        <section className="home-tools" aria-labelledby="home-tools-title">
+          <h2 className="label home-tools-title" id="home-tools-title">
+            Tools
+          </h2>
+          <ul className="tool-list">
+            {TOOLS.map(({ slug, name, blurb, Mark }) => (
+              <li key={slug}>
+                <Link href={`/${slug}`} className="card tool-card">
+                  <Mark className="tool-mark" />
+                  <span className="tool-text">
+                    <span className="tool-name">{name}</span>
+                    <span className="tool-blurb">{blurb}</span>
+                  </span>
+                  <ChevronRightIcon className="tool-arrow" width={18} height={18} strokeWidth={2.4} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       </main>
 
       <footer className="site-footer">

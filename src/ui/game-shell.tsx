@@ -16,15 +16,18 @@ export function GameShell({
   children,
   game,
   layout = "board",
+  back,
 }: {
   children: ReactNode;
   game: GameSlug;
   layout?: "board" | "party";
+  /** In place of "‹ Games", for a page that can be opened from another game. */
+  back?: ReactNode;
 }) {
   return (
     <div className={layout === "board" ? "page is-game" : "page is-party"} data-game={game}>
       <TopBar
-        back={<BackToGames game={game} />}
+        back={back ?? <BackToGames game={game} />}
         actions={<SettingsLink from={game} />}
       />
       <main className="game-main">{children}</main>

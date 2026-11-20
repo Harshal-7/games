@@ -1,0 +1,445 @@
+/* The Finger picker: the touch area, and the choices under it while no finger is down. */
+
+/* As tall as the window under the top bar, like a party play screen, so nothing scrolls. */
+.fp {
+  --disc: 100px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 64px - 4px - 48px);
+  min-height: 440px;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Each finger's colour (its own, its team's, or the pick's) and the text that reads on it. */
+.fp [data-color="0"] {
+  --fill: var(--finger-0);
+  --on-fill: var(--on-finger-0);
+}
+.fp [data-color="1"] {
+  --fill: var(--finger-1);
+  --on-fill: var(--on-finger-1);
+}
+.fp [data-color="2"] {
+  --fill: var(--finger-2);
+  --on-fill: var(--on-finger-2);
+}
+.fp [data-color="3"] {
+  --fill: var(--finger-3);
+  --on-fill: var(--on-finger-3);
+}
+.fp [data-color="4"] {
+  --fill: var(--finger-4);
+  --on-fill: var(--on-finger-4);
+}
+.fp [data-color="5"] {
+  --fill: var(--finger-5);
+  --on-fill: var(--on-finger-5);
+}
+.fp [data-color="6"] {
+  --fill: var(--finger-6);
+  --on-fill: var(--on-finger-6);
+}
+.fp [data-color="7"] {
+  --fill: var(--finger-7);
+  --on-fill: var(--on-finger-7);
+}
+.fp [data-color="8"] {
+  --fill: var(--finger-8);
+  --on-fill: var(--on-finger-8);
+}
+.fp [data-color="9"] {
+  --fill: var(--finger-9);
+  --on-fill: var(--on-finger-9);
+}
+
+/* ---------- The touch area ---------- */
+
+/* No scrolling, zooming or selecting in here: every touch is a finger. */
+.fp-area {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin-top: 14px;
+  overflow: hidden;
+  border: 2px dashed var(--muted);
+  border-radius: 24px;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Pick one: the pick's colour fills the area, edged in ink. */
+.fp-area[data-phase="picked"][data-color] {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px var(--ink);
+}
+
+/* No fingers yet. */
+.fp-prompt {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  pointer-events: none;
+}
+.fp-prompt-art {
+  position: relative;
+  width: 168px;
+  height: 120px;
+}
+.fp-prompt-art span {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  box-sizing: border-box;
+  border: 2px dashed var(--muted);
+  border-radius: 50%;
+}
+.fp-prompt-art span:nth-child(1) {
+  top: 30px;
+  left: 0;
+}
+.fp-prompt-art span:nth-child(2) {
+  top: 0;
+  left: 52px;
+}
+.fp-prompt-art span:nth-child(3) {
+  top: 42px;
+  left: 104px;
+}
+.fp-prompt-title {
+  margin: 26px 0 0;
+  font-family: var(--display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.fp-prompt-help {
+  max-width: 290px;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+/* Fingers down: the count, or what was decided, across the top. */
+.fp-status {
+  position: absolute;
+  z-index: 2;
+  top: 18px;
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  text-align: center;
+  pointer-events: none;
+}
+.fp-count-label {
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 600;
+}
+.fp-count-number {
+  font-family: var(--display);
+  font-size: 60px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+.fp-picked {
+  top: 26px;
+  color: var(--on-fill);
+  font-family: var(--display);
+  font-size: 56px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
+}
+.fp-order-title {
+  top: 22px;
+  font-family: var(--display);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.fp-teams {
+  flex-flow: row wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 12px;
+}
+.fp-team {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--fill);
+  color: var(--on-fill);
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.fp-team-letter {
+  font-family: var(--display);
+  font-size: 18px;
+  font-style: italic;
+}
+
+/* ---------- Fingers ---------- */
+
+/* A disc centred on each finger, with a soft pulse round it while the count runs. */
+.fp-disc {
+  position: absolute;
+  width: var(--disc);
+  height: var(--disc);
+  translate: -50% -50%;
+  pointer-events: none;
+}
+.fp-disc::before {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  background: var(--fill);
+  opacity: 0.28;
+  animation: fp-pulse 1.4s ease-in-out infinite;
+}
+@keyframes fp-pulse {
+  0%,
+  100% {
+    opacity: 0.18;
+    scale: 0.9;
+  }
+  50% {
+    opacity: 0.34;
+    scale: 1.06;
+  }
+}
+.fp-disc-body {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--fill);
+  box-shadow:
+    0 0 0 3px var(--ink),
+    4px 4px 0 3px var(--ink);
+}
+/* The countdown: a ring in the page's text colour that runs down over three seconds. */
+.fp-ring {
+  position: absolute;
+  inset: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  overflow: visible;
+  rotate: -90deg;
+}
+.fp-ring circle {
+  fill: none;
+  stroke: var(--fg);
+  stroke-linecap: round;
+  stroke-width: 5;
+  transition: stroke-dashoffset 0.25s linear;
+}
+.fp-disc:not([data-state="live"])::before {
+  animation: none;
+  opacity: 0;
+}
+.fp-disc[data-state="faded"] {
+  opacity: 0.3;
+}
+/* The picked finger keeps an ink ring on the fill. */
+.fp-disc[data-state="chosen"] {
+  z-index: 1;
+}
+.fp-disc[data-state="chosen"] .fp-disc-body {
+  inset: -14px;
+  background: transparent;
+  box-shadow:
+    0 0 0 4px var(--ink),
+    0 0 0 14px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+/* A team's letter or a place, off the finger so it can be read. */
+.fp-badge {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  box-sizing: border-box;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 19px;
+  font-style: italic;
+  font-weight: 700;
+}
+.fp-badge.is-place {
+  top: -14px;
+  left: -14px;
+  width: 44px;
+  height: 44px;
+  font-size: 24px;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+/* Pick one: the picked colour grows from under the finger until it fills the area. */
+.fp-fill {
+  position: absolute;
+  width: 3200px;
+  height: 3200px;
+  margin: -1600px 0 0 -1600px;
+  border-radius: 50%;
+  background: var(--fill);
+  pointer-events: none;
+}
+.fp-fill.is-growing {
+  animation: fp-grow 0.55s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+@keyframes fp-grow {
+  from {
+    scale: 0.03;
+  }
+  to {
+    scale: 1;
+  }
+}
+
+/* The bottom of the area: the touch limit, and how to go again. */
+.fp-area-foot {
+  position: absolute;
+  z-index: 2;
+  right: 14px;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+.fp-limit {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.fp-limit svg {
+  flex: none;
+}
+.fp-again {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+}
+.fp-area[data-color] .fp-again {
+  color: var(--on-fill);
+}
+
+/* ---------- Under the area ---------- */
+
+.fp-foot {
+  position: relative;
+  padding-top: 16px;
+}
+.fp-choices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 28px;
+}
+/* Fingers down: the choices keep their room but can't be seen or reached. */
+.fp-choices[data-hidden] {
+  visibility: hidden;
+}
+.fp-choice {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  gap: 8px;
+}
+.fp-choice .seg {
+  width: 100%;
+}
+.fp-team-count .seg {
+  width: 210px;
+}
+.fp-choice .seg button.is-num {
+  font-family: var(--num);
+  font-size: 16px;
+}
+.fp-foot-note {
+  position: absolute;
+  inset: 16px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
+  text-align: center;
+}
+.fp-foot-note.is-summary {
+  color: var(--fg);
+  font-family: var(--num);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Big screens (an iPad on the table): bigger fingers, the choices side by side. */
+@media (min-width: 860px) {
+  .fp {
+    --disc: 120px;
+  }
+  .fp-area {
+    margin-top: 16px;
+    border-radius: 28px;
+  }
+  .fp-prompt-title {
+    font-size: 44px;
+  }
+  .fp-prompt-help {
+    max-width: 460px;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .fp-foot {
+    padding-top: 20px;
+  }
+  .fp-choice {
+    flex: 0 1 auto;
+  }
+  .fp-modes {
+    width: 400px;
+  }
+  .fp-team-count {
+    width: 210px;
+  }
+}

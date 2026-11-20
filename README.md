@@ -11,6 +11,7 @@ lives in its own folder and has its own page, and the home page lists them all.
 | Patakha | `/patakha` | Party game for one phone: say an answer and pass it on before the hidden fuse runs out. |
 | Highway Bingo | `/highway-bingo` | Bingo cards of Indian road sights, on everyone's own phone with a shared code, or on one phone. |
 | Ulta | `/ulta` | Party game for one phone: sing a line, a teammate copies it backwards, and the team guesses the song. |
+| Finger picker | `/finger-picker` | A tool for any game: fingers on the screen, and the phone picks one, makes teams or puts everyone in order. |
 
 ## Run it
 
@@ -54,6 +55,9 @@ src/
     ulta/
       logic/              reversing and evening out recordings, the song list, the turns, with tests
       ui/                 setup and teams, the mic button, the turn screens; recordings kept in memory
+    finger-picker/
+      logic/              the fingers and the countdown, fair picks, teams and order, with tests
+      ui/                 the touch area, its drawing, and the link the party setups show
 ```
 
 ### Shared parts for party games
@@ -197,6 +201,34 @@ plays with none.
   offline mode on the laptop, run the production build on another port
   (`pnpm build && pnpm start -p 3999`), visit once, stop the server and reload. Running
   `pnpm dev -p 3999` once afterwards removes that worker.
+
+## Finger picker notes
+
+- **A tool, not a game.** It has its own page and slug like a game (so the offline worker
+  saves it and Settings knows it), sits on Felt in the site's ink and cream, and shows on
+  Home as a small tile under "Tools" (`TOOLS` in `src/games/registry.ts`), not a game card.
+- **Setups link to it.** The Players card of Imposter, Mafia and Patakha ends with "Who
+  starts?", Ulta's with "Make teams" (`PickerLink` in `ui/setup-link.tsx`). The link carries
+  `?from=<game>`, so the picker's back link says "‹ Imposter" and returns to that setup;
+  `&mode=teams` opens it on Teams.
+- **Fingers** (`logic/fingers.ts`) are Pointer Events by `pointerId`, on a touch area with
+  `touch-action: none` and no selecting or callouts. Once nobody has joined or left for 1.5
+  seconds, a 3-second countdown runs; any finger joining or leaving starts it over. Time
+  comes in with each event from `Date.now()`. A cancelled pointer (a call, a system
+  gesture) leaves like a lifted finger; switching apps or turning the phone starts clean.
+  The pick stays until every finger lifts, and fingers that join late are ignored.
+- **Fair** (`logic/pick.ts`): Pick one is one uniform `cryptoRandom` pick, Teams (2 to 4)
+  shuffles and deals in turn so sizes differ by one at most, and Order is a shuffle. Tests
+  check the picks over many runs.
+- **Colours.** Each finger wears one of the games' colours, then cream and the soft tints
+  (`--finger-0` to `--finger-9` in its `[data-game]` block); the first four are also the
+  team colours, and every team gets a letter too.
+- **Touch limit.** Phones stop counting touches at a limit (`navigator.maxTouchPoints`,
+  5 on iPhones), and the picker says so once it's reached.
+- **Options** (mode and teams) are saved as `games:finger-picker:options:v1`. Its Sound
+  switch is in Settings, since it has no setup screen: a tick (and a buzz on Android) each
+  second of the count, and a chime for the pick. iPhones only play sound after a tap, and
+  a finger lifting counts as one.
 
 ## Knight's Tour notes
 

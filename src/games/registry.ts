@@ -1,5 +1,6 @@
-import type { ComponentType } from "react";
+import type { ComponentType, SVGProps } from "react";
 
+import { FingerPickerMark } from "./finger-picker/ui/mark";
 import { HighwayBingoThumb } from "./highway-bingo/ui/thumb";
 import { ImposterThumb } from "./imposter/ui/thumb";
 import { KnightsTourBestBadge } from "./knights-tour/ui/best-badge";
@@ -20,6 +21,23 @@ export type GameEntry = {
   /** An extra chip that only the browser knows, like a best time. */
   Badge?: ComponentType;
 };
+
+/** A tool for every game (the Finger picker): a small tile under Home's games. */
+export type ToolEntry = {
+  slug: GameSlug;
+  name: string;
+  blurb: string;
+  Mark: ComponentType<SVGProps<SVGSVGElement>>;
+};
+
+export const TOOLS: ToolEntry[] = [
+  {
+    slug: "finger-picker",
+    name: GAME_NAMES["finger-picker"],
+    blurb: "Who starts, who pays for chai, or make teams.",
+    Mark: FingerPickerMark,
+  },
+];
 
 export const GAMES: GameEntry[] = [
   {

@@ -10,6 +10,7 @@ export const GAME_NAMES = {
   patakha: "Patakha",
   "highway-bingo": "Highway Bingo",
   ulta: "Ulta",
+  "finger-picker": "Finger picker",
 } as const;
 
 export type GameSlug = keyof typeof GAME_NAMES;
