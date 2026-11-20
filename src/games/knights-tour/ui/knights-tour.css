@@ -105,22 +105,21 @@ html[data-mode="dark"] [data-skin="classic"] {
   height: 100%;
   pointer-events: none;
 }
+/* The route is only a faint dotted hint; the numbered squares carry the order.
+   A solid line got confusing once the path crossed itself. Units are squares. */
 .kt-trail polyline,
 .kt-trail line {
   fill: none;
   stroke: var(--accent);
-  stroke-width: 0.045;
+  stroke-width: 0.035;
   stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: 0.5;
+  stroke-dasharray: 0 0.14;
+  opacity: 0.35;
   transition: opacity 0.3s ease;
 }
-.kt-board[data-phase="won"] .kt-trail polyline {
-  opacity: 0.85;
-}
+.kt-board[data-phase="won"] .kt-trail polyline,
 .kt-trail .kt-closing {
-  stroke-dasharray: 0.1 0.09;
-  opacity: 0.85;
+  opacity: 0.55;
 }
 
 .kt-cell {
