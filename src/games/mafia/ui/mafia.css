@@ -137,8 +137,11 @@
   line-height: 1.4;
 }
 
-/* The narrator's voice: a native select dressed as an outlined pill, and Hear it. */
+/* The narrator's voice: a native select dressed as an outlined pill, and Hear it. A select
+   is as wide as its longest voice name; min-width 0 lets it shrink to the card instead of
+   pushing the switches past its edge. */
 .maf-voice {
+  min-width: 0;
   padding: 4px 0 12px;
 }
 .maf-voice-row {
