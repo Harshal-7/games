@@ -63,7 +63,8 @@ export function CodeForm({
           id={codeId}
           className="hb-code-input"
           value={typed}
-          onChange={(e) => setTyped(e.target.value.toUpperCase())}
+          // Shown in capitals by CSS; rewriting the value would make the caret jump while typing.
+          onChange={(e) => setTyped(e.target.value)}
           placeholder="CHAI-42"
           autoCapitalize="characters"
           autoComplete="off"

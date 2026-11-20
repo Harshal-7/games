@@ -391,7 +391,7 @@ html[data-mode="light"] [data-game="highway-bingo"] .btn-primary:not(:disabled) 
 }
 .hb-code-input::placeholder {
   color: var(--ink-muted);
-  opacity: 0.55;
+  opacity: 0.4;
 }
 .hb-code-input:focus-visible {
   outline: 3px solid var(--ring);
@@ -503,6 +503,10 @@ html[data-mode="light"] [data-game="highway-bingo"] .btn-primary:not(:disabled) 
 .hb-play.is-sides {
   max-width: none;
 }
+/* Two cards side by side get the whole width, even on a phone held sideways. */
+.page.is-party:has(.hb-play.is-sides) {
+  max-width: 1040px;
+}
 .hb-play-head {
   display: flex;
   flex-wrap: wrap;
@@ -612,10 +616,12 @@ button.hb-code-chip:active {
   }
 }
 
-/* The card: a cream sheet with an ink edge, almost the phone's full width. */
+/* The card: a cream sheet with an ink edge, almost the phone's full width. Its type is
+   sized by the card's own width (cqi), so two cards side by side shrink with it. */
 .hb-card {
   --pad: 5px;
   position: relative;
+  container-type: inline-size;
   margin: 0 -12px;
   padding: var(--pad);
   border: 2.5px solid var(--ink);
@@ -680,15 +686,15 @@ button.hb-cell:active {
 }
 .hb-emoji {
   position: relative;
-  font-size: clamp(21px, 6.6vw, 30px);
+  font-size: clamp(17px, 7.2cqi, 32px);
   line-height: 1;
 }
 .is-4 .hb-emoji {
-  font-size: clamp(28px, 9vw, 40px);
+  font-size: clamp(24px, 9.6cqi, 42px);
 }
 .hb-label {
   max-width: 100%;
-  font-size: clamp(10.5px, 3.05vw, 13.5px);
+  font-size: clamp(9px, 3.2cqi, 14px);
   font-weight: 700;
   line-height: 1.1;
   overflow-wrap: break-word;
@@ -697,11 +703,11 @@ button.hb-cell:active {
 }
 /* A long word ("Watermelon") steps down a little so it breaks less often. */
 .hb-label.is-long {
-  font-size: clamp(10px, 2.8vw, 13px);
+  font-size: clamp(8.5px, 2.95cqi, 13px);
 }
 .is-4 .hb-label,
 .is-4 .hb-label.is-long {
-  font-size: clamp(13px, 3.9vw, 16px);
+  font-size: clamp(11px, 4.1cqi, 17px);
 }
 
 /* The stamp: an ink ring knocked on around the emoji. */
@@ -758,7 +764,7 @@ button.hb-cell:active {
 }
 .hb-free-text {
   font-family: var(--num);
-  font-size: clamp(10.5px, 3vw, 13px);
+  font-size: clamp(9px, 3.1cqi, 13px);
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -826,12 +832,16 @@ button.hb-cell:active {
   line-height: 1.35;
 }
 .hb-win-text b {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.hb-win-text .hb-win-code {
   font-family: var(--num);
   font-size: 17px;
   font-weight: 500;
   letter-spacing: 0.02em;
-}
-.hb-win-text .hb-win-code {
   white-space: nowrap;
 }
 .hb-win-text span {

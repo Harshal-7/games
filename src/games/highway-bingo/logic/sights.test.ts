@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { hash, MIX } from "./card";
 import { EDITIONS } from "./code";
-import { HIGHWAY_V1, MAX_LABEL, TIERS } from "./sights";
+import { HIGHWAY_V1, MAX_LABEL, MAX_WORD, TIERS } from "./sights";
 
 /** Words, counting hyphenated ones ("Nimbu-mirchi") as two. */
 const words = (label: string) => label.split(/[\s-]+/).length;
@@ -31,6 +31,7 @@ describe("sights", () => {
         expect(words(label), label).toBeGreaterThanOrEqual(2);
         expect(words(label), label).toBeLessThanOrEqual(4);
         expect(label.length, label).toBeLessThanOrEqual(MAX_LABEL);
+        for (const word of label.split(/[\s-]+/)) expect(word.length, label).toBeLessThanOrEqual(MAX_WORD);
         expect(label, label).toBe(label.trim());
         expect(label[0], label).toBe(label[0].toUpperCase());
         expect(id, id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
@@ -48,4 +49,4 @@ describe("sights", () => {
   });
 });
 
-const PINNED_HIGHWAY_V1 = 2766241024;
+const PINNED_HIGHWAY_V1 = 2592211130;

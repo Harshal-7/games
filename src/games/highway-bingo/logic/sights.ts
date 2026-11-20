@@ -24,6 +24,8 @@ export type Sight = {
 
 /** The longest label a square fits in big enough type. */
 export const MAX_LABEL = 20;
+/** The longest word: a longer one would break in the middle on a small phone. */
+export const MAX_WORD = 9;
 
 type Row = readonly [id: string, emoji: string, label: string];
 
@@ -45,7 +47,7 @@ export const HIGHWAY_V1: readonly Sight[] = Object.freeze([
     ["sleeping-dog", "🐕", "Sleeping dog"],
     ["petrol-pump", "⛽", "Petrol pump"],
     ["punjab-dhaba", "🍛", "Dhaba named Punjab"],
-    ["overloaded-truck", "🚛", "Overloaded truck"],
+    ["overloaded-truck", "🚛", "Truck piled high"],
     ["yellow-digger", "🏗️", "Yellow digger"],
     ["road-work", "🚧", "Road work ahead"],
     ["painted-truck", "🎨", "Painted truck art"],
@@ -58,7 +60,7 @@ export const HIGHWAY_V1: readonly Sight[] = Object.freeze([
     ["tempo-traveller", "🚐", "Tempo traveller"],
     ["banyan", "🌳", "Big banyan tree"],
     ["billboard", "🪧", "Giant hoarding"],
-    ["family-restaurant", "🍽️", "Family restaurant"],
+    ["family-restaurant", "🍽️", "Pure Veg sign"],
     ["puncture-repair", "🔧", "Puncture repair"],
     ["buffalo-herd", "🐃", "Buffalo herd"],
     ["tractor", "🚜", "Tractor on highway"],
@@ -71,11 +73,11 @@ export const HIGHWAY_V1: readonly Sight[] = Object.freeze([
     ["monkey", "🐒", "Monkey by the road"],
     ["water-tanker", "🚰", "Water tanker"],
     ["auto-line", "😄", "Funny line on auto"],
-    ["misspelled-sign", "🔤", "Misspelled sign"],
+    ["misspelled-sign", "🔤", "Sign with a typo"],
     ["charpai-nap", "🛏️", "Nap on a charpai"],
     ["use-dipper", "🔦", "Use Dipper at Night"],
     ["bhutta", "🌽", "Bhutta on coals"],
-    ["watermelons", "🍉", "Watermelon pile"],
+    ["watermelons", "🍉", "Melons by the road"],
     ["balloon-seller", "🎈", "Balloon seller"],
     ["kulfi-cart", "🍦", "Kulfi cart"],
     ["mango-stall", "🥭", "Mango stall"],

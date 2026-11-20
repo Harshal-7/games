@@ -54,7 +54,7 @@ export const GAMES: GameEntry[] = [
     slug: "highway-bingo",
     name: GAME_NAMES["highway-bingo"],
     blurb: "Bingo cards of things you spot on Indian roads. The first full line wins.",
-    detail: "2+ players · own phones or one",
+    detail: "2+ players · own phones",
     Thumb: HighwayBingoThumb,
   },
 ];
