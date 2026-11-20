@@ -28,7 +28,7 @@ src/
     logic/                random and fair picks, the player list, the timer, with tests
     ui/                   the saved-game store, clock, sounds, hold-to-see card, ring timer,
                           vote and player list; party.css styles them
-  home/                   the home page's saved-game card (Continue / New game / Remove) and styles
+  home/                   the home page's styles
   settings/               the /settings page: theme, board and knight styles
   offline/                the service worker's page list and the part that registers it
   games/
@@ -93,6 +93,10 @@ mostly sound: it lets iPhones play through the silent switch, and pauses music i
 6. A party game builds on `src/party/` (above): its entry component imports
    `@/party/ui/party.css` before its own styles, and it saves its state with `createStore`
    under `games:<slug>:<thing>:v1`.
+7. Its main component calls `useLeaveGuard` (`src/ui/leave-guard.ts`). Leaving through
+   "‹ Games" ends the game, keeping players and options; with a game under way it asks
+   "Leave this game?" first. A reload, a locked phone or a trip to Settings doesn't end
+   it, so it's still there when you come back.
 
 ## The look
 

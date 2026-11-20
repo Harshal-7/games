@@ -4,12 +4,13 @@ import { useEffect } from "react";
 
 import { useHydrated } from "@/party/ui/use-hydrated";
 import { useWakeLock } from "@/party/ui/wake-lock";
+import { useLeaveGuard } from "@/ui/leave-guard";
 import { soundLikeMedia } from "@/ui/sound";
 
 import { winner } from "../logic/room";
 import { Lobby } from "./lobby";
 import { Play } from "./play";
-import { useRoom } from "./use-room";
+import { act, useRoom } from "./use-room";
 
 import "@/party/ui/party.css";
 import "./patakha.css";
@@ -19,6 +20,11 @@ export function Patakha() {
   const room = useRoom();
   const hydrated = useHydrated();
   const game = room.game;
+  useLeaveGuard("patakha", {
+    ask: game !== null || room.played > 0,
+    detail: "This game ends here, and its scores are cleared. Your players stay for next time.",
+    end: () => act({ type: "new-room" }),
+  });
   useWakeLock(hydrated && game !== null && winner(game) === null);
 
   // Lighting a fuse asks iPhones to play through the silent switch; leaving the game lets go of that.

@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { GAMES } from "@/games/registry";
-import { SavedGame } from "@/home/saved-game";
 import { ArrowUpRightIcon } from "@/ui/icons";
 import { SettingsLink } from "@/ui/settings-link";
 import { AUTHOR, PORTFOLIO_URL } from "@/ui/site";
@@ -23,8 +22,6 @@ export default function Home() {
           </h1>
           <p className="home-lede">Small puzzles and party games I design and build, one at a time.</p>
         </section>
-
-        <SavedGame />
 
         <ul className="game-list">
           {GAMES.map(({ slug, name, blurb, detail, Thumb, Badge }) => (
