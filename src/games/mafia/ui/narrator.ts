@@ -2,13 +2,17 @@
 
 import { useSyncExternalStore } from "react";
 
+import { audioContext } from "@/ui/sound";
+
+import { CLIP_DIR, clipFile, FIXED_LINES } from "../logic/lines";
+
 /**
- * The narrator: reads lines out loud with the phone's own voices (speechSynthesis). It
- * picks the best English (India) voice the phone has (a downloaded Enhanced or Premium
- * one beats the built-in), unless the room chose one in Options. Phones only let a page
- * speak once someone has tapped it (iPhones need the first line to come straight from a
- * tap), so every main button calls `unlock()` first. Until then, after a reload, the
- * night waits for a tap on Carry on.
+ * The narrator. Every line without a player's name is a recording in Kokoro's "Heart"
+ * voice (scripts/record-narrator.mjs), played through Web Audio. Lines with names (the
+ * morning's story, who's out) use the phone's own voice: the best American English one
+ * it has, unless the room picked another in Options. Phones only let a page make sound
+ * once someone has tapped it, so every main button calls `unlock()` first. Until then,
+ * after a reload, the night waits for a tap on Carry on.
  */
 
 function synth(): SpeechSynthesis | null {
@@ -21,17 +25,18 @@ const lang = (voice: SpeechSynthesisVoice) => voice.lang.replace("_", "-").toLow
 const NOVELTY =
   /^(albert|bad news|bahh|bells|boing|bubbles|cellos|fred|good news|jester|junior|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|grandma|grandpa|rocko|kathy)\b/i;
 
-/** How good a narrator a voice is likely to be: Indian English first, then the nicer kinds. */
+/**
+ * How well a voice is likely to fit with the recorded narrator (an American woman's voice):
+ * American English first, then the nicer kinds.
+ */
 function score(voice: SpeechSynthesisVoice): number {
   const id = `${voice.name} ${voice.voiceURI}`.toLowerCase();
-  let points = lang(voice) === "en-in" ? 100 : 0;
+  let points = lang(voice) === "en-us" ? 100 : lang(voice) === "en-in" ? 50 : 0;
   if (id.includes("premium")) points += 40;
   if (id.includes("enhanced")) points += 30;
-  if (/^(aman|tara|isha|veena|neel|kiyara)\b/.test(voice.name.toLowerCase())) points += 20;
+  if (/^(samantha|ava|allison|susan|zoe|nicky|joelle|evan)\b/.test(voice.name.toLowerCase())) points += 20;
   if (id.includes("google")) points += 10;
   if (voice.localService) points += 5;
-  // The old built-in Indian voice on Apple devices: fine, but the last choice among them.
-  if (voice.name.toLowerCase().startsWith("rishi")) points -= 15;
   return points;
 }
 
@@ -54,7 +59,7 @@ export function chooseVoice(name: string | null): void {
 
 function pickVoice(s: SpeechSynthesis): SpeechSynthesisVoice | null {
   const voices = narratorVoices(s.getVoices());
-  return voices.find((v) => v.name === chosen) ?? voices.find((v) => lang(v) === "en-in") ?? null;
+  return voices.find((v) => v.name === chosen) ?? voices[0] ?? null;
 }
 
 /* ---------- The phone's voices, for the chooser ---------- */
@@ -113,13 +118,15 @@ export function useUnlocked(): boolean {
 type AudioSessionNavigator = Navigator & { audioSession?: { type: string } };
 
 /**
- * Call from a tap, before anything is said. Asks iPhones to play the page's sound as
- * playback, so the narrator isn't muted by the silent switch (Safari 17 and later). A tap
- * that isn't about to say a line itself (`speaking` false) says nothing out loud instead:
- * iPhones count that as the first line, so lines from the clock can follow.
+ * Call from a tap, before anything is said. Wakes the page's sound, asks iPhones to play it
+ * as playback so the silent switch doesn't mute the narrator (Safari 17 and later), and
+ * says nothing out loud in the phone's voice: iPhones count that as its first line, so
+ * lines with names can follow later without a tap.
  */
-export function unlock(speaking = false): void {
+export function unlock(): void {
   if (unlocked) return;
+  // Wakes Web Audio from the tap: the recorded lines and the night sound play through it.
+  audioContext();
   const s = synth();
   if (s) {
     try {
@@ -128,11 +135,9 @@ export function unlock(speaking = false): void {
     } catch {
       // Not every browser lets a page choose; the narrator still works with sound on.
     }
-    if (!speaking) {
-      const silent = new SpeechSynthesisUtterance("");
-      silent.volume = 0;
-      s.speak(silent);
-    }
+    const silent = new SpeechSynthesisUtterance("");
+    silent.volume = 0;
+    s.speak(silent);
   }
   unlocked = true;
   for (const listener of listeners) listener();
@@ -140,51 +145,131 @@ export function unlock(speaking = false): void {
 
 /* ---------- Speaking ---------- */
 
-let lastKey: string | null = null;
-let pending: number | undefined;
+const RECORDED = new Set(FIXED_LINES);
+const clips = new Map<string, Promise<AudioBuffer | null>>();
+
+/** A recorded line's sound, fetched and decoded once (null if it can't be had). */
+function clip(text: string): Promise<AudioBuffer | null> {
+  let loading = clips.get(text);
+  if (!loading) {
+    const ctx = audioContext();
+    loading = ctx
+      ? fetch(`${CLIP_DIR}/${clipFile(text)}`)
+          .then((response) => (response.ok ? response.arrayBuffer() : Promise.reject(new Error(String(response.status)))))
+          .then((data) => ctx.decodeAudioData(data))
+          .catch(() => {
+            clips.delete(text);
+            return null;
+          })
+      : Promise.resolve(null);
+    clips.set(text, loading);
+  }
+  return loading;
+}
+
+/** Fetches every recorded line ahead of time, so the night's calls start without a wait. */
+export function preloadClips(): void {
+  for (const text of RECORDED) void clip(text);
+}
+
+let run = 0;
+let playing: AudioBufferSourceNode | null = null;
+let utterance: SpeechSynthesisUtterance | null = null;
+
+function playClip(buffer: AudioBuffer): Promise<void> {
+  const ctx = audioContext();
+  if (!ctx) return Promise.resolve();
+  return new Promise((done) => {
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.onended = () => done();
+    playing = source;
+    source.start();
+  });
+}
+
+/** One line in the phone's own voice. Some phones never say when they're done: a timeout covers that. */
+function speakLine(s: SpeechSynthesis, text: string, mine: number): Promise<void> {
+  return new Promise((done) => {
+    const go = () => {
+      if (mine !== run) return done();
+      const voice = pickVoice(s);
+      const line = new SpeechSynthesisUtterance(text);
+      line.lang = voice?.lang ?? "en-US";
+      if (voice) line.voice = voice;
+      line.rate = 0.95;
+      const timer = window.setTimeout(done, 2000 + text.length * 120);
+      line.onend = line.onerror = () => {
+        window.clearTimeout(timer);
+        done();
+      };
+      utterance = line; // kept, so the browser doesn't drop it before it ends
+      s.resume();
+      s.speak(line);
+    };
+    // Some phones drop a line said straight after cancel(): give it a moment.
+    if (s.speaking || s.pending) {
+      s.cancel();
+      window.setTimeout(go, 80);
+    } else {
+      go();
+    }
+  });
+}
+
+/** Stops whatever is being said. */
+function stop(): void {
+  run++;
+  try {
+    playing?.stop();
+  } catch {
+    // Already finished.
+  }
+  playing = null;
+  if (utterance) utterance.onend = utterance.onerror = null;
+  utterance = null;
+  const s = synth();
+  if (s && (s.speaking || s.pending)) s.cancel();
+}
 
 /**
- * Says `lines`, replacing anything still being said. `key` names the moment (night 2,
+ * Says `lines` in order, replacing anything still being said: recorded lines play their
+ * clip, lines with a player's name use the phone's voice. `key` names the moment (night 2,
  * the Doctor's call): the same key isn't said twice, so coming back to a page doesn't
  * repeat itself. "Say it again" passes `again`.
  */
 export function say(key: string, lines: readonly string[], again = false): void {
-  const s = synth();
-  if (!s || (!again && key === lastKey)) return;
+  if (!again && key === lastKey) return;
   lastKey = key;
-  window.clearTimeout(pending);
-  const speak = () => {
-    s.resume();
-    const voice = pickVoice(s);
+  stop();
+  const mine = run;
+  void (async () => {
     for (const text of lines) {
-      const line = new SpeechSynthesisUtterance(text);
-      line.lang = voice?.lang ?? "en-IN";
-      if (voice) line.voice = voice;
-      line.rate = 0.95;
-      s.speak(line);
+      if (mine !== run) return;
+      const buffer = RECORDED.has(text) ? await clip(text) : null;
+      if (mine !== run) return;
+      if (buffer) {
+        await playClip(buffer);
+      } else {
+        const s = synth();
+        if (s) await speakLine(s, text, mine);
+      }
     }
-  };
-  // Some phones drop a line said straight after cancel(): give it a moment when
-  // something is still being said. A line from a tap with nothing before it goes
-  // straight out, while the tap still counts (iPhones).
-  if (s.speaking || s.pending) {
-    s.cancel();
-    pending = window.setTimeout(speak, 80);
-  } else {
-    speak();
-  }
+  })();
 }
+
+let lastKey: string | null = null;
 
 /** Stops talking, say when the game is stopped. */
 export function hush(): void {
-  window.clearTimeout(pending);
   lastKey = null;
-  synth()?.cancel();
+  stop();
 }
 
-/** Whether this phone can talk at all. */
+/** Whether this phone can talk at all: recorded lines play anywhere with Web Audio. */
 export function canSpeak(): boolean {
-  return synth() !== null;
+  return typeof window !== "undefined" && ("AudioContext" in window || synth() !== null);
 }
 
 // Some browsers load their voices late; asking once early makes the first line use the right one.

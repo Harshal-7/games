@@ -206,8 +206,8 @@ function Options({ room }: { room: Room }) {
           label="Narrator voice"
           detail={
             canSpeak()
-              ? "The phone reads every line out loud. Off: the lines only show on screen."
-              : "This browser can't talk, so the lines only show on screen."
+              ? "A narrator reads every line out loud. Off: the lines only show on screen."
+              : "This browser can't play sound, so the lines only show on screen."
           }
           on={options.voice}
           onToggle={() => set({ voice: !options.voice })}
@@ -225,8 +225,8 @@ function Options({ room }: { room: Room }) {
 }
 
 /**
- * Which of the phone's voices narrates: the best Indian English one by default. A phone
- * with a downloaded Enhanced or Premium voice sounds much better; Hear it plays a line.
+ * The narrator is recorded, except lines with a player's name: those use one of the
+ * phone's voices, the best American English one by default. Hear it says such a line.
  */
 function VoicePicker({ chosen, onChoose }: { chosen: string | null; onChoose: (name: string | null) => void }) {
   const voices = useVoices();
@@ -235,13 +235,13 @@ function VoicePicker({ chosen, onChoose }: { chosen: string | null; onChoose: (n
   const known = chosen !== null && voices.some((v) => v.name === chosen);
   const hear = () => {
     chooseVoice(known ? chosen : null);
-    unlock(true);
-    say(`hear:${Date.now()}`, ["Night falls. Everyone, close your eyes."], true);
+    unlock();
+    say(`hear:${Date.now()}`, ["Rohan went out for chai at 3 a.m. and never came back.", "Rohan was a Villager."], true);
   };
   return (
     <div className="maf-voice">
       <label className="switch-label" htmlFor={id}>
-        Voice
+        Voice for names
       </label>
       <div className="maf-voice-row">
         <select
@@ -262,8 +262,9 @@ function VoicePicker({ chosen, onChoose }: { chosen: string | null; onChoose: (n
         </button>
       </div>
       <p className="switch-detail">
-        Sounds robotic? Download a better English (India) voice in your phone&apos;s settings (on iPhones: Accessibility,
-        Spoken Content, Voices), then pick it here.
+        The narrator is recorded. Only lines with a player&apos;s name, like the morning&apos;s story, use your
+        phone&apos;s voice. For a better one, download an Enhanced English voice in your phone&apos;s settings (on
+        iPhones: Accessibility, Spoken Content, Voices), then pick it here.
       </p>
     </div>
   );

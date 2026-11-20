@@ -10,7 +10,7 @@ import { Morning, Talk, Verdict, VoteScreen } from "./day";
 import { Deal } from "./deal";
 import { End } from "./end";
 import { Lobby } from "./lobby";
-import { chooseVoice, say, useUnlocked } from "./narrator";
+import { chooseVoice, preloadClips, say, useUnlocked } from "./narrator";
 import { NightScreen } from "./night";
 import { chime } from "./parts";
 import { useRoom } from "./use-room";
@@ -63,8 +63,12 @@ let chimed: string | null = null;
  */
 function useNarrator(room: Room, hydrated: boolean): void {
   const unlocked = useUnlocked();
-  const { voiceName } = room.options;
+  const { voiceName, voice } = room.options;
   useEffect(() => chooseVoice(voiceName), [voiceName]);
+  // The recorded lines load ahead, so the first call of the night plays straight away.
+  useEffect(() => {
+    if (hydrated && voice) preloadClips();
+  }, [hydrated, voice]);
   const line = narration(room);
   const key = line?.key ?? null;
   const tell = useEffectEvent(() => {

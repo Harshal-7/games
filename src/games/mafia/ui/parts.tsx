@@ -85,7 +85,7 @@ export function nightNotes(): void {
  */
 export function actAndSay(room: Room, action: Parameters<typeof act>[0], next: Room): void {
   const line = room.options.voice ? narration(next) : null;
-  unlock(line !== null);
+  unlock();
   act(action);
   if (line) say(line.key, line.lines, true);
 }
@@ -99,7 +99,7 @@ export function SayAgain({ room }: { room: Room }) {
       type="button"
       className="btn"
       onClick={() => {
-        unlock(true);
+        unlock();
         say(line.key, line.lines, true);
       }}
     >

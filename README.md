@@ -179,13 +179,20 @@ plays with none.
   with the same wait, so the timing gives nothing away. The screen ticks the reducer with
   `Date.now()`; nothing counts intervals. Each role's screen starts clean, so the Doctor
   and the Police never see the Mafia's pick.
-- **The narrator** (`ui/narrator.ts`) is the phone's own voice (`speechSynthesis`): the
-  best English (India) voice on the phone (a downloaded Enhanced or Premium one first),
-  or the one picked in Options with Hear it. Offline, only voices on the phone itself.
-  What it says at each moment comes from `logic/narration.ts`, keyed so nothing is said
-  twice. Phones only speak after a tap, so the night starts from one, and after a reload
-  mid-night Carry on says the last line again with a fresh wait. On iPhones the page asks
-  for the playback audio session (Safari 17+), so the silent switch doesn't mute it.
+- **The narrator** (`ui/narrator.ts`). Every line without a player's name (the night
+  scenes, the calls, the day and the end, listed in `logic/lines.ts`) is a recording in
+  the "Heart" voice of Kokoro, an open-source voice model, in `public/voice/heart/` (32
+  small MP3s, about 700 KB). They play through Web Audio and the offline worker saves them
+  with the page. Lines with names (the morning's story, who's out) use the phone's own
+  voice (`speechSynthesis`): the best American English one, or the one picked in Options.
+  What's said at each moment comes from `logic/narration.ts`, keyed so nothing is said
+  twice. Phones only make sound after a tap, so the night starts from one, and after a
+  reload mid-night Carry on says the last line again with a fresh wait. On iPhones the page
+  asks for the playback audio session (Safari 17+), so the silent switch doesn't mute it.
+- **Changing a recorded line**: edit `logic/lines.ts`, then record it again on the laptop
+  (needs Python with `kokoro-onnx`, the Kokoro model files and ffmpeg):
+  `node scripts/record-narrator.mjs <python> <models folder>`. A test fails while any line
+  is missing its clip.
 - **The screen stays on** (Screen Wake Lock, https only) from the first night to the last
   vote.
 - **Fair roles.** One fair-pick ledger per role, booked once everyone has seen their card.
