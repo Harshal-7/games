@@ -2,8 +2,9 @@
    else from the shared tokens in globals.css. */
 
 /* Layout. Phones and small windows: one column (title, sizes, status, board,
-   buttons, best time). Big screens: the board on the left as large as the window
-   allows, everything else in a column on the right, and no scrolling. */
+   buttons, best time). Big screens (at the end of this file): the board on the left as
+   large as the window allows, everything else in a column on the right, and no
+   scrolling. */
 .kt {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -41,41 +42,6 @@
   .kt-board-area,
   .kt-actions {
     max-width: max(300px, calc(100svh - 450px));
-  }
-}
-
-@media (min-width: 860px) and (min-height: 480px) {
-  /* The board's size comes from the shared frame in globals.css; the side column takes
-     the rest of the page. */
-  .kt {
-    grid-template-columns: var(--frame-board) minmax(0, 1fr);
-    grid-template-rows: 1fr repeat(5, auto) 1fr;
-    grid-template-areas:
-      "board ."
-      "board intro"
-      "board sizes"
-      "board status"
-      "board actions"
-      "board best"
-      "board .";
-    column-gap: var(--frame-gap);
-    min-height: var(--frame-board);
-  }
-  .kt-sizes,
-  .kt-status,
-  .kt-board-area,
-  .kt-actions {
-    max-width: none;
-  }
-  .kt-board-area {
-    align-self: center;
-    margin-top: 0;
-  }
-  .kt-sizes {
-    margin-top: 20px;
-  }
-  .kt-status {
-    margin-top: 16px;
   }
 }
 
@@ -436,6 +402,10 @@
 .kt-tools .kt-restart {
   padding: 0;
 }
+/* Restart is only an icon on phones; big screens show its name (aria-label has it). */
+.kt-restart-label {
+  display: none;
+}
 /* The hint says "go back": Undo turns brass and pings. */
 .kt-tools .btn.is-nudged {
   position: relative;
@@ -597,6 +567,100 @@
   background: var(--game);
 }
 
+/* ---------- Big screens ---------- */
+
+@media (min-width: 860px) and (min-height: 480px) {
+  /* As the WebTour board: the board on the left, as big as the window allows (up to
+     600px, from the shared frame in globals.css); the title, sizes, the progress card
+     with the best time in it, and the buttons on the right, from the top. */
+  .kt {
+    grid-template-columns: var(--frame-board) minmax(0, 1fr);
+    grid-template-rows: repeat(4, auto) 1fr;
+    grid-template-areas:
+      "board intro"
+      "board sizes"
+      "board status"
+      "board actions"
+      "board .";
+    align-items: start;
+    column-gap: var(--frame-gap);
+    min-height: var(--frame-board);
+  }
+  .kt-sizes,
+  .kt-status,
+  .kt-board-area,
+  .kt-actions {
+    max-width: none;
+  }
+  .kt-board-area {
+    margin-top: 0;
+  }
+  .kt .game-title {
+    font-size: 52px;
+    line-height: 1;
+  }
+  .kt .game-blurb {
+    margin-top: 10px;
+    font-size: 16.5px;
+    line-height: 1.5;
+  }
+  .kt-sizes,
+  .kt-status,
+  .kt-actions {
+    margin-top: 20px;
+  }
+  .seg.kt-sizes button {
+    height: 46px;
+  }
+
+  /* The progress card: the move and the clock bigger, a thicker bar, and the best time
+     along its bottom (the line sits in the card's grid area, over its bottom padding). */
+  .kt-status {
+    gap: 12px;
+    padding: 18px 20px 50px;
+  }
+  .kt-status-text {
+    font-size: 16px;
+  }
+  .kt-status-num {
+    font-size: 26px;
+  }
+  .kt-time {
+    font-size: 24px;
+  }
+  .kt-progress {
+    height: 10px;
+  }
+  .kt-best {
+    --fg: var(--ink);
+    --muted: var(--ink-muted);
+    z-index: 1;
+    grid-area: status;
+    align-self: end;
+    margin: 0 0 18px;
+    padding: 0 20px;
+  }
+
+  /* Undo, Hint and Restart in one row of equal buttons, all with their names. */
+  .kt-tools {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .kt-tools .btn {
+    min-height: 48px;
+  }
+  .kt-tools .kt-restart {
+    padding: 0 14px;
+  }
+  .kt-restart-label {
+    display: inline;
+  }
+  .btn.kt-solve {
+    min-height: 58px;
+    font-size: 22px;
+  }
+}
+
 /* ---------- Short big screens ---------- */
 
 /* Big but short windows (down to 480px tall): everything in the side column tightens
@@ -621,7 +685,7 @@
   }
   .kt-status {
     margin-top: 10px;
-    padding: 7px 14px 9px;
+    padding: 7px 14px 34px;
     gap: 6px;
   }
   .kt-actions {
@@ -638,7 +702,8 @@
     font-size: 19px;
   }
   .kt-best {
-    margin-top: 10px;
+    margin: 0 0 8px;
+    padding: 0 14px;
   }
   .kt-result {
     gap: 10px;
