@@ -22,7 +22,7 @@ pnpm check        # types, lint, tests and a production build
 src/
   app/                    pages (one folder per game) and the shared layout
   ui/                     pieces every game shares: page frame, top bar, buttons, icons
-  home/                   the home page's saved-game card (Continue / New game) and styles
+  home/                   the home page's saved-game card (Continue / New game / Remove) and styles
   settings/               the /settings page: theme, board and knight styles
   games/
     registry.ts           the list of games on the home page
@@ -43,6 +43,9 @@ src/
    (`layout="party"` for games that scroll like a page).
 3. Give it a colour: a `[data-game="<slug>"]` block in `src/app/globals.css`.
 4. Add one entry to `src/games/registry.ts`.
+5. If it has options for Settings, add its section to `GAME_SECTIONS` in
+   `src/settings/settings-panel.tsx`. Settings shows the look plus the options of the game
+   you opened it from, never every game's.
 
 ## The look
 
@@ -73,11 +76,12 @@ titles, DM Sans for reading and DM Mono for numbers.
   Watch it solve finished don't count.
 - **Settings** (theme, board, knight, what the board shows) are saved in the
   browser and put on `<html>` by a small script before the first paint, so nothing
-  flashes. Settings is one tap away on every page; its Back returns to the game you
-  came from (`?from=`).
+  flashes. Settings is one tap away on every page. Opened from a game (`?from=`), it shows
+  that game's options under the look and its Back returns to the game; opened from Home it
+  shows only the look.
 - **New board style**: add it to `styles.ts` and a `[data-kt-board="<id>"]` block
   (squares, frame, the letters on the frame; the same in felt and daylight) in
-  `ui/knights-tour.css`. **New knight**: add it to `styles.ts` and draw it in
+  `board-styles.css`. **New knight**: add it to `styles.ts` and draw it in
   `ui/knight-piece.tsx`.
 
 ## Imposter notes
@@ -95,6 +99,6 @@ titles, DM Sans for reading and DM Mono for numbers.
   everyone a new word without counting the round. Re-checking your card while talking
   is allowed, but everyone sees who did it. The word only enters the page while a card
   is held.
-- **Words** (`logic/words.ts`): 12 categories, 30+ each, every word with a one-word hint
+- **Words** (`logic/words.ts`): 10 categories, 30+ each, every word with a one-word hint
   for the imposter. No word repeats in a room until its category runs out, and the
   category changes every round.
