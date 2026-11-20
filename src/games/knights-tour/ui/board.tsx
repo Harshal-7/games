@@ -2,9 +2,11 @@
 
 import { useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 
+import type { KnightsTourSettings } from "@/settings/settings";
+
 import { legalMoves, squareName, type Size } from "../logic/board";
 import type { Phase } from "../logic/game";
-import { SKINS, type SkinId } from "../skins";
+import { PIECES } from "./knight-piece";
 
 type BoardProps = {
   size: Size;
@@ -16,12 +18,13 @@ type BoardProps = {
   /** How long the knight takes to slide to the next square. */
   moveMs: number;
   onSquare: (square: number) => void;
-  skin?: SkinId;
+  /** Knight style and what to draw on the board, from Settings. */
+  options: Pick<KnightsTourSettings, "piece" | "numbers" | "moves" | "trail">;
 };
 
-export function Board({ size, path, phase, hint, locked, moveMs, onSquare, skin = "classic" }: BoardProps) {
+export function Board({ size, path, phase, hint, locked, moveMs, onSquare, options }: BoardProps) {
   const n = size * size;
-  const { Piece } = SKINS[skin];
+  const Piece = PIECES[options.piece];
   const knight = path.length > 0 ? path[path.length - 1] : null;
   const legal = useMemo(() => new Set(legalMoves(path, size)), [path, size]);
   const moveNumber = useMemo(() => new Map(path.map((sq, i) => [sq, i + 1])), [path]);
@@ -75,7 +78,6 @@ export function Board({ size, path, phase, hint, locked, moveMs, onSquare, skin 
   return (
     <div
       className="kt-board"
-      data-skin={skin}
       data-phase={phase}
       data-locked={locked || undefined}
       style={style}
@@ -99,11 +101,21 @@ export function Board({ size, path, phase, hint, locked, moveMs, onSquare, skin 
       </div>
 
       <svg className="kt-trail" viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
-        {jumps.slice(1).map(([x2, y2], i) => {
-          const [x1, y1] = jumps[i];
-          const latest = i === jumps.length - 2;
-          return <line key={`${path.length}-${i}`} className={latest ? "is-latest" : undefined} x1={x1} y1={y1} x2={x2} y2={y2} />;
-        })}
+        {options.trail &&
+          jumps.slice(1).map(([x2, y2], i) => {
+            const [x1, y1] = jumps[i];
+            const latest = i === jumps.length - 2;
+            return (
+              <line
+                key={`${path.length}-${i}`}
+                className={latest ? "is-latest" : undefined}
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+              />
+            );
+          })}
       </svg>
 
       <div className="kt-cells" onKeyDown={onKeyDown}>
@@ -131,12 +143,12 @@ export function Board({ size, path, phase, hint, locked, moveMs, onSquare, skin 
               onFocus={() => setFocused(sq)}
               onClick={() => pressable && onSquare(sq)}
             >
-              {move && sq !== knight ? (
+              {options.numbers && move && sq !== knight ? (
                 <span className="kt-node" style={{ "--i": move } as CSSProperties}>
                   {move}
                 </span>
               ) : null}
-              {legal.has(sq) && phase === "playing" ? <span className="kt-dot" /> : null}
+              {options.moves && legal.has(sq) && phase === "playing" ? <span className="kt-dot" /> : null}
             </button>
           );
         })}

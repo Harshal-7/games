@@ -80,3 +80,24 @@ export const MoonIcon = (p: P) => (
     <path d="M20.5 13.2A8.5 8.5 0 1 1 10.8 3.5a6.6 6.6 0 0 0 9.7 9.7z" />
   </Icon>
 );
+
+export const SlidersIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
+    <circle cx="15" cy="7" r="2.2" />
+    <circle cx="9" cy="17" r="2.2" />
+  </Icon>
+);
+
+export const MonitorIcon = (p: P) => (
+  <Icon {...p}>
+    <rect x="3" y="4" width="18" height="12.5" rx="2" />
+    <path d="M8.5 20.5h7M12 16.5v4" />
+  </Icon>
+);
+
+export const CheckIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="m5 12.5 4.5 4.5L19 7.5" />
+  </Icon>
+);

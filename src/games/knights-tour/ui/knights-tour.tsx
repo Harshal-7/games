@@ -2,6 +2,7 @@
 
 import { useEffect, useEffectEvent, useMemo, useState } from "react";
 
+import { useSettings } from "@/settings/store";
 import { count, formatDuration } from "@/ui/format";
 import { BulbIcon, PlayIcon, RestartIcon, StopIcon, UndoIcon } from "@/ui/icons";
 
@@ -19,6 +20,7 @@ import "./knights-tour.css";
 const FIRST_SIZE: Size = 5;
 
 export function KnightsTour() {
+  const { knightsTour: options } = useSettings();
   const [game, setGame] = useState(() => newGame(FIRST_SIZE));
   const [solving, setSolving] = useState(false);
   const [closedPanel, setClosedPanel] = useState<string | null>(null);
@@ -161,6 +163,7 @@ export function KnightsTour() {
               locked={solving}
             moveMs={solving ? Math.round(stepMs * 0.8) : 180}
             onSquare={play}
+            options={options}
           />
           {showPanel && (
             <ResultPanel

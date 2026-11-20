@@ -3,15 +3,12 @@ import Link from "next/link";
 import { GAMES } from "@/games/registry";
 import { ArrowUpRightIcon } from "@/ui/icons";
 import { AUTHOR, PORTFOLIO_URL } from "@/ui/site";
-import { ThemeToggle } from "@/ui/theme-toggle";
+import { TopBar } from "@/ui/top-bar";
 
 export default function Home() {
   return (
     <div className="page">
-      <header className="topbar">
-        <span />
-        <ThemeToggle />
-      </header>
+      <TopBar />
       <main>
         <section className="home-hero">
           <h1 className="home-title">Games</h1>

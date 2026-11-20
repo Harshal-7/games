@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function KnightsTourPage() {
   return (
-    <GameShell title="Knight's Tour" blurb="Jump like a chess knight and land on every square exactly once.">
+    <GameShell>
       <KnightsTour />
     </GameShell>
   );

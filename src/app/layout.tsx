@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { SETTINGS_SCRIPT } from "@/settings/settings";
+import { SettingsSync } from "@/settings/settings-sync";
 import { AUTHOR } from "@/ui/site";
-import { THEME_SCRIPT } from "@/ui/theme";
 
 import "./globals.css";
 
@@ -25,9 +26,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" suppressHydrationWarning className={`${geist.variable} ${geistMono.variable}`}>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: SETTINGS_SCRIPT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <SettingsSync />
+      </body>
     </html>
   );
 }
