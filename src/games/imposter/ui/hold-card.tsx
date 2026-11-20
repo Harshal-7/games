@@ -9,9 +9,9 @@ import { buzzOpen } from "./sounds";
 /**
  * A secret card you have to hold to read: TOP SECRET on the back, the same for
  * everyone. Holding turns it face up; letting go, switching apps or the phone changing
- * hands hides it straight away, with no turn back. The secret is only in the page
- * while the card is held, and every press counts as an open, so a card someone else
- * peeked at shows "Opened" before its owner touches it.
+ * hands wipes the face straight away and the blank card turns back over. The secret is
+ * only in the page while the card is held, and every press counts as an open, so a card
+ * someone else peeked at shows "Opened" before its owner touches it.
  */
 export function HoldCard({
   name,
@@ -110,11 +110,10 @@ export function HoldCard({
             hold
           </span>
         </span>
-        {held && (
-          <span className="imp-face is-held" aria-live="assertive">
-            {children}
-          </span>
-        )}
+        {/* Always there, so letting go has a blank face to turn back from. */}
+        <span className="imp-face is-held" aria-live="assertive" aria-hidden={!held}>
+          {held && children}
+        </span>
       </span>
     </button>
   );

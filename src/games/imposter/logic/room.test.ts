@@ -67,7 +67,7 @@ describe("words", () => {
     let last = null as ReturnType<typeof drawWord>["category"] | null;
     let used: string[] = [];
     for (let i = 0; i < 40; i++) {
-      const drawn = drawWord(["food", "animals", "jobs"], used, last, rng);
+      const drawn = drawWord(["food", "animals", "places"], used, last, rng);
       expect(drawn.category).not.toBe(last);
       last = drawn.category;
       used = drawn.used;
@@ -93,6 +93,16 @@ describe("room setup", () => {
     expect(reduce(room, { type: "quick-players", count: 5, rng })).toBe(room);
     expect(reduce(newRoom(), { type: "quick-players", count: 99, rng }).players).toHaveLength(20);
     expect(reduce(newRoom(), { type: "quick-players", count: 1, rng }).players).toHaveLength(3);
+  });
+
+  it("a new game keeps the players; clearing the room keeps only the options", () => {
+    const played = dealAll(run(roomWith(["A", "B", "C"], { sound: false }), { type: "start", rng }));
+    const fresh = reduce(played, { type: "new-room" });
+    expect(fresh.players).toEqual(played.players);
+    expect([fresh.round, fresh.played, fresh.scores]).toEqual([null, 0, {}]);
+    const cleared = reduce(played, { type: "clear-room" });
+    expect(cleared).toEqual(newRoom([], played.options));
+    expect(cleared.options.sound).toBe(false);
   });
 
   it("keeps imposters outnumbered", () => {
@@ -247,8 +257,12 @@ describe("saving", () => {
     expect(parseRoom(JSON.stringify(room))).toEqual(room);
     expect(parseRoom("not json")).toBeNull();
     expect(parseRoom(JSON.stringify({ version: 2 }))).toBeNull();
-    const broken = parseRoom(JSON.stringify({ ...room, round: { stage: "nope" }, options: { timer: 7 } }));
+    const broken = parseRoom(JSON.stringify({ ...room, round: { stage: "nope" }, options: { clue: "?", timer: 7 } }));
     expect(broken?.round).toBeNull();
-    expect(broken?.options.timer).toBe(180);
+    expect(broken?.options).toEqual({ ...room.options, clue: "category" });
+    // A category taken out of the list drops from the options, and a round dealt from it.
+    const old = { ...room, options: { ...room.options, categories: ["food", "slang", "jobs"] } };
+    expect(parseRoom(JSON.stringify(old))?.options.categories).toEqual(["food"]);
+    expect(parseRoom(JSON.stringify({ ...room, round: { ...room.round, category: "slang" } }))?.round).toBeNull();
   });
 });

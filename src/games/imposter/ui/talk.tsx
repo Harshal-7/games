@@ -6,7 +6,7 @@ import { Confirm } from "@/ui/confirm";
 import { formatDuration } from "@/ui/format";
 import { EyeOffIcon, PauseIcon, PlayIcon, PlusIcon } from "@/ui/icons";
 
-import { ringFraction, tickDue, timeLeft, timerTone, type Room, type Round } from "../logic/room";
+import { ringFraction, TALK_MS, tickDue, timeLeft, timerTone, type Room, type Round } from "../logic/room";
 import { HoldCard } from "./hold-card";
 import { BigName, listNames, namesOf, PlayHead, SecretFace } from "./parts";
 import { tick, timeUp, wakeAudio } from "./sounds";
@@ -106,7 +106,7 @@ function Countdown({ room, round }: { room: Room; round: Round }) {
   const now = useClock();
   const left = timeLeft(timer, now);
   const running = timer.endsAt !== null;
-  const total = room.options.timer * 1000;
+  const total = TALK_MS;
   const { sound } = room.options;
   const done = left === 0;
 

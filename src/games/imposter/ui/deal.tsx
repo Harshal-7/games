@@ -27,11 +27,11 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
   const name = names[id];
   const next = round.seats[round.turn + 1];
   const opens = round.opens[id] ?? 0;
-  const { sound, timer } = room.options;
+  const { sound } = room.options;
 
   const done = () => {
     // The last tap before talking time: wake the audio so the ticks can play later.
-    if (!next && sound && timer > 0) wakeAudio();
+    if (!next && sound) wakeAudio();
     act({ type: "done", now: Date.now() });
   };
 
@@ -54,7 +54,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
       </ol>
 
       {!round.looking ? (
-        <div className="imp-stage imp-pass" key={`pass-${id}`}>
+        <div className="imp-stage is-deal imp-pass" key={`pass-${id}`}>
           <span className="imp-pass-mark" aria-hidden="true">
             <EyeOffIcon width={44} height={44} strokeWidth={2} />
           </span>
@@ -66,7 +66,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
           </button>
         </div>
       ) : (
-        <div className="imp-stage" key={`card-${id}-${round.word}`}>
+        <div className="imp-stage is-deal" key={`card-${id}-${round.word}`}>
           <h2 className="imp-card-kicker">{name}&apos;s card</h2>
           <HoldCard name={name} opens={opens} buzz={sound} onOpen={() => act({ type: "open", id })}>
             <SecretFace round={round} id={id} clue={room.options.clue} />
@@ -106,7 +106,7 @@ export function Deal({ room, round }: { room: Room; round: Round }) {
         <div className="imp-foot">
           <button type="button" className="btn imp-small" onClick={() => setAsk("redeal")}>
             <ShuffleIcon width={16} height={16} strokeWidth={2.4} />
-            Someone peeked? Re-deal
+            Re-deal
           </button>
           <button type="button" className="btn imp-small" onClick={() => setAsk("leave")}>
             Change players

@@ -9,13 +9,11 @@ export type CategoryId =
   | "food"
   | "desi"
   | "internet"
-  | "slang"
   | "places"
   | "screen"
   | "games"
   | "stuff"
   | "animals"
-  | "jobs"
   | "moments"
   | "famous";
 
@@ -140,46 +138,6 @@ export const CATEGORIES: readonly Category[] = [
       ["Pinterest", "Aesthetic"],
       ["Wikipedia", "Facts"],
       ["Food delivery", "Rider"],
-    ],
-  },
-  {
-    id: "slang",
-    label: "Gen Z slang",
-    emoji: "💬",
-    words: [
-      ["Rizz", "Charm"],
-      ["Situationship", "Undefined"],
-      ["Main character", "Spotlight"],
-      ["Ghosting", "Disappear"],
-      ["Delulu", "Dreaming"],
-      ["NPC", "Background"],
-      ["Slay", "Killing it"],
-      ["The ick", "Turn-off"],
-      ["Red flag", "Warning"],
-      ["Glow up", "Transformation"],
-      ["FOMO", "Plans"],
-      ["Touch grass", "Outside"],
-      ["Brain rot", "Scrolling"],
-      ["Aura", "Energy"],
-      ["Sigma", "Lone wolf"],
-      ["Bestie", "Friend"],
-      ["Sus", "Shady"],
-      ["No cap", "Honest"],
-      ["Lowkey", "Quiet"],
-      ["Vibe check", "Mood"],
-      ["Simp", "Crush"],
-      ["Stan", "Fan"],
-      ["Rent free", "Thinking"],
-      ["Understood the assignment", "Nailed it"],
-      ["Cringe", "Awkward"],
-      ["Flex", "Show off"],
-      ["Mid", "Average"],
-      ["Bussin", "Tasty"],
-      ["Caught in 4K", "Busted"],
-      ["Villain era", "Phase"],
-      ["Beige flag", "Quirk"],
-      ["Yapping", "Talking"],
-      ["Gaslighting", "Manipulate"],
     ],
   },
   {
@@ -385,45 +343,6 @@ export const CATEGORIES: readonly Category[] = [
       ["Squirrel", "Nuts"],
       ["Jellyfish", "Sting"],
       ["Pigeon", "Statue"],
-    ],
-  },
-  {
-    id: "jobs",
-    label: "Jobs",
-    emoji: "💼",
-    words: [
-      ["Doctor", "Clinic"],
-      ["YouTuber", "Views"],
-      ["Pilot", "Sky"],
-      ["Chef", "Kitchen"],
-      ["DJ", "Party"],
-      ["Barber", "Fade"],
-      ["Teacher", "Homework"],
-      ["Police officer", "Uniform"],
-      ["Firefighter", "Ladder"],
-      ["Astronaut", "Rocket"],
-      ["Software engineer", "Bugs"],
-      ["Delivery rider", "Doorbell"],
-      ["Lawyer", "Objection"],
-      ["Dentist", "Drill"],
-      ["Photographer", "Lens"],
-      ["Model", "Runway"],
-      ["Farmer", "Fields"],
-      ["Magician", "Hat"],
-      ["Detective", "Clues"],
-      ["Plumber", "Pipes"],
-      ["Actor", "Script"],
-      ["Barista", "Order"],
-      ["Cab driver", "GPS"],
-      ["Wedding planner", "Decor"],
-      ["Gym trainer", "Reps"],
-      ["Tattoo artist", "Needle"],
-      ["Security guard", "Night shift"],
-      ["Lifeguard", "Rescue"],
-      ["Hacker", "Code"],
-      ["Scientist", "Lab"],
-      ["Stand-up comic", "Jokes"],
-      ["Flight attendant", "Aisle"],
     ],
   },
   {

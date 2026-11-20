@@ -16,7 +16,6 @@ import {
   nameProblem,
   QUICK_PLAYERS,
   startProblem,
-  TIMERS,
   type Clue,
   type Player,
   type Room,
@@ -34,7 +33,8 @@ const CLUE_LABELS: Record<Clue, { label: string; note: string }> = {
 /** Players, round options and scores: the screen between rounds. */
 export function Lobby({ room }: { room: Room }) {
   const problem = startProblem(room);
-  const [resetting, setResetting] = useState(false);
+  const [ask, setAsk] = useState<"new-room" | "reset" | null>(null);
+  const count = room.players.length;
 
   return (
     <div className="imp-lobby">
@@ -62,21 +62,42 @@ export function Lobby({ room }: { room: Room }) {
         <h2 className="tape" id="imp-players-title">
           Players <span className="tape-count">· {room.players.length}</span>
         </h2>
-        {room.played > 0 && (
-          <button type="button" className="btn imp-small imp-new-room" onClick={() => setResetting(true)}>
+        {/* After a round: a new room keeps the players. Before one: Reset clears them, back
+            to Quick start and the name field. */}
+        {room.played > 0 ? (
+          <button type="button" className="btn imp-small imp-new-room" onClick={() => setAsk("new-room")}>
             <RestartIcon width={15} height={15} strokeWidth={2.6} />
             New room
           </button>
+        ) : (
+          count > 0 && (
+            <button type="button" className="btn imp-small imp-new-room" onClick={() => setAsk("reset")}>
+              <RestartIcon width={15} height={15} strokeWidth={2.6} />
+              Reset
+            </button>
+          )
         )}
-        {resetting && (
+        {ask === "new-room" && (
           <Confirm
             title="Start a new room?"
             detail="Scores and the imposter count go back to zero. Players and options stay."
             yes="New room"
-            onNo={() => setResetting(false)}
+            onNo={() => setAsk(null)}
             onYes={() => {
               act({ type: "new-room" });
-              setResetting(false);
+              setAsk(null);
+            }}
+          />
+        )}
+        {ask === "reset" && (
+          <Confirm
+            title="Start over?"
+            detail={`Removes ${count === 1 ? "the player" : `all ${count} players`}, so you can quick start or add names again. Options stay.`}
+            yes="Reset"
+            onNo={() => setAsk(null)}
+            onYes={() => {
+              act({ type: "clear-room" });
+              setAsk(null);
             }}
           />
         )}
@@ -308,14 +329,6 @@ function Options({ room }: { room: Room }) {
         {(Object.keys(CLUE_LABELS) as Clue[]).map((clue) => (
           <SegButton key={clue} on={options.clue === clue} onClick={() => set({ clue })}>
             {CLUE_LABELS[clue].label}
-          </SegButton>
-        ))}
-      </Choice>
-
-      <Choice label="Talking time">
-        {TIMERS.map((seconds) => (
-          <SegButton key={seconds} on={options.timer === seconds} onClick={() => set({ timer: seconds })}>
-            {seconds === 0 ? "Off" : `${seconds / 60}m`}
           </SegButton>
         ))}
       </Choice>

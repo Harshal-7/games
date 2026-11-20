@@ -27,14 +27,6 @@
   white-space: nowrap;
 }
 
-/* A main button that isn't ready yet is a dashed slot. On the felt it takes the page's
-   muted colour: inside .btn, --muted is the cream controls' ink-muted. */
-.imp-lobby .btn-primary:disabled,
-.imp-play .btn-primary:disabled {
-  border-color: var(--on-page-muted);
-  color: var(--on-page-muted);
-}
-
 /* Smaller outlined pills: New room, Clear, the deal's foot. */
 .btn.imp-small {
   gap: 6px;
@@ -539,12 +531,16 @@
 
 /* ---------- Playing a round ---------- */
 
+/* As tall as the window under the top bar (64px, then 4px) above the page's 48px foot,
+   so the foot buttons sit at the bottom without the page scrolling. The secret card's
+   size is set here too: every screen of the deal keeps the height of the card screen. */
 .imp-play {
+  --card-w: min(288px, calc(100vw - 40px), max(216px, calc((100dvh - 400px) * 0.75)));
   display: flex;
   flex-direction: column;
   width: 100%;
   max-width: 440px;
-  min-height: calc(100dvh - 64px - 48px);
+  min-height: calc(100dvh - 64px - 4px - 48px);
   margin: 0 auto;
 }
 
@@ -595,6 +591,11 @@
   align-items: stretch;
   text-align: left;
 }
+/* Pass the phone and the card screen take the same room (the card screen's: name, card,
+   button), so handing the phone on never moves the buttons below, even on short phones. */
+.imp-stage.is-deal {
+  min-height: calc(var(--card-w) * 4 / 3 + 156px);
+}
 
 .imp-help {
   max-width: 34ch;
@@ -634,12 +635,17 @@
   font-size: 40px;
 }
 
+/* The quiet way out of a screen: two pills side by side, the same width. They stack
+   only on the narrowest phones. */
 .imp-foot {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px 12px;
   padding: 12px 0 4px;
+}
+.imp-foot > .btn {
+  flex: 1 1 140px;
 }
 .imp-play > .confirm {
   margin-top: 12px;
@@ -720,13 +726,16 @@
 .imp-after-card {
   margin-top: 20px;
 }
+/* "Go back" is smaller than "Done": same slot, so the card doesn't shift when it swaps. */
+.btn.imp-after-card:not(.btn-big) {
+  margin-block: 26px 6px;
+}
 
 /* ---------- The secret card ---------- */
 
-/* 288×384 at full size, smaller on short phones. Everything on it is measured in --u
-   (1px at full size), so the whole card scales together. */
+/* 288×384 at full size, smaller on short phones (--card-w, on .imp-play). Everything on
+   it is measured in --u (1px at full size), so the whole card scales together. */
 .imp-hold {
-  --card-w: min(288px, calc(100vw - 40px), max(216px, calc((100dvh - 400px) * 0.75)));
   --u: calc(var(--card-w) / 288);
   position: relative;
   display: block;
@@ -748,20 +757,24 @@
   -webkit-touch-callout: none;
   perspective: 1100px;
   rotate: -1.5deg;
+  transition: rotate 0.2s ease;
 }
 .imp-hold[data-state="held"] {
   rotate: none;
 }
-/* Holding turns the card face up. Letting go drops the face at once: no turn back. */
+/* Holding turns the card face up. Letting go wipes the word at once (it leaves the page),
+   then the blank face turns back over, a little slower than it came. */
 .imp-hold-turn {
   position: absolute;
   inset: 0;
   display: block;
   transform-style: preserve-3d;
+  transition: transform 0.22s ease-in-out;
 }
 .imp-hold[data-state="held"] .imp-hold-turn {
   transform: rotateY(180deg);
-  transition: transform 0.16s ease-out;
+  transition-duration: 0.16s;
+  transition-timing-function: ease-out;
 }
 .imp-back,
 .imp-face.is-held {
