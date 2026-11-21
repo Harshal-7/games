@@ -9,7 +9,7 @@ import { useProgress } from "./stores";
 const ALL = PACKS.flatMap((pack) => pack.patterns.map((p) => p.id));
 
 /** "✓ 4 drawn" on the games list, once any hand-made pattern is drawn. */
-export function RangoliBadge() {
+export function NoLiftBadge() {
   const drawn = drawnIn(useProgress(), ALL);
   if (drawn === 0) return null;
   return (

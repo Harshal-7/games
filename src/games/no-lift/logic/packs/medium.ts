@@ -110,8 +110,8 @@ function sitara(): Pattern {
   return d.done();
 }
 
-/** Kolam: five diamonds touching at their corners, a loop on each outer point. */
-function kolam(): Pattern {
+/** Jaal: a net of five diamonds touching at their corners, a loop on each outer point. */
+function jaal(): Pattern {
   const d = new Draw();
   const s = 16;
   const diamond = (cx: number, cy: number) => [d.dot(cx, cy - s), d.dot(cx + s, cy), d.dot(cx, cy + s), d.dot(cx - s, cy)];
@@ -177,7 +177,7 @@ export const MEDIUM: readonly { id: string; name: string; pattern: Pattern }[] =
   { id: "mor-pankh", name: "Mor pankh", pattern: morPankh() },
   { id: "kairi", name: "Kairi", pattern: kairi() },
   { id: "sitara", name: "Sitara", pattern: sitara() },
-  { id: "kolam", name: "Kolam", pattern: kolam() },
+  { id: "jaal", name: "Jaal", pattern: jaal() },
   { id: "chakra", name: "Chakra", pattern: chakra() },
   { id: "phool-bel", name: "Phool bel", pattern: phoolBel() },
   { id: "jhumka", name: "Jhumka", pattern: jhumka() },

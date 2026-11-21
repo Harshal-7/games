@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
+  // No Lift was first called Rangoli in one line, at /rangoli.
+  redirects() {
+    return [{ source: "/rangoli", destination: "/no-lift", permanent: true }];
+  },
   env: {
     // Names this build's offline copy (public/sw.js), so phones swap in a new deploy.
     OFFLINE_VERSION: new Date().toISOString(),

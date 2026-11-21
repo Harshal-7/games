@@ -19,14 +19,14 @@ export function DoneCard(props: {
     (tag) => tag !== false,
   );
   return (
-    <div className="card rg-result" role="status">
-      <div className="rg-result-head">
-        <span className="rg-result-icon" aria-hidden="true">
+    <div className="card nl-result" role="status">
+      <div className="nl-result-head">
+        <span className="nl-result-icon" aria-hidden="true">
           <CheckIcon width={20} height={20} strokeWidth={2.8} />
         </span>
         <div>
           <h2>{title}</h2>
-          <div className="rg-result-meta">
+          <div className="nl-result-meta">
             <span>
               {assisted
                 ? "Drawn by Watch it solve, so no best time"
@@ -35,14 +35,14 @@ export function DoneCard(props: {
                   : count(undos, "undo")}
             </span>
             {tags.map(({ label, best }) => (
-              <span key={label} className={best ? "rg-tag is-best" : "rg-tag"}>
+              <span key={label} className={best ? "nl-tag is-best" : "nl-tag"}>
                 {label}
               </span>
             ))}
           </div>
         </div>
       </div>
-      <div className="rg-result-actions">
+      <div className="nl-result-actions">
         {next && (
           <button type="button" className="btn btn-primary" onClick={next.onClick} autoFocus>
             {next.label}
@@ -69,7 +69,7 @@ export function StuckCard(props: {
   const wrongStart = backTo < 0;
   const showBack = backTo >= 0 && backTo < drawn - 1;
   return (
-    <div className="card rg-result is-stuck" role="status">
+    <div className="card nl-result is-stuck" role="status">
       <div>
         <h2>Can&apos;t finish from here</h2>
         <p>
@@ -78,12 +78,12 @@ export function StuckCard(props: {
             : "The lines left can't all be drawn from this dot. Step back and try another way."}
         </p>
       </div>
-      <button type="button" className="btn btn-primary rg-result-main" onClick={wrongStart ? props.onRestart : props.onUndo} autoFocus>
+      <button type="button" className="btn btn-primary nl-result-main" onClick={wrongStart ? props.onRestart : props.onUndo} autoFocus>
         {wrongStart ? <RestartIcon width={17} height={17} strokeWidth={2.6} /> : <UndoIcon width={17} height={17} strokeWidth={2.6} />}
         {wrongStart ? "Start again" : "Undo"}
       </button>
       {!wrongStart && (
-        <div className="rg-result-more">
+        <div className="nl-result-more">
           {showBack && (
             <button type="button" className="btn" onClick={props.onBack} title="The last line this drawing could still be finished from">
               {backTo === 0 ? "Back to the start" : `Back to line ${backTo}`}

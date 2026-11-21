@@ -157,10 +157,10 @@ export function Floor(props: FloorProps) {
   const glowing = new Set(glow);
 
   return (
-    <div className="rg-floor" data-phase={phase}>
+    <div className="nl-floor" data-phase={phase}>
       <svg
         ref={svg}
-        className="rg-floor-svg"
+        className="nl-floor-svg"
         viewBox={`${-VIEW / 2} ${-VIEW / 2} ${VIEW} ${VIEW}`}
         role="img"
         aria-label={label}
@@ -170,15 +170,15 @@ export function Floor(props: FloorProps) {
         onPointerUp={onPointerEnd}
         onPointerCancel={onPointerEnd}
       >
-        <g className="rg-faces">
+        <g className="nl-faces">
           {drawn.faces.map((face, i) => (
-            <path key={i} d={face.path} className={`rg-face rg-t${face.tone}`} />
+            <path key={i} d={face.path} className={`nl-face nl-t${face.tone}`} />
           ))}
         </g>
-        <g className="rg-guides">
-          {pattern.lines.map((_, i) => (traced.has(i) ? null : <path key={i} d={drawn.forwards[i]} className="rg-guide" />))}
+        <g className="nl-guides">
+          {pattern.lines.map((_, i) => (traced.has(i) ? null : <path key={i} d={drawn.forwards[i]} className="nl-guide" />))}
         </g>
-        <g className="rg-lines">
+        <g className="nl-lines">
           {trace.lines.map((i, k) => {
             const backwards = pattern.lines[i].a !== path[k];
             return (
@@ -186,7 +186,7 @@ export function Floor(props: FloorProps) {
                 key={i}
                 d={backwards ? drawn.backwards[i] : drawn.forwards[i]}
                 pathLength={1}
-                className={`rg-line rg-t${pattern.lines[i].tone}${i === newest ? " is-new" : ""}`}
+                className={`nl-line nl-t${pattern.lines[i].tone}${i === newest ? " is-new" : ""}`}
                 onAnimationEnd={i === newest ? () => setSettled(trace.lines.length) : undefined}
               />
             );
@@ -196,12 +196,12 @@ export function Floor(props: FloorProps) {
               d={following.backwards ? drawn.backwards[following.line] : drawn.forwards[following.line]}
               pathLength={1}
               strokeDasharray={`${following.t} 1`}
-              className={`rg-line rg-t${pattern.lines[following.line].tone}`}
+              className={`nl-line nl-t${pattern.lines[following.line].tone}`}
             />
           )}
         </g>
         {hintLine !== null && !traced.has(hintLine) && pen !== null && (
-          <g className="rg-hint">
+          <g className="nl-hint">
             <path d={drawn.forwards[hintLine]} />
             <circle
               cx={pattern.dots[otherEnd(pattern.lines[hintLine], pen)][0]}
@@ -211,15 +211,15 @@ export function Floor(props: FloorProps) {
           </g>
         )}
         {[...glowing].map((dot) => (
-          <circle key={dot} cx={pattern.dots[dot][0]} cy={pattern.dots[dot][1]} r={4.4} className="rg-glow" />
+          <circle key={dot} cx={pattern.dots[dot][0]} cy={pattern.dots[dot][1]} r={4.4} className="nl-glow" />
         ))}
-        <g className="rg-dots">
+        <g className="nl-dots">
           {pattern.dots.map(([x, y], i) => (
             <circle key={i} cx={x} cy={y} r={done ? 1.5 : 1.25} />
           ))}
         </g>
         {pen !== null && !done && (
-          <circle cx={pattern.dots[pen][0]} cy={pattern.dots[pen][1]} r={3} className="rg-pen" />
+          <circle cx={pattern.dots[pen][0]} cy={pattern.dots[pen][1]} r={3} className="nl-pen" />
         )}
       </svg>
     </div>

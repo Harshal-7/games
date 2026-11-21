@@ -30,27 +30,27 @@ export function PatternList() {
   const pack = PACKS.find((p) => p.id === tab);
 
   return (
-    <div className="rg-list">
-      <div className="rg-list-intro">
-        <h1 className="game-title">Rangoli in one line</h1>
+    <div className="nl-list">
+      <div className="nl-list-intro">
+        <h1 className="game-title">No Lift</h1>
         <p className="game-blurb">Draw each pattern in one go: every line once, never twice.</p>
       </div>
 
-      <div className="rg-list-bar">
-        <div className="seg rg-tabs" role="radiogroup" aria-label="Patterns">
+      <div className="nl-list-bar">
+        <div className="seg nl-tabs" role="radiogroup" aria-label="Patterns">
           {TABS.map((t) => (
             <button key={t} type="button" role="radio" aria-checked={t === tab} onClick={() => actPlay({ type: "tab", tab: t })}>
               {TAB_NAMES[t]}
             </button>
           ))}
         </div>
-        <p className="label rg-count">
+        <p className="label nl-count">
           {pack ? `${drawnIn(progress, pack.patterns.map((p) => p.id))} of ${pack.patterns.length} drawn` : "A new pattern every time"}
         </p>
       </div>
 
       {pack ? (
-        <ul className="rg-tiles">
+        <ul className="nl-tiles">
           {pack.patterns.map(({ id, name, pattern }) => {
             const ref: PatternRef = { kind: "pack", id };
             const best = progress.best[id];
@@ -60,23 +60,23 @@ export function PatternList() {
               <li key={id}>
                 <button
                   type="button"
-                  className={drawing ? "card rg-tile is-drawing" : "card rg-tile"}
+                  className={drawing ? "card nl-tile is-drawing" : "card nl-tile"}
                   onClick={() => actPlay({ type: "open", ref })}
                   aria-label={`${name}, ${best ? `drawn, best ${formatDuration(best.ms)}` : drawing ? `drawing, ${drawing.lines.length} of ${pattern.lines.length} lines` : `${pattern.lines.length} lines`}`}
                 >
                   <MiniPattern pattern={pattern} coloured={Boolean(best)} />
-                  <span className="rg-tile-name">{name}</span>
+                  <span className="nl-tile-name">{name}</span>
                   {drawing ? (
-                    <span className="rg-chip is-drawing">
+                    <span className="nl-chip is-drawing">
                       Drawing · {drawing.lines.length} of {pattern.lines.length}
                     </span>
                   ) : best ? (
-                    <span className="rg-chip is-drawn">
+                    <span className="nl-chip is-drawn">
                       <CheckIcon width={12} height={12} strokeWidth={3.4} />
-                      <span className="rg-chip-num">{formatDuration(best.ms)}</span>
+                      <span className="nl-chip-num">{formatDuration(best.ms)}</span>
                     </span>
                   ) : (
-                    <span className="rg-tile-count">{pattern.lines.length} lines</span>
+                    <span className="nl-tile-count">{pattern.lines.length} lines</span>
                   )}
                 </button>
               </li>
@@ -84,24 +84,24 @@ export function PatternList() {
           })}
         </ul>
       ) : (
-        <ul className="rg-sizes">
+        <ul className="nl-sizes">
           {ENDLESS_SIZES.map((size) => {
             const { name, detail, sample } = SIZES[size];
             const record = progress.endless[size];
             const preview = patternOf({ kind: "endless", size, seed: sample })!;
             return (
-              <li key={size} className="card rg-size">
-                <MiniPattern pattern={preview} coloured className="rg-size-mini" />
-                <div className="rg-size-text">
+              <li key={size} className="card nl-size">
+                <MiniPattern pattern={preview} coloured className="nl-size-mini" />
+                <div className="nl-size-text">
                   <h2>{name}</h2>
                   <p>{detail}</p>
-                  <p className="rg-size-stats">
+                  <p className="nl-size-stats">
                     {record?.drawn ? `${record.drawn} drawn${record.best ? ` · best ${formatDuration(record.best.ms)}` : ""}` : "None drawn yet"}
                   </p>
                 </div>
                 <button
                   type="button"
-                  className="btn rg-size-new"
+                  className="btn nl-size-new"
                   aria-label={`New ${name.toLowerCase()} pattern`}
                   onClick={() => actPlay({ type: "open", ref: { kind: "endless", size, seed: Math.floor(cryptoRandom() * 2 ** 31) } })}
                 >
@@ -115,10 +115,10 @@ export function PatternList() {
       )}
 
       {carry && (
-        <div className="rg-carry">
+        <div className="nl-carry">
           <button type="button" className="btn btn-primary btn-big" onClick={() => actPlay({ type: "carry-on" })}>
             Carry on: {describe(carry.ref).name}
-            <span className="rg-carry-count">
+            <span className="nl-carry-count">
               {carry.lines.length}/{patternOf(carry.ref)!.lines.length}
             </span>
           </button>

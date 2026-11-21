@@ -11,7 +11,7 @@ lives in its own folder and has its own page, and the home page lists them all.
 | Patakha | `/patakha` | Party game for one phone: say an answer and pass it on before the hidden fuse runs out. |
 | Highway Bingo | `/highway-bingo` | Bingo cards of Indian road sights, on everyone's own phone with a shared code, or on one phone. |
 | Ulta | `/ulta` | Party game for one phone: sing a line, a teammate copies it backwards, and the team guesses the song. |
-| Rangoli in one line | `/rangoli` | Draw a rangoli pattern in one line: every line once, never twice. 30 hand-made patterns, and endless mirrored ones. |
+| No Lift | `/no-lift` | Draw a pattern in one line: every line once, never twice. 30 hand-made patterns, and endless mirrored ones. |
 | Finger picker | `/finger-picker` | A tool for any game: fingers on the screen, and the phone picks one, makes teams or puts everyone in order. |
 | Marble solitaire | `/marble-solitaire` | Jump marbles over each other until one is left, on the triangle, the English cross or the European board. |
 
@@ -57,7 +57,7 @@ src/
     ulta/
       logic/              reversing and evening out recordings, the song list, the turns, with tests
       ui/                 setup and teams, the mic button, the turn screens; recordings kept in memory
-    rangoli/
+    no-lift/
       logic/              patterns and the 30 hand-made ones, the Euler solver, the Endless
                           generator, finger tracking, with tests
       ui/                 the pattern list, the floor and its drawing, the cards, the Home card art
@@ -143,7 +143,7 @@ in two columns once the card is 500px wide.
 From 860px wide every page sits in one frame (`.page` in `globals.css`): 1184px at most
 with 48px either side, so the top bar and the content of every page line up. Party setups
 use the shared layout above, play screens a centred 520px stage, Home has its cards two by
-two under a big "Games.", and the single-player games (Knight's Tour, Rangoli, Marble
+two under a big "Games.", and the single-player games (Knight's Tour, No Lift, Marble
 solitaire) have the board (up to 600px, never taller than the window) on the left with
 everything else beside it.
 
@@ -159,7 +159,7 @@ titles, DM Sans for reading and DM Mono for numbers.
   Tour, Marble solitaire, Home and Settings), Midnight (Mafia, a starry sky), Night drive
   (Highway Bingo, a road at dusk), Stage (Ulta, velvet curtains under a spotlight),
   Lamplight (Imposter, cream with a soft red-wine wash from the top) and Sunrise (Patakha
-  and Rangoli, cream with an orange glow from the bottom), plus Daylight, paper and ink.
+  and No Lift, cream with an orange glow from the bottom), plus Daylight, paper and ink.
   Only the page changes; cards, buttons and the game's colour stay the same.
   - `src/settings/tables.ts` lists the tables and every game's own (`GAME_TABLES`).
     Each table is a `[data-table="<id>"]` block in `globals.css` (page colour and
@@ -445,7 +445,7 @@ plays with none.
   songs. "Suggest one" shows the song on the hold-to-see card, and none repeats in a room until the list
   runs out.
 
-## Rangoli notes
+## No Lift notes
 
 - **Patterns** (`logic/pattern.ts`) are dots joined by straight lines and circular arcs, in a
   box from -50 to 50. A line's `bend` is how far its middle sits off the straight line, as a
@@ -476,7 +476,12 @@ plays with none.
   never moves under it.
 - **The finish** (`logic/faces.ts`): the shapes between the lines are found by walking round
   each face of the drawing, and fill with soft colour when the last line is in.
-- **Saves**: `games:rangoli:play:v1` keeps the screen, the tab and a drawing per pattern (the
-  last 12), so opening another pattern never loses one; `games:rangoli:progress:v1` keeps a
+- **Saves**: `games:no-lift:play:v1` keeps the screen, the tab and a drawing per pattern (the
+  last 12), so opening another pattern never loses one; `games:no-lift:progress:v1` keeps a
   tick and a best time per pattern, and Endless counts per size. Runs Watch it solve helped
-  don't count. The Sound switch is in Settings (`games:rangoli:options:v1`).
+  don't count. The Sound switch is in Settings (`games:no-lift:options:v1`).
+- **The old name.** It was first called Rangoli in one line, at `/rangoli`: that address
+  redirects (`next.config.ts`), and saves under `games:rangoli:*` move to the new keys once
+  (`logic/saves.ts`), with Kolam and Kolam 5×5 now Jaal and Bada jaal.
+- **Big screens:** the pattern list's tiles shrink with the window's height, so both rows fit
+  without scrolling down to about 560px tall.

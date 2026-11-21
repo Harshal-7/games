@@ -9,8 +9,8 @@ import { MafiaThumb } from "./mafia/ui/thumb";
 import { MarbleSolitaireBestBadge } from "./marble-solitaire/ui/best-badge";
 import { MarbleSolitaireThumb } from "./marble-solitaire/ui/thumb";
 import { PatakhaThumb } from "./patakha/ui/thumb";
-import { RangoliBadge } from "./rangoli/ui/badge";
-import { RangoliThumb } from "./rangoli/ui/thumb";
+import { NoLiftBadge } from "./no-lift/ui/badge";
+import { NoLiftThumb } from "./no-lift/ui/thumb";
 import { GAME_NAMES, type GameSlug } from "./slugs";
 import { UltaThumb } from "./ulta/ui/thumb";
 
@@ -88,12 +88,12 @@ export const GAMES: GameEntry[] = [
     Thumb: UltaThumb,
   },
   {
-    slug: "rangoli",
-    name: GAME_NAMES.rangoli,
+    slug: "no-lift",
+    name: GAME_NAMES["no-lift"],
     blurb: "Draw each pattern in one go: every line once, never twice.",
     detail: "1 player · 30 patterns",
-    Thumb: RangoliThumb,
-    Badge: RangoliBadge,
+    Thumb: NoLiftThumb,
+    Badge: NoLiftBadge,
   },
   {
     slug: "marble-solitaire",
