@@ -1,5 +1,5 @@
 /**
- * A rangoli pattern: dots joined by lines, straight or curved. Coordinates sit in a box
+ * A pattern: dots joined by lines, straight or curved. Coordinates sit in a box
  * from -50 to 50 each way, with y growing downwards like the screen, so the floor card
  * draws every pattern at the same scale.
  *

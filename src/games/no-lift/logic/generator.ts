@@ -5,8 +5,8 @@ import { circleBend, fit } from "./draw";
 import { isConnected, samples, segmentsCross, shapeOf, toSegment, type Pattern, type Point, type Shape } from "./pattern";
 
 /**
- * Endless patterns: kolam-like designs on a square grid of dots, mirrored four ways
- * (left-right, top-bottom and both diagonals), so they look like rangoli.
+ * Endless patterns: designs on a square grid of dots, mirrored four ways (left-right,
+ * top-bottom and both diagonals).
  *
  * Every piece added is a closed loop (a petal, a ring round a dot, a square or a
  * diamond) and its mirror images. A loop adds two lines at each dot it passes, so
@@ -66,8 +66,8 @@ const PIECES: readonly { weight: number; at: (x: number, y: number) => Loop }[] 
   // A petal to the dot on the right, and one to the dot down-right.
   { weight: 4, at: (x, y) => ({ corners: [[x, y], [x + 1, y]], bends: [0.3, 0.3] }) },
   { weight: 3, at: (x, y) => ({ corners: [[x, y], [x + 1, y + 1]], bends: [0.26, 0.26] }) },
-  // A square round the cell down-right of the dot: straight, bowed out like a pulli
-  // kolam, or bowed in like a four-pointed star.
+  // A square round the cell down-right of the dot: straight, bowed out like a
+  // floor tile, or bowed in like a four-pointed star.
   { weight: 1, at: (x, y) => square(x, y, 0) },
   { weight: 2, at: (x, y) => square(x, y, 0.2) },
   { weight: 2, at: (x, y) => square(x, y, -0.2) },

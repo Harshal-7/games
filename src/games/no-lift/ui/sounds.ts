@@ -1,4 +1,4 @@
-/** Rangoli's sounds, under its Sound switch (Settings): a soft note per line, a tune at the end. */
+/** No Lift's sounds, under its Sound switch (Settings): a soft note per line, a tune at the end. */
 
 import { playNotes, vibrate } from "@/ui/sound";
 

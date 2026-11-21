@@ -21,8 +21,8 @@ function badaKamal(): Pattern {
   return d.done();
 }
 
-/** Kolam 5×5: a five-by-five checkerboard of rounded squares meeting at their corners, a loop at each corner. */
-function kolam5(): Pattern {
+/** Bada jaal: a five-by-five checkerboard of rounded squares meeting at their corners, a loop at each corner. */
+function badaJaal(): Pattern {
   const d = new Draw();
   const s = 20;
   const p = (i: number, j: number) => d.dot((i - 2.5) * s, (j - 2.5) * s);
@@ -259,7 +259,7 @@ function badaSitara(): Pattern {
 
 export const HARD: readonly { id: string; name: string; pattern: Pattern }[] = [
   { id: "bada-kamal", name: "Bada kamal", pattern: badaKamal() },
-  { id: "kolam-5", name: "Kolam 5×5", pattern: kolam5() },
+  { id: "bada-jaal", name: "Bada jaal", pattern: badaJaal() },
   { id: "jaali", name: "Jaali", pattern: jaali() },
   { id: "mandala", name: "Mandala", pattern: mandala() },
   { id: "pankha", name: "Pankha", pattern: pankha() },

@@ -39,7 +39,7 @@ export function describe(ref: PatternRef): { name: string; place: string; bestNa
   }
   const found = findPattern(ref.id);
   const pack = PACKS.find((p) => p.id === found?.pack);
-  const name = found?.entry.name ?? "Rangoli";
+  const name = found?.entry.name ?? "No Lift";
   return { name, place: pack && found ? `${pack.name} · ${found.index + 1} of ${pack.patterns.length}` : "", bestName: name };
 }
 
@@ -157,13 +157,13 @@ export function Drawing({ game }: { game: Game }) {
       </>
     ) : phase === "stuck" ? (
       <>
-        Stuck at line <span className="rg-status-num">{drawnCount}</span> of {total}
+        Stuck at line <span className="nl-status-num">{drawnCount}</span> of {total}
       </>
     ) : missed ? (
       "Carry on from the pink dot"
     ) : drawnCount > 0 ? (
       <>
-        Line <span className="rg-status-num">{drawnCount}</span> of {total}
+        Line <span className="nl-status-num">{drawnCount}</span> of {total}
       </>
     ) : wrong ? (
       "Start on a glowing dot"
@@ -177,36 +177,36 @@ export function Drawing({ game }: { game: Game }) {
   const label = `${name}: ${phase === "done" ? "drawn in one line" : `${drawnCount} of ${total} lines drawn`}`;
 
   return (
-    <div className="rg" data-panel={confirmRestart ? "confirm" : finished ? "result" : "controls"}>
-      <div className="rg-intro">
-        <div className="rg-intro-text">
-          <span className="label rg-place">{place}</span>
+    <div className="nl" data-panel={confirmRestart ? "confirm" : finished ? "result" : "controls"}>
+      <div className="nl-intro">
+        <div className="nl-intro-text">
+          <span className="label nl-place">{place}</span>
           <h1 className="game-title">{name}</h1>
         </div>
-        <button type="button" className="btn rg-patterns" onClick={() => stopAnd(() => actPlay({ type: "list" }))}>
+        <button type="button" className="btn nl-patterns" onClick={() => stopAnd(() => actPlay({ type: "list" }))}>
           <GridIcon width={16} height={16} strokeWidth={2.4} />
           Patterns
         </button>
       </div>
 
-      <div className="card rg-status">
-        <div className="rg-status-row">
-          <span className="rg-status-text" aria-live="polite">
+      <div className="card nl-status">
+        <div className="nl-status-row">
+          <span className="nl-status-text" aria-live="polite">
             {status}
           </span>
           {game.startedAt !== null && (
-            <span className="rg-time" aria-label={`Time ${formatDuration(time)}`}>
+            <span className="nl-time" aria-label={`Time ${formatDuration(time)}`}>
               <ClockIcon width={16} height={16} strokeWidth={2} />
               {formatDuration(time)}
             </span>
           )}
         </div>
-        <div className="rg-progress" aria-hidden="true">
+        <div className="nl-progress" aria-hidden="true">
           <span style={{ width: `${(drawnCount / total) * 100}%` }} />
         </div>
       </div>
 
-      <div className="rg-floor-area">
+      <div className="nl-floor-area">
         <Floor
           pattern={pattern}
           trace={traceOf(game)}
@@ -221,13 +221,13 @@ export function Drawing({ game }: { game: Game }) {
         />
         {/* Under the floor, not above it: nothing above may change height while a finger is drawing. */}
         {wrong && (
-          <p className="rg-note">
+          <p className="nl-note">
             An odd number of lines meet at each glowing dot, so the line has to start at one and end at the other.
           </p>
         )}
       </div>
 
-      <div className="rg-actions">
+      <div className="nl-actions">
         {confirmRestart ? (
           <Confirm
             title="Start over?"
@@ -256,8 +256,8 @@ export function Drawing({ game }: { game: Game }) {
             onRestart={restart}
           />
         ) : (
-          <div className="rg-controls">
-            <div className="rg-tools">
+          <div className="nl-controls">
+            <div className="nl-tools">
               <button
                 type="button"
                 className={hinted?.kind === "back" ? "btn is-nudged" : "btn"}
@@ -270,14 +270,14 @@ export function Drawing({ game }: { game: Game }) {
               <button type="button" className="btn" onClick={hint} disabled={solving} title="Hint (H)">
                 <BulbIcon width={16} height={16} strokeWidth={2.6} /> Hint
               </button>
-              <button type="button" className="btn rg-restart" onClick={askRestart} aria-label="Restart" title="Restart">
+              <button type="button" className="btn nl-restart" onClick={askRestart} aria-label="Restart" title="Restart">
                 <RestartIcon width={18} height={18} strokeWidth={2.6} />
-                <span className="rg-restart-label">Restart</span>
+                <span className="nl-restart-label">Restart</span>
               </button>
             </div>
             <button
               type="button"
-              className="btn btn-primary btn-big rg-solve"
+              className="btn btn-primary btn-big nl-solve"
               onClick={() => {
                 setConfirmRestart(false);
                 setSolving((s) => !s);
@@ -290,11 +290,11 @@ export function Drawing({ game }: { game: Game }) {
         )}
       </div>
 
-      <p className="rg-best">
-        <span className="rg-medal" aria-hidden="true" />
+      <p className="nl-best">
+        <span className="nl-medal" aria-hidden="true" />
         {best ? (
           <span>
-            Best on {bestName}: <span className="rg-best-time">{formatDuration(best.ms)}</span> ·{" "}
+            Best on {bestName}: <span className="nl-best-time">{formatDuration(best.ms)}</span> ·{" "}
             {game.ref.kind === "endless"
               ? `${progress.endless[game.ref.size]?.drawn ?? 0} drawn`
               : best.hints === 0
