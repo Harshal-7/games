@@ -188,3 +188,21 @@ export const GridIcon = (p: P) => (
     <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" />
   </Icon>
 );
+export const ShareIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M12 15V3.5M7.5 8 12 3.5 16.5 8" />
+    <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" />
+  </Icon>
+);
+export const CopyIcon = (p: P) => (
+  <Icon {...p}>
+    <rect x="8.5" y="8.5" width="12" height="12" rx="2" />
+    <path d="M15.5 8.5V5.5a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3" />
+  </Icon>
+);
+export const BackspaceIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M9 5h11v14H9l-6-7z" />
+    <path d="m12.5 9.5 5 5M17.5 9.5l-5 5" />
+  </Icon>
+);

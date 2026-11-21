@@ -13,6 +13,8 @@ export const GAME_NAMES = {
   rangoli: "Rangoli in one line",
   "finger-picker": "Finger picker",
   "marble-solitaire": "Marble solitaire",
+  "crack-the-code": "Crack the code",
+  "make-24": "Make 24",
 } as const;
 
 export type GameSlug = keyof typeof GAME_NAMES;

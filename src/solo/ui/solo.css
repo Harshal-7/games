@@ -1,0 +1,121 @@
+/* The daily puzzles' shared parts (Crack the code, Make 24): the share box, the stats card
+   and the countdown. Shared tokens only; the game's colour comes from data-game. */
+
+.daily-num {
+  font-family: var(--num);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- The share line ---------- */
+
+.daily-share {
+  display: grid;
+  gap: 10px;
+}
+.daily-share-line {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--inset);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 14px;
+  line-height: 1.4;
+  user-select: all;
+  -webkit-user-select: all;
+}
+.daily-share-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+.daily-share-actions .btn {
+  min-height: 52px;
+}
+.daily-share-actions .btn-primary {
+  font-size: 19px;
+}
+.daily-share-said {
+  min-height: 0;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+.daily-share-said:empty {
+  display: none;
+}
+
+/* ---------- Stats ---------- */
+
+.daily-stats {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px 16px;
+}
+.daily-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  text-align: center;
+}
+.daily-stats-row div {
+  display: flex;
+  flex-direction: column-reverse;
+}
+.daily-stats-row dd {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+}
+.daily-stats-row dt {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.daily-dist {
+  display: grid;
+  gap: 4px;
+}
+.daily-dist .label {
+  color: var(--muted);
+}
+.daily-dist-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+}
+.daily-dist-row > .daily-num {
+  text-align: right;
+}
+.daily-dist-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background: var(--inset);
+  color: var(--ink);
+  font-family: var(--num);
+  font-size: 11.5px;
+}
+.daily-dist-bar.is-today {
+  background: var(--game);
+  color: var(--on-game);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+}
+
+/* ---------- Countdown ---------- */
+
+.daily-next {
+  color: var(--muted);
+  font-size: 14px;
+}
+.daily-next .daily-num {
+  color: var(--fg);
+}
