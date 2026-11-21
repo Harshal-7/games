@@ -63,6 +63,13 @@ describe("a game", () => {
     expect(g.notes[7]).toBe(0);
   });
 
+  it("gives up: the code is shown and the game is lost", () => {
+    const g = reduce(play(start(), "1234"), { type: "giveUp", now: 9000 });
+    expect(status(g)).toBe("lost");
+    expect(g.endedAt).toBe(9000);
+    expect(parseGame(JSON.parse(JSON.stringify(g)))).toEqual(g);
+  });
+
   it("counts a hint and types its code in", () => {
     const g = reduce(start(), { type: "hint", code: "4052" });
     expect(g).toMatchObject({ typed: "4052", hints: 1 });

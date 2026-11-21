@@ -17,6 +17,8 @@ export type Game = {
   /** The 0–9 notepad. */
   notes: Mark[];
   hints: number;
+  /** Practice's Give up: the code is shown and the game counts as not cracked. */
+  gaveUp: boolean;
   startedAt: number;
   endedAt: number | null;
 };
@@ -29,7 +31,8 @@ export type Action =
   | { type: "guess"; now: number }
   | { type: "note"; digit: number }
   /** Types a code that could still be right into the guess row, and counts a hint. */
-  | { type: "hint"; code: string };
+  | { type: "hint"; code: string }
+  | { type: "giveUp"; now: number };
 
 /** Today's code: the same on every phone. */
 export function dailySecret(day: string): string {
@@ -43,12 +46,13 @@ export function newGame(
   day: string | null,
   now: number,
 ): Game {
-  return { mode, day, rules, secret, guesses: [], typed: "", notes: Array(10).fill(0), hints: 0, startedAt: now, endedAt: null };
+  return { mode, day, rules, secret, guesses: [], typed: "", notes: Array(10).fill(0), hints: 0, gaveUp: false, startedAt: now, endedAt: null };
 }
 
 export function status(game: Game): Status {
   const last = game.guesses.at(-1);
   if (last && last.right === game.rules.length) return "won";
+  if (game.gaveUp) return "lost";
   return game.guesses.length >= MAX_GUESSES ? "lost" : "playing";
 }
 
@@ -81,6 +85,8 @@ export function reduce(game: Game, action: Action): Game {
     case "hint":
       if (!isCode(action.code, game.rules)) return game;
       return { ...game, typed: action.code, hints: game.hints + 1 };
+    case "giveUp":
+      return { ...game, typed: "", gaveUp: true, endedAt: action.now };
   }
 }
 
@@ -114,7 +120,8 @@ export function parseGame(value: unknown): Game | null {
   });
   const hints = typeof v.hints === "number" && Number.isInteger(v.hints) && v.hints >= 0 ? v.hints : 0;
   if (!isTime(v.startedAt)) return null;
-  const game: Game = { mode: v.mode, day, rules: r, secret: v.secret, guesses, typed, notes, hints, startedAt: v.startedAt, endedAt: null };
+  const gaveUp = v.gaveUp === true;
+  const game: Game = { mode: v.mode, day, rules: r, secret: v.secret, guesses, typed, notes, hints, gaveUp, startedAt: v.startedAt, endedAt: null };
   if (status(game) !== "playing") game.endedAt = isTime(v.endedAt) ? v.endedAt : v.startedAt;
   return game;
 }
