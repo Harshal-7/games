@@ -5,7 +5,7 @@ import type { PatternRef } from "./game";
 /**
  * What this browser has drawn: a tick and a best time for each hand-made pattern, and
  * for Endless how many of each size and the fastest. Runs that Watch it solve helped
- * don't count. Saved as games:rangoli:progress:v1.
+ * don't count. Saved as games:no-lift:progress:v1.
  */
 export type Run = {
   ms: number;

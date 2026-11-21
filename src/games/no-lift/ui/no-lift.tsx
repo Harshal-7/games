@@ -8,19 +8,19 @@ import { Drawing } from "./drawing";
 import { PatternList } from "./pattern-list";
 import { actPlay, usePlay } from "./stores";
 
-import "./rangoli.css";
+import "./no-lift.css";
 
 /**
- * Rangoli in one line: the pattern list, or a pattern on the floor. Both come back
+ * No Lift: the pattern list, or a pattern on the floor. Both come back
  * after a reload. Leaving through "‹ Games" goes back to the list next time; every
  * drawing under way is kept, so there's nothing to ask about.
  */
-export function Rangoli() {
+export function NoLift() {
   const play = usePlay();
   const hydrated = useHydrated();
   const game = current(play);
 
-  useLeaveGuard("rangoli", { ask: false, detail: "", end: () => actPlay({ type: "list" }) });
+  useLeaveGuard("no-lift", { ask: false, detail: "", end: () => actPlay({ type: "list" }) });
 
   // The server and the first paint don't know the saved screen (the list or a drawing),
   // so they show neither rather than flash the wrong one.

@@ -50,7 +50,7 @@
   --teal: #0e7479;
   --teal-deep: #0a5f63;
   --teal-soft: #cfe7e4;
-  /* Rangoli is rangoli pink: cream text on it (4.9:1); pink text on cream uses
+  /* No Lift is pink: cream text on it (4.9:1); pink text on cream uses
      --rani-deep. Its powder colours add saffron, leaf green and jamun purple to the
      games' own; each is at least 3:1 on the cream cards, for lines drawn on them. */
   --rani: #c8216b;
@@ -302,7 +302,7 @@ html[data-tone="light"] {
   --pick: var(--teal);
   --on-pick: var(--on-red);
 }
-[data-game="rangoli"] {
+[data-game="no-lift"] {
   --game: var(--rani);
   --game-deep: var(--rani-deep);
   --game-soft: var(--rani-soft);

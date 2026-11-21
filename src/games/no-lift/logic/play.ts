@@ -2,10 +2,10 @@ import { newGame, parseGame, patternOf, phaseOf, reduce, refKey, type Action, ty
 import type { PackId } from "./packs";
 
 /**
- * Everything Rangoli keeps between visits, apart from best times: which screen is up,
+ * Everything No Lift keeps between visits, apart from best times: which screen is up,
  * the tab on the pattern list, and the drawings under way. Every pattern keeps its own
  * drawing, so opening another one never throws work away. Saved as
- * games:rangoli:play:v1, so a reload comes back to the same screen.
+ * games:no-lift:play:v1, so a reload comes back to the same screen.
  */
 export type Tab = PackId | "endless";
 
@@ -117,7 +117,7 @@ export function parsePlay(raw: string | null): Play | null {
   };
 }
 
-/** Rangoli's one option, in Settings. */
+/** No Lift's one option, in Settings. */
 export type Options = { sound: boolean };
 
 export const DEFAULT_OPTIONS: Options = { sound: true };

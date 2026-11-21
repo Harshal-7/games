@@ -10,7 +10,7 @@ export const GAME_NAMES = {
   patakha: "Patakha",
   "highway-bingo": "Highway Bingo",
   ulta: "Ulta",
-  rangoli: "Rangoli in one line",
+  "no-lift": "No Lift",
   "finger-picker": "Finger picker",
   "marble-solitaire": "Marble solitaire",
   "crack-the-code": "Crack the code",

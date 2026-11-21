@@ -81,7 +81,7 @@
 [data-game="ulta"] .game-card h2 {
   color: var(--teal-deep);
 }
-[data-game="rangoli"] .game-card h2 {
+[data-game="no-lift"] .game-card h2 {
   color: var(--rani-deep);
 }
 [data-game="marble-solitaire"] .game-card h2 {
@@ -137,12 +137,12 @@
   background: var(--teal-soft);
   color: var(--teal-deep);
 }
-[data-game="rangoli"] .game-chip {
+[data-game="no-lift"] .game-chip {
   background: var(--rani-soft);
   color: var(--rani-deep);
 }
-/* Rangoli's count of patterns drawn: a pink chip. */
-[data-game="rangoli"] .game-chip.is-drawn {
+/* No Lift's count of patterns drawn: a pink chip. */
+[data-game="no-lift"] .game-chip.is-drawn {
   gap: 5px;
   padding-left: 7px;
   background: var(--rani);
@@ -675,22 +675,22 @@
   }
 }
 
-/* Rangoli: a small cream kolam on a pink card with a cream edge. */
-.rg-thumb-card {
+/* No Lift: a small cream flower of dots and lines on a pink card with a cream edge. */
+.nl-thumb-card {
   fill: var(--rani);
 }
-.rg-thumb-edge {
+.nl-thumb-edge {
   fill: none;
   stroke: var(--on-red);
   stroke-opacity: 0.85;
   stroke-width: 1.5;
 }
-.rg-thumb-lines {
+.nl-thumb-lines {
   fill: none;
   stroke: var(--on-red);
   stroke-linecap: round;
   stroke-width: 2.2;
 }
-.rg-thumb-dot {
+.nl-thumb-dot {
   fill: var(--on-red);
 }

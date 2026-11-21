@@ -6,8 +6,8 @@ import { Suspense, useId, type ReactNode } from "react";
 import { dial } from "@/games/crack-the-code/ui/sounds";
 import { setOptions as setCrackOptions, useOptions as useCrackOptions } from "@/games/crack-the-code/ui/stores";
 import { setOptions as setPickerOptions, useOptions as usePickerOptions } from "@/games/finger-picker/ui/use-options";
-import { lineSound } from "@/games/rangoli/ui/sounds";
-import { setOptions as setRangoliOptions, useOptions as useRangoliOptions } from "@/games/rangoli/ui/stores";
+import { lineSound } from "@/games/no-lift/ui/sounds";
+import { setOptions as setNoLiftOptions, useOptions as useNoLiftOptions } from "@/games/no-lift/ui/stores";
 import { BOARD_STYLES, PIECE_STYLES } from "@/games/knights-tour/styles";
 import { Board } from "@/games/knights-tour/ui/board";
 import { cue } from "@/games/knights-tour/ui/feedback";
@@ -54,7 +54,7 @@ const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
   patakha: PatakhaNote,
   "highway-bingo": HighwayBingoNote,
   ulta: UltaNote,
-  rangoli: RangoliSection,
+  "no-lift": NoLiftSection,
   "finger-picker": FingerPickerSection,
   "marble-solitaire": MarbleSolitaireSection,
   "crack-the-code": CrackTheCodeSection,
@@ -256,19 +256,19 @@ function FingerPickerSection() {
   );
 }
 
-/** Rangoli has no setup screen, so its Sound switch lives here. */
-function RangoliSection() {
-  const { sound } = useRangoliOptions();
+/** No Lift has no setup screen, so its Sound switch lives here. */
+function NoLiftSection() {
+  const { sound } = useNoLiftOptions();
   const id = useId();
   function toggle() {
-    setRangoliOptions({ sound: !sound });
+    setNoLiftOptions({ sound: !sound });
     // Let people hear what they just switched on.
     if (!sound) lineSound(1, 4);
   }
   return (
-    <section className="card section settings-game" data-game="rangoli" aria-labelledby={id}>
+    <section className="card section settings-game" data-game="no-lift" aria-labelledby={id}>
       <h2 className="tape is-game" id={id}>
-        Rangoli in one line
+        No Lift
       </h2>
       <Field label="Options" group>
         <div className="switches">
