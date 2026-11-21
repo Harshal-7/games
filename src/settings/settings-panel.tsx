@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useId, type ReactNode } from "react";
 
+import { dial } from "@/games/crack-the-code/ui/sounds";
+import { setOptions as setCrackOptions, useOptions as useCrackOptions } from "@/games/crack-the-code/ui/stores";
 import { setOptions as setPickerOptions, useOptions as usePickerOptions } from "@/games/finger-picker/ui/use-options";
 import { lineSound } from "@/games/rangoli/ui/sounds";
 import { setOptions as setRangoliOptions, useOptions as useRangoliOptions } from "@/games/rangoli/ui/stores";
@@ -10,6 +12,8 @@ import { BOARD_STYLES, PIECE_STYLES } from "@/games/knights-tour/styles";
 import { Board } from "@/games/knights-tour/ui/board";
 import { cue } from "@/games/knights-tour/ui/feedback";
 import { PIECES } from "@/games/knights-tour/ui/knight-piece";
+import { flick } from "@/games/make-24/ui/sounds";
+import { setOptions as setMake24Options, useOptions as useMake24Options } from "@/games/make-24/ui/stores";
 import { clack } from "@/games/marble-solitaire/ui/sounds";
 import { setOptions as setMarbleOptions, useOptions as useMarbleOptions } from "@/games/marble-solitaire/ui/stores";
 import type { GameSlug } from "@/games/slugs";
@@ -53,6 +57,8 @@ const GAME_SECTIONS: Record<GameSlug, () => ReactNode> = {
   rangoli: RangoliSection,
   "finger-picker": FingerPickerSection,
   "marble-solitaire": MarbleSolitaireSection,
+  "crack-the-code": CrackTheCodeSection,
+  "make-24": Make24Section,
 };
 
 /**
@@ -289,6 +295,50 @@ function MarbleSolitaireSection() {
       <Field label="Options" group>
         <div className="switches">
           <SwitchRow label="Sound" detail="A soft clack on each jump, and a chime at the end" on={sound} onToggle={toggle} />
+        </div>
+      </Field>
+    </section>
+  );
+}
+
+function CrackTheCodeSection() {
+  const { sound } = useCrackOptions();
+  const id = useId();
+  function toggle() {
+    setCrackOptions({ sound: !sound });
+    // Let people hear what they just switched on.
+    if (!sound) dial();
+  }
+  return (
+    <section className="card section settings-game" data-game="crack-the-code" aria-labelledby={id}>
+      <h2 className="tape is-game" id={id}>
+        Crack the code
+      </h2>
+      <Field label="Options" group>
+        <div className="switches">
+          <SwitchRow label="Sound" detail="A click for each guess, and a few notes at the end" on={sound} onToggle={toggle} />
+        </div>
+      </Field>
+    </section>
+  );
+}
+
+function Make24Section() {
+  const { sound } = useMake24Options();
+  const id = useId();
+  function toggle() {
+    setMake24Options({ sound: !sound });
+    // Let people hear what they just switched on.
+    if (!sound) flick();
+  }
+  return (
+    <section className="card section settings-game" data-game="make-24" aria-labelledby={id}>
+      <h2 className="tape is-game" id={id}>
+        Make 24
+      </h2>
+      <Field label="Options" group>
+        <div className="switches">
+          <SwitchRow label="Sound" detail="A flick as two cards become one, and a few notes for 24" on={sound} onToggle={toggle} />
         </div>
       </Field>
     </section>

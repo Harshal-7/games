@@ -14,6 +14,8 @@ lives in its own folder and has its own page, and the home page lists them all.
 | Rangoli in one line | `/rangoli` | Draw a rangoli pattern in one line: every line once, never twice. 30 hand-made patterns, and endless mirrored ones. |
 | Finger picker | `/finger-picker` | A tool for any game: fingers on the screen, and the phone picks one, makes teams or puts everyone in order. |
 | Marble solitaire | `/marble-solitaire` | Jump marbles over each other until one is left, on the triangle, the English cross or the European board. |
+| Crack the code | `/crack-the-code` | Guess the secret code from right-place, wrong-place clues. A daily code, the same for everyone, and endless Practice. |
+| Make 24 | `/make-24` | Use four numbers and + − × ÷ to make 24. Five daily hands, the same for everyone, and endless Practice. |
 
 ## Run it
 
@@ -36,6 +38,8 @@ src/
   home/                   the home page's styles
   settings/               the /settings page: theme, board and knight styles
   offline/                the service worker's page list and the part that registers it
+  solo/                   the daily puzzles' shared parts: the day in India, seeds, share lines,
+                          stats, the share sheet and the stats card, with tests
   games/
     registry.ts           the list of games on the home page
     knights-tour/
@@ -67,6 +71,12 @@ src/
     marble-solitaire/
       logic/              the boards and jumps, the solver, its pagoda functions and book, with tests
       ui/                 the wooden board and its marbles, the play screen, the cards, the sounds
+    crack-the-code/
+      logic/              scoring, the codes left, hints, the daily code, the game, with tests
+      ui/                 Daily or Practice, the guess board, the notepad and pad, the result
+    make-24/
+      logic/              exact fractions, the solver and difficulty, dealing, the game, with tests
+      ui/                 Daily or Practice, the cards and signs, a hand made, the day's result
 ```
 
 ### Shared parts for party games
@@ -144,7 +154,7 @@ From 860px wide every page sits in one frame (`.page` in `globals.css`): 1184px 
 with 48px either side, so the top bar and the content of every page line up. Party setups
 use the shared layout above, play screens a centred 520px stage, Home has its cards two by
 two under a big "Games.", and the single-player games (Knight's Tour, Rangoli, Marble
-solitaire) have the board (up to 600px, never taller than the window) on the left with
+solitaire, Crack the code, Make 24) have the board (up to 600px, never taller than the window) on the left with
 everything else beside it.
 
 ## The look
@@ -158,8 +168,9 @@ titles, DM Sans for reading and DM Mono for numbers.
 - **Tables.** The page is a table colour, and each game sits on its own: Felt (Knight's
   Tour, Marble solitaire, Home and Settings), Midnight (Mafia, a starry sky), Night drive
   (Highway Bingo, a road at dusk), Stage (Ulta, velvet curtains under a spotlight),
-  Lamplight (Imposter, cream with a soft red-wine wash from the top) and Sunrise (Patakha
-  and Rangoli, cream with an orange glow from the bottom), plus Daylight, paper and ink.
+  Lamplight (Imposter, cream with a soft red-wine wash from the top), Sunrise (Patakha
+  and Rangoli, cream with an orange glow from the bottom) and Chalkboard (Make 24, dark
+  slate with soft chalk dust), plus Daylight, paper and ink. Crack the code sits on Midnight.
   Only the page changes; cards, buttons and the game's colour stay the same.
   - `src/settings/tables.ts` lists the tables and every game's own (`GAME_TABLES`).
     Each table is a `[data-table="<id>"]` block in `globals.css` (page colour and
@@ -480,3 +491,31 @@ plays with none.
   last 12), so opening another pattern never loses one; `games:rangoli:progress:v1` keeps a
   tick and a best time per pattern, and Endless counts per size. Runs Watch it solve helped
   don't count. The Sound switch is in Settings (`games:rangoli:options:v1`).
+
+## Daily puzzles notes (Crack the code, Make 24)
+
+- **One puzzle a day for everyone, no server** (`src/solo/daily.ts`). The day is the date in
+  India (UTC+5:30, so it changes at midnight IST for every phone), puzzle #1 is 21 Nov 2026,
+  and each game hashes `<slug>:<day>` (FNV-1a) into `seeded()` and deals from it. Changing
+  `FIRST_DAY`, the hash, or what a game deals from its seed changes every puzzle for
+  everyone; tests pin a few days of each game.
+- **Stats** (`games:<slug>:stats:v1`): played, wins, the streak (days in a row won; it
+  breaks once a whole day passes without a win) and a distribution. A day counts once,
+  so a second result for it changes nothing. A daily left unfinished from an earlier day
+  is dropped, not counted.
+- **Sharing** (`src/solo/share.ts`): Share opens the phone's share sheet (https only) and
+  falls back to copying; Copy copies. The line is plain text, like
+  "Crack the code #14 · 5 guesses · 2:14 · no hints".
+- **Crack the code**: a guess's two counts treat repeated digits fairly (a digit counts as
+  often as it's in both). "Codes left" is a plain filter over every code (5,040 for four
+  different digits, 100,000 for five with repeats), worked out again from the guesses.
+  Hint types in a code that still fits every clue. Practice has 3, 4 or 5 digits and
+  repeats, and Give up; the daily is 4 different digits, one go.
+- **Make 24**: values are exact fractions (`logic/frac.ts`), never floats. The solver
+  tries every order, pairing and sign and counts answers that only differ by order or
+  grouping once. Difficulty comes from that count: Hard is one answer or fractions only,
+  Easy four or more with one that needs no ÷, Medium between (150, 159 and 95 of the 404
+  hands of 1 to 9 that can be made). The daily five go Easy, Easy, Medium, Hard, Hard; a
+  run is won when all five are made. Hint rings the first step from where you are (or
+  from the start, after a reset, if the table can't make 24 any more); Show me plays an
+  answer and the hand counts as missed.

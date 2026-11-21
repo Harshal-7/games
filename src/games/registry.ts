@@ -1,11 +1,15 @@
 import type { ComponentType, SVGProps } from "react";
 
+import { CrackTheCodeBadge } from "./crack-the-code/ui/badge";
+import { CrackTheCodeThumb } from "./crack-the-code/ui/thumb";
 import { FingerPickerMark } from "./finger-picker/ui/mark";
 import { HighwayBingoThumb } from "./highway-bingo/ui/thumb";
 import { ImposterThumb } from "./imposter/ui/thumb";
 import { KnightsTourBestBadge } from "./knights-tour/ui/best-badge";
 import { KnightsTourThumb } from "./knights-tour/ui/thumb";
 import { MafiaThumb } from "./mafia/ui/thumb";
+import { Make24Badge } from "./make-24/ui/badge";
+import { Make24Thumb } from "./make-24/ui/thumb";
 import { MarbleSolitaireBestBadge } from "./marble-solitaire/ui/best-badge";
 import { MarbleSolitaireThumb } from "./marble-solitaire/ui/thumb";
 import { PatakhaThumb } from "./patakha/ui/thumb";
@@ -102,5 +106,21 @@ export const GAMES: GameEntry[] = [
     detail: "1 player · 3 boards",
     Thumb: MarbleSolitaireThumb,
     Badge: MarbleSolitaireBestBadge,
+  },
+  {
+    slug: "crack-the-code",
+    name: GAME_NAMES["crack-the-code"],
+    blurb: "Guess the secret code from right-place, wrong-place clues.",
+    detail: "1 player · daily",
+    Thumb: CrackTheCodeThumb,
+    Badge: CrackTheCodeBadge,
+  },
+  {
+    slug: "make-24",
+    name: GAME_NAMES["make-24"],
+    blurb: "Four numbers, + − × ÷, and 24 to make. Five new hands a day.",
+    detail: "1 player · daily",
+    Thumb: Make24Thumb,
+    Badge: Make24Badge,
   },
 ];
