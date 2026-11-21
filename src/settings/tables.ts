@@ -13,6 +13,7 @@ export const TABLES = [
   { id: "midnight", label: "Midnight", tone: "dark", page: "#172340", deep: "#111a31", text: "#f1ecdf", muted: "#c5c7d4" },
   { id: "night-drive", label: "Night drive", tone: "dark", page: "#262b4a", deep: "#171a2f", text: "#f1ecdf", muted: "#c4c7d8" },
   { id: "stage", label: "Stage", tone: "dark", page: "#2a1733", deep: "#211129", text: "#f4ece0", muted: "#d3c3cf" },
+  { id: "chalkboard", label: "Chalkboard", tone: "dark", page: "#2b3236", deep: "#1f2528", text: "#eef0e6", muted: "#c2c9c3" },
   { id: "daylight", label: "Daylight", tone: "light", page: "#efe6d3", deep: "#e7dcc5", text: "#221c15", muted: "#5a4f3f" },
   { id: "lamplight", label: "Lamplight", tone: "light", page: "#f3e3da", deep: "#efe0d4", text: "#221c15", muted: "#5e4943" },
   { id: "sunrise", label: "Sunrise", tone: "light", page: "#f8efe0", deep: "#f3dcc0", text: "#221c15", muted: "#5c4a2e" },
@@ -36,6 +37,8 @@ export const GAME_TABLES: Record<GameSlug, TableId> = {
   "no-lift": "sunrise",
   "finger-picker": "felt",
   "marble-solitaire": "felt",
+  "crack-the-code": "midnight",
+  "make-24": "chalkboard",
 };
 
 /** The game whose page this is: the first part of the path, if it's a game's slug. */

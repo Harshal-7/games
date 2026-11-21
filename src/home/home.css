@@ -87,6 +87,12 @@
 [data-game="marble-solitaire"] .game-card h2 {
   color: var(--violet-deep);
 }
+[data-game="crack-the-code"] .game-card h2 {
+  color: var(--coral-ink);
+}
+[data-game="make-24"] .game-card h2 {
+  color: var(--lime-ink);
+}
 .game-card p {
   margin: 6px 0 0;
   color: var(--muted);
@@ -145,6 +151,20 @@
 [data-game="marble-solitaire"] .game-chip {
   background: var(--violet-soft);
   color: var(--violet-deep);
+}
+[data-game="crack-the-code"] .game-chip {
+  background: var(--coral-soft);
+  color: var(--coral-ink);
+}
+[data-game="make-24"] .game-chip {
+  background: var(--lime-soft);
+  color: var(--lime-ink);
+}
+/* Today's daily, done or under way: a chip in the game's colour. */
+.game-chip.is-daily {
+  gap: 5px;
+  background: var(--game);
+  color: var(--on-game);
 }
 .game-chip.is-best {
   padding-left: 5px;

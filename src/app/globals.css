@@ -64,6 +64,16 @@
   --violet: #7048b0;
   --violet-deep: #5a3794;
   --violet-soft: #e3d9f2;
+  /* Crack the code is coral and Make 24 lime, both with ink on them (5.5:1 and 10:1); their
+     -ink shades are for coloured text on cream (5.7:1 and 5.4:1). */
+  --coral: #ee6a4f;
+  --coral-deep: #db5a40;
+  --coral-ink: #a63a22;
+  --coral-soft: #f9dcd3;
+  --lime: #b5d43b;
+  --lime-deep: #a2c22c;
+  --lime-ink: #4d6b00;
+  --lime-soft: #eaf3c6;
 
   --radius: 16px;
   --radius-sm: 12px;
@@ -89,6 +99,8 @@ html[data-tone="light"] {
   --teal-soft: #d5ece9;
   --rani-soft: #fae0e9;
   --violet-soft: #e8dff4;
+  --coral-soft: #fbe3dc;
+  --lime-soft: #eef6d0;
 
   color-scheme: light;
 }
@@ -150,6 +162,19 @@ html[data-tone="light"] {
   --on-page-muted: #d3c3cf;
   --page-line: rgb(244 236 224 / 0.2);
   --track: rgb(255 255 255 / 0.1);
+}
+/* Dark slate with soft chalk dust, for Make 24. */
+[data-table="chalkboard"] {
+  --page: #2b3236;
+  --page-texture:
+    radial-gradient(ellipse 70% 260px at 22% 160px, rgb(255 255 255 / 0.07), transparent) 0 0 / 100% 900px no-repeat,
+    radial-gradient(ellipse 55% 220px at 85% 560px, rgb(255 255 255 / 0.05), transparent) 0 0 / 100% 900px no-repeat,
+    radial-gradient(rgb(255 255 255 / 0.05) 0.7px, transparent 1.2px) 0 0 / 6px 6px;
+  --page-deep: #1f2528;
+  --on-page: #eef0e6;
+  --on-page-muted: #c2c9c3;
+  --page-line: rgb(238 240 230 / 0.3);
+  --track: rgb(0 0 0 / 0.3);
 }
 /* Paper and ink, for bright rooms. */
 [data-table="daylight"] {
@@ -306,6 +331,22 @@ html[data-tone="light"] {
   --marble-light: #c6b0ec;
   --marble-dark: #33195a;
   --marble-glow: rgb(176 140 232 / 0.55);
+}
+[data-game="crack-the-code"] {
+  --game: var(--coral);
+  --game-deep: var(--coral-deep);
+  --game-soft: var(--coral-soft);
+  --on-game: var(--ink);
+  --pick: var(--coral);
+  --on-pick: var(--ink);
+}
+[data-game="make-24"] {
+  --game: var(--lime);
+  --game-deep: var(--lime-deep);
+  --game-soft: var(--lime-soft);
+  --on-game: var(--ink);
+  --pick: var(--lime);
+  --on-pick: var(--ink);
 }
 /* The Finger picker is a site-wide tool: the site's cream and ink. Its fingers wear the
    games' own colours (the first four are also the team colours), then cream and the soft

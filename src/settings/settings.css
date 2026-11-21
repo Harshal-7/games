@@ -253,16 +253,17 @@
   opacity: 0.7;
 }
 /* Each game's own: a strip of every game's table (felt, lamplight,
-   midnight, sunrise, night drive, stage). */
+   midnight, sunrise, night drive, stage, chalkboard). */
 .theme-art.is-own {
   background: linear-gradient(
     90deg,
-    #1e4a38 0 16.6%,
-    #ecd0c6 16.6% 33.3%,
-    #172340 33.3% 50%,
-    #f6dcbd 50% 66.6%,
-    #262b4a 66.6% 83.3%,
-    #2a1733 83.3% 100%
+    #1e4a38 0 14.3%,
+    #ecd0c6 14.3% 28.6%,
+    #172340 28.6% 42.9%,
+    #f6dcbd 42.9% 57.1%,
+    #262b4a 57.1% 71.4%,
+    #2a1733 71.4% 85.7%,
+    #2b3236 85.7% 100%
   );
 }
 .theme-art.is-own::before {
