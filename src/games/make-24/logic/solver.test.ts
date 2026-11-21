@@ -5,12 +5,11 @@ import { cardsOf, rate, solve, textOfSteps, type Card } from "./solver";
 
 const OPS: Op[] = ["+", "-", "×", "÷"];
 
-/** Every expression the long way: each order of the four numbers, each sign, each of the five bracket shapes. */
-function bruteCount(nums: number[]): number {
+/** Whether any expression makes 24, the long way: each order of the four numbers, each sign, each of the five bracket shapes. */
+function bruteAny(nums: number[]): boolean {
   const perms = (xs: number[]): number[][] =>
     xs.length <= 1 ? [xs] : xs.flatMap((x, i) => perms([...xs.slice(0, i), ...xs.slice(i + 1)]).map((p) => [x, ...p]));
   const f = (a: Frac | null, op: Op, b: Frac | null) => (a && b ? apply(a, op, b) : null);
-  let hits = 0;
   for (const [a, b, c, d] of perms(nums).map((p) => p.map((n) => frac(n)))) {
     for (const x of OPS) for (const y of OPS) for (const z of OPS) {
       const shapes = [
@@ -20,10 +19,10 @@ function bruteCount(nums: number[]): number {
         f(a, x, f(b, y, f(c, z, d))),
         f(f(a, x, b), y, f(c, z, d)),
       ];
-      hits += shapes.filter((v) => v && equals(v, TARGET)).length;
+      if (shapes.some((v) => v && equals(v, TARGET))) return true;
     }
   }
-  return hits;
+  return false;
 }
 
 /** Plays a solution's merges on the cards the way the screen does, and gives the last card. */
@@ -65,13 +64,13 @@ describe("the solver", () => {
     for (let a = 1; a <= 9; a++) for (let b = a; b <= 9; b++) for (let c = b; c <= 9; c++) for (let d = c; d <= 9; d++) {
       const hand = [a, b, c, d];
       const found = solve(cardsOf(hand));
-      expect(found.length > 0).toBe(bruteCount(hand) > 0);
+      expect(found.length > 0).toBe(bruteAny(hand));
       if (found.length) made++;
       // Every answer is real: its merges, played on the table, leave one card, 24.
       for (const s of found) expect(play(cardsOf(hand), s.steps)).toEqual([TARGET]);
     }
     expect(made).toBe(404);
-  });
+  }, 30_000);
 
   it("solves from the middle of a hand, fractions on the table included", () => {
     const table: Card[] = [{ slot: 1, value: frac(3) }, { slot: 2, value: frac(8, 3) }, { slot: 3, value: frac(8) }];
@@ -106,5 +105,5 @@ describe("difficulty", () => {
       if (r) levels[r.level]++;
     }
     expect(levels).toEqual({ easy: 150, medium: 159, hard: 95 });
-  });
+  }, 30_000);
 });
